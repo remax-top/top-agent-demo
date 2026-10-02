@@ -1,0 +1,2908 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>TOP Agent — прототип</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOP Agent — прототип. Брэндийн өнгийг энд сольно.
+   ============================================================ */
+:root{
+  --brand-primary:#0F4A5A;
+  --brand-accent:#D97A1E;
+  --ink:#10161C;
+  --muted:#5E6B76;
+  --line:#E2E7EA;
+  --canvas:#F5F7F8;
+  --ok:#157A52;
+  --ok-bg:#E8F5EF;
+  --warn:#A8600B;
+  --warn-bg:#FDF3E3;
+  --danger:#B3261E;
+  --danger-bg:#FDECEA;
+  --radius:12px;
+  --tap:44px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:#E9ECEE;
+  color:var(--ink);
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,'Noto Sans',sans-serif;
+  font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0;padding:0}
+a{color:var(--brand-primary)}
+:focus-visible{outline:3px solid var(--brand-accent);outline-offset:2px;border-radius:6px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* ---------- Тайз: утас + Демо самбар ---------- */
+.stage{display:flex;gap:28px;justify-content:center;align-items:flex-start;padding:28px 20px 60px}
+.phone-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+.phone{
+  position:relative;width:390px;height:812px;background:#fff;border-radius:34px;
+  border:10px solid #1B2227;box-shadow:0 18px 50px rgba(16,22,28,.28);overflow:hidden;
+}
+.frame-note{margin:0;font-size:13px;color:#7B868F}
+.app{display:flex;flex-direction:column;height:100%;background:var(--canvas)}
+.screen{flex:1;overflow-y:auto;overscroll-behavior:contain}
+.demo-fab{display:none}
+
+@media (max-width:1040px){
+  .stage{padding:0;display:block}
+  .phone{width:100%;max-width:520px;height:100vh;height:100dvh;border:0;border-radius:0;margin:0 auto;box-shadow:none}
+  .frame-note{display:none}
+  .demo-fab{
+    display:block;position:fixed;right:14px;bottom:88px;z-index:60;background:#1B2227;color:#fff;
+    border-radius:999px;padding:12px 18px;font-size:15px;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,.3);min-height:var(--tap)
+  }
+}
+
+/* ---------- Ерөнхий бүтэц ---------- */
+.topbar{
+  position:sticky;top:0;z-index:20;background:var(--canvas);
+  padding:14px 18px 10px;border-bottom:1px solid var(--line);
+}
+.topbar-row{display:flex;align-items:flex-end;justify-content:space-between;gap:10px}
+.topbar h1{margin:0;font-size:21px;font-weight:700;letter-spacing:-.01em}
+.demo-tag{
+  font-size:12px;color:#8A949C;border:1px dashed #C6CED3;border-radius:999px;
+  padding:2px 8px;white-space:nowrap;flex:none
+}
+.body-pad{padding:16px 18px 28px}
+.section-label{font-size:14px;color:var(--muted);font-weight:600;margin:22px 0 8px}
+.section-label:first-child{margin-top:4px}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+.tiny{font-size:13px}
+.hr{height:1px;background:var(--line);border:0;margin:16px 0}
+.center{text-align:center}
+.nowrap{white-space:nowrap}
+.spread{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.stack{display:flex;flex-direction:column;gap:10px}
+.row-gap{display:flex;gap:8px;flex-wrap:wrap}
+
+/* ---------- Мөрийн жагсаалт (картын оронд) ---------- */
+.list{background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.item{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  padding:14px 16px;min-height:var(--tap);border-bottom:1px solid var(--line);background:#fff;
+}
+.item:last-child{border-bottom:0}
+button.item:hover{background:#FAFBFC}
+.item-main{flex:1;min-width:0}
+.item-title{font-weight:600}
+.item-sub{font-size:14px;color:var(--muted);margin-top:2px}
+.chev{color:#AAB3BA;font-size:20px;line-height:1;flex:none}
+
+/* ---------- Гол үйлдлийн блок (нүүрний эхний мөр) ---------- */
+.primary-block{
+  background:#fff;border:1px solid var(--line);border-left:4px solid var(--brand-accent);
+  border-radius:var(--radius);padding:16px
+}
+.primary-block h2{margin:0 0 2px;font-size:18px}
+
+/* ---------- Товч ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:var(--tap);padding:12px 18px;border-radius:10px;font-weight:600;font-size:16px;
+  background:var(--brand-primary);color:#fff;border:1px solid var(--brand-primary);width:100%
+}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.secondary{background:#fff;color:var(--brand-primary)}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--ink)}
+.btn.danger{background:#fff;border-color:#E3B7B3;color:var(--danger)}
+.btn.sm{min-height:36px;padding:7px 14px;font-size:15px;width:auto;border-radius:8px}
+.btn.auto{width:auto}
+
+/* ---------- Chip ---------- */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  border:1px solid var(--line);background:#fff;border-radius:999px;padding:10px 14px;
+  min-height:var(--tap);font-size:16px;display:inline-flex;align-items:center
+}
+.chip[aria-pressed="true"]{background:var(--brand-primary);border-color:var(--brand-primary);color:#fff}
+.chip.sm{min-height:36px;padding:6px 12px;font-size:15px}
+
+/* ---------- Badge ---------- */
+.badge{display:inline-block;font-size:13px;font-weight:600;padding:2px 8px;border-radius:999px;border:1px solid transparent;white-space:nowrap}
+.badge.ok{background:var(--ok-bg);color:var(--ok)}
+.badge.warn{background:var(--warn-bg);color:var(--warn)}
+.badge.err{background:var(--danger-bg);color:var(--danger)}
+.badge.neutral{background:#EEF1F3;color:var(--muted)}
+.badge.accent{background:#FBEEDE;color:#8A4C08}
+
+.notice{border-radius:10px;padding:12px 14px;font-size:14px;display:flex;gap:10px;align-items:flex-start}
+.notice.warn{background:var(--warn-bg);color:#6F4308}
+.notice.err{background:var(--danger-bg);color:#8A1D17}
+.notice.info{background:#EDF3F5;color:#22434D}
+.notice.ok{background:var(--ok-bg);color:#0E5C3E}
+textarea.input{resize:vertical;line-height:1.5;font-size:15px}
+
+/* ---------- Form ---------- */
+.field{margin-bottom:14px}
+.field label{display:block;font-size:14px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.input{
+  width:100%;min-height:var(--tap);padding:11px 14px;border:1px solid #C9D1D6;border-radius:10px;
+  background:#fff;font-size:16px
+}
+.input:focus{border-color:var(--brand-primary)}
+.hint{font-size:14px;color:var(--muted);margin-top:6px}
+.err-text{font-size:14px;color:var(--danger);margin-top:6px;font-weight:500}
+
+/* ---------- Доод цэс ---------- */
+.nav{display:flex;border-top:1px solid var(--line);background:#fff;flex:none}
+.nav button{
+  flex:1;padding:8px 2px calc(8px + env(safe-area-inset-bottom));min-height:56px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  font-size:12px;color:var(--muted);font-weight:500
+}
+.nav button[aria-current="page"]{color:var(--brand-primary);font-weight:700}
+.nav .ic{width:22px;height:22px;display:block}
+.nav .dot{position:absolute;margin:-4px 0 0 12px;width:7px;height:7px;border-radius:50%;background:var(--brand-accent)}
+
+/* ---------- Bottom sheet ---------- */
+.sheet-backdrop{position:absolute;inset:0;background:rgba(16,22,28,.42);z-index:40;animation:fade .18s ease}
+.sheet{
+  position:absolute;left:0;right:0;bottom:0;z-index:41;background:#fff;
+  border-radius:18px 18px 0 0;max-height:88%;display:flex;flex-direction:column;animation:up .22s ease
+}
+.sheet-head{padding:14px 18px 10px;border-bottom:1px solid var(--line)}
+.sheet-grab{width:36px;height:4px;border-radius:2px;background:#D6DCE0;margin:0 auto 10px}
+.sheet-body{padding:16px 18px;overflow-y:auto}
+.sheet-foot{padding:12px 18px calc(14px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+@keyframes up{from{transform:translateY(24px);opacity:.4}to{transform:none;opacity:1}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+
+/* ---------- Toast ---------- */
+.toast{
+  position:absolute;left:16px;right:16px;bottom:78px;z-index:70;background:#1B2227;color:#fff;
+  border-radius:10px;padding:13px 16px;font-size:15px;box-shadow:0 8px 24px rgba(0,0,0,.25);animation:up .18s ease
+}
+.toast.err{background:#8A1D17}
+
+/* ---------- Skeleton ---------- */
+.sk{background:linear-gradient(90deg,#E8ECEE 25%,#F2F5F6 37%,#E8ECEE 63%);background-size:400% 100%;
+  animation:sh 1.3s infinite;border-radius:8px;height:14px;margin-bottom:10px}
+@keyframes sh{0%{background-position:100% 0}100%{background-position:0 0}}
+
+/* ---------- Цолны самбар (онцлох) ---------- */
+.rank{
+  background:linear-gradient(160deg,var(--brand-primary) 0%,#0A333F 100%);
+  color:#fff;border-radius:16px;padding:20px 18px 22px;position:relative;overflow:hidden
+}
+.rank::after{content:"";position:absolute;right:-40px;top:-40px;width:150px;height:150px;border-radius:50%;background:rgba(217,122,30,.14)}
+.rank-top{display:flex;align-items:center;justify-content:space-between;gap:10px;position:relative}
+.rank-now{font-size:14px;color:#A9C2C9;letter-spacing:.02em}
+.rank-gap{font-size:24px;font-weight:700;line-height:1.25;margin:10px 0 18px;position:relative}
+.bar{position:relative;margin-bottom:14px}
+.bar-label{display:flex;justify-content:space-between;font-size:14px;color:#BCD1D7;margin-bottom:6px}
+.bar-track{height:10px;border-radius:999px;background:rgba(255,255,255,.16);overflow:hidden}
+.bar-fill{height:100%;border-radius:999px;background:var(--brand-accent);transition:width .4s ease}
+.bar-fill.done{background:#39C08A}
+.rank-note{font-size:14px;color:#A9C2C9;position:relative;margin:0}
+
+/* ---------- Ирцийн тор ---------- */
+.grid-att{display:grid;grid-template-columns:auto repeat(2,1fr);gap:6px;align-items:center}
+.att-cell{border-radius:8px;padding:9px 6px;text-align:center;font-size:14px;font-weight:600}
+.att-P{background:var(--ok-bg);color:var(--ok)}
+.att-L{background:var(--warn-bg);color:var(--warn)}
+.att-E{background:#EEF1F3;color:var(--muted)}
+.att-A{background:var(--danger-bg);color:var(--danger)}
+.att-N{background:#F4F6F7;color:#B6BEC4}
+
+/* ---------- Юүлүүр ---------- */
+.funnel{display:flex;gap:8px}
+.fn{flex:1;background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 10px;text-align:center}
+.fn b{display:block;font-size:22px;line-height:1.1}
+.fn span{font-size:13px;color:var(--muted)}
+
+/* ---------- Тоон товчлуур ---------- */
+.pin-dots{display:flex;gap:12px;justify-content:center;margin:22px 0 26px}
+.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid #B9C3C9}
+.pin-dot.on{background:var(--brand-primary);border-color:var(--brand-primary)}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:300px;margin:0 auto}
+.key{background:#fff;border:1px solid var(--line);border-radius:12px;min-height:58px;font-size:23px;font-weight:600}
+.key.blank{background:transparent;border:0}
+.key:active{background:#EFF3F4}
+
+/* ---------- QR ---------- */
+.qr-full{position:absolute;inset:0;z-index:80;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+.qr-box{background:#fff;padding:12px;border:1px solid var(--line);border-radius:14px}
+.qr-timer{height:6px;border-radius:999px;background:#E6EAEC;overflow:hidden;width:220px;margin:18px auto 8px}
+.qr-timer i{display:block;height:100%;background:var(--brand-primary)}
+.qr-count{font-size:44px;font-weight:700;line-height:1}
+
+/* ---------- Демо самбар ---------- */
+.demo{
+  width:340px;flex:none;background:#151B20;color:#E8EDF0;border-radius:16px;padding:16px 16px 22px;
+  font-size:14px;max-height:calc(100vh - 56px);overflow-y:auto;position:sticky;top:28px
+}
+.demo h2{margin:0 0 2px;font-size:16px;color:#fff}
+.demo .demo-sub{margin:0 0 14px;color:#8E9AA3;font-size:13px}
+.demo-group{border-top:1px solid #2A3238;padding:12px 0 4px}
+.demo-group>label{display:block;font-weight:600;color:#C7D0D6;margin-bottom:8px}
+.demo-opts{display:flex;flex-wrap:wrap;gap:6px}
+.demo-opt{
+  border:1px solid #38424A;background:#1E262C;color:#C7D0D6;border-radius:8px;padding:8px 10px;
+  font-size:13px;min-height:36px
+}
+.demo-opt[aria-pressed="true"]{background:#2F6C7E;border-color:#3C8CA3;color:#fff;font-weight:600}
+.demo-btn{border:1px solid #38424A;background:#1E262C;color:#E8EDF0;border-radius:8px;padding:10px 12px;min-height:40px;width:100%;font-size:14px;font-weight:600}
+.demo-btn:hover{background:#273138}
+.demo-note{color:#7E8B94;font-size:12px;margin-top:8px;line-height:1.4}
+.test-live{background:#0E2A33;border:1px solid #2F6C7E;border-radius:10px;padding:10px 12px;margin-top:10px}
+.test-live b{color:#fff}
+.demo-close{display:none}
+@media (max-width:1040px){
+  .demo{
+    position:fixed;inset:auto 0 0 0;width:100%;max-height:78vh;border-radius:16px 16px 0 0;z-index:70;
+    transform:translateY(102%);transition:transform .22s ease
+  }
+  .demo.open{transform:none}
+  .demo-close{display:block;position:absolute;right:12px;top:12px;color:#8E9AA3;font-size:22px;min-height:var(--tap);min-width:var(--tap)}
+}
+.vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- Зам: листинг 10 + борлуулалт 9 ---------- */
+.path{display:grid;grid-template-columns:10fr 9fr;gap:6px;margin-top:10px}
+.seg{display:flex;gap:2px}
+.seg i{flex:1;height:6px;border-radius:2px;background:#D5DCE1}
+.seg i.done{background:var(--ok)}
+.seg i.cur{background:var(--brand-accent)}
+.seg.big i{height:8px}
+.path-now{font-size:13px;font-weight:600;margin-top:6px;color:#8A4C08}
+.path-now.deal{color:var(--brand-primary)}
+.path-now.closed{color:var(--ok)}
+.track{background:#fff;border:1px solid var(--line);border-radius:var(--radius);margin-top:10px;overflow:hidden}
+.track:first-child{margin-top:0}
+.track-head{display:block;width:100%;text-align:left;padding:12px 16px;min-height:var(--tap);background:#fff;border:0;font:inherit;color:inherit;cursor:pointer}
+.track-top{display:flex;align-items:baseline;gap:8px;margin-bottom:8px}
+.track-top .small{flex:1;min-width:0}
+.track-top .chev{transition:transform .2s}
+.track.open .track-top .chev{transform:rotate(180deg)}
+.steps{list-style:none;margin:0;padding:4px 16px 10px;display:none;border-top:1px solid var(--line)}
+.track.open .steps{display:block}
+.step{position:relative;display:flex;gap:12px;padding:10px 0}
+.step:not(:last-child)::before{content:"";position:absolute;left:13px;top:38px;bottom:-10px;width:2px;background:#D5DCE1}
+.step.done:not(:last-child)::before{background:var(--ok)}
+.dot{flex:none;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#fff;border:2px solid #C9D2D8;color:var(--muted);position:relative;z-index:1}
+.step.done .dot{background:var(--ok);border-color:var(--ok);color:#fff}
+.step.cur .dot{background:var(--brand-accent);border-color:var(--brand-accent);color:#fff;box-shadow:0 0 0 4px #FBEEDE}
+.step-main{flex:1;min-width:0;padding-top:3px}
+.step-title{font-weight:600;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.step.todo .step-title{color:var(--muted);font-weight:500}
+.step-who{font-size:12px;font-weight:500;color:var(--muted)}
+.step-chk{font-size:13px;color:var(--muted);margin-top:4px}
+.step-lock{font-size:14px;color:var(--warn);font-weight:600;margin-top:6px}
+.step-wait{font-size:14px;color:var(--brand-primary);font-weight:600;margin-top:6px}
+.step-doc{font-size:13px;color:var(--ok);margin-top:4px;overflow-wrap:anywhere}
+.step .btn{margin-top:8px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:10px 2px 0}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px;vertical-align:-1px;background:#D5DCE1}
+.legend i.done{background:var(--ok)}
+.legend i.cur{background:var(--brand-accent)}
+
+/* ---------- Цахим гарын үсэг (листингийн 6-р алхам) ---------- */
+.esign-st{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.sign-steps{display:flex;gap:6px;margin:0 0 16px}
+.sign-steps span{flex:1;text-align:center;font-size:12px;font-weight:600;color:var(--muted);padding:6px 4px;border-radius:8px;background:#EEF1F3}
+.sign-steps span.on{background:var(--brand-primary);color:#fff}
+.sign-steps span.done{background:var(--ok-bg);color:var(--ok)}
+.sms-mock{background:#fff;border:1px dashed #C6CED3;border-radius:12px;padding:12px 14px;margin:0 0 14px;font-size:14px}
+.sms-mock b{font-size:20px;letter-spacing:.18em}
+.terms{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:4px 16px}
+.terms div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:15px}
+.terms div:last-child{border-bottom:0}
+.terms dt{color:var(--muted);flex:none}
+.terms dd{margin:0;text-align:right;font-weight:600;overflow-wrap:anywhere}
+.sig-pad{display:block;width:100%;height:190px;background:#fff;border:2px dashed #C6CED3;border-radius:12px;touch-action:none;cursor:crosshair}
+.sig-img{display:block;max-width:100%;height:auto;background:#fff;border:1px solid var(--line);border-radius:10px}
+.audit{font-size:13px}
+.audit div{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)}
+.audit div:last-child{border-bottom:0}
+.audit span:first-child{color:var(--muted);flex:none;width:118px}
+.audit span:last-child{overflow-wrap:anywhere}
+.check-row{display:flex;gap:10px;align-items:flex-start;font-size:15px;margin:14px 0;cursor:pointer}
+.check-row input{width:20px;height:20px;margin-top:1px;flex:none}
+/* ---------- Нийтийн демо тууз ---------- */
+.demo-ribbon{height:24px;line-height:24px;text-align:center;font-size:12px;font-weight:700;letter-spacing:.04em;background:var(--brand-accent);color:#fff}
+@media (max-width:1040px){.phone{height:calc(100vh - 24px);height:calc(100dvh - 24px)}}
+</style>
+</head>
+<body>
+<div class="demo-ribbon" role="note">ДЕМО — бүх өгөгдөл хиймэл</div>
+<div class="stage">
+  <div class="phone-wrap">
+    <div class="phone" id="phone">
+      <div class="app">
+        <div id="screen" class="screen" tabindex="-1"></div>
+        <nav id="nav" class="nav" aria-label="Үндсэн цэс"></nav>
+      </div>
+      <div id="overlay"></div>
+      <div id="toastRoot"></div>
+    </div>
+    <p class="frame-note">Прототип · бодит өгөгдөл ашиглаагүй</p>
+  </div>
+  <aside class="demo" id="demoPanel" aria-label="Демо самбар">
+    <button class="demo-close" id="demoClose" aria-label="Хаах">✕</button>
+    <h2>Демо самбар</h2>
+    <p class="demo-sub">Аппын хэсэг биш. Үзүүлбэрийн тохиргоо.</p>
+    <div id="demoBody"></div>
+  </aside>
+</div>
+<button class="demo-fab" id="demoFab">Демо</button>
+
+<script>
+"use strict";
+/* ==========================================================================
+   ДАВХАРГА 1 — MOCK. Бодит хувилбарт энэ бүхэн Google Sheets дээр байна.
+   ========================================================================== */
+const TODAY = "2026.09.21";
+const DEMO_CLOCK = {t:"08:57"};   // демо цаг — ирцийн төлөв үүгээр тодорхойлогдоно
+
+const OFFICES = [
+  {office_id:"119038", name:"Төв оффис"},
+  {office_id:"OFFICE_2", name:"Оффис 2"},
+  {office_id:"OFFICE_3", name:"Оффис 3"}
+];
+
+const SOURCES = [
+  {code:"CALL",label:"Дуудлага",top:1},
+  {code:"MARKETING",label:"Маркетинг",top:1},
+  {code:"PLATFORM",label:"Платформ (unegui, FB)",top:1},
+  {code:"BOOSTED",label:"Boosted зар",top:1},
+  {code:"SHARE",label:"Share",top:1}
+];
+const SUB_FLOWS = [
+  {code:"SOLO",label:"Соло"},
+  {code:"REFERRAL_OUT",label:"Referral-out"},
+  {code:"REFERRAL_IN",label:"Referral-in"},
+  {code:"CO_BROKE",label:"Оффис хоорондын co-broke"},
+  {code:"OTHER",label:"Бусад"}
+];
+const FINANCING = [
+  {code:"CASH",label:"Бэлэн"},
+  {code:"BANK_LOAN",label:"Банкны зээл"},
+  {code:"GOV_MORTGAGE",label:"Төрийн хөнгөлөлттэй ипотек (ЗЗСС/ОССК)"},
+  {code:"INSTALLMENT",label:"Хуваан төлөх"}
+];
+const BANKS = ["Хаан","Голомт","ХХБ","Төрийн","Хас","Капитрон","Богд","М банк","Ариг","Транс","Бусад"];
+const LOST_REASONS = ["Үнэ таараагүй","Зээл батлагдаагүй","Өөр агентаар хийсэн","Холбогдох боломжгүй","Эзэн шийдвэрээ өөрчилсөн","Бусад"];
+const SIDES = [
+  {code:"SELLER",label:"Худалдагч"},{code:"LANDLORD",label:"Түрээслүүлэгч"},
+  {code:"BUYER",label:"Худалдан авагч"},{code:"TENANT",label:"Түрээслэгч"}
+];
+const STAGES = [
+  {code:"NEW",label:"Шинэ"},{code:"CONTACTED",label:"Холбогдсон"},
+  {code:"VIEW_SCHEDULED",label:"Үзлэг товлосон"},{code:"VIEWED",label:"Үзлэг болсон"},
+  {code:"NEGOTIATION",label:"Тохиролцоо"},{code:"WON",label:"Амжилттай"},{code:"LOST",label:"Алдсан"}
+];
+
+/* Агентууд. ytd_* нь дэлгэрэнгүй гүйлгээгүй агентуудын нийлбэр (зөвхөн Удирдлагын тоонд). */
+const AGENTS = [
+  {agent_id:"119038201",office_id:"119038",full_name:"Б.Анужин",     phone:"99112233",role:"AGENT",  status:"ACTIVE",  joined_on:"2024.03.11",pin:"111111",must_change_pin:false},
+  {agent_id:"119038202",office_id:"119038",full_name:"Д.Тэмүүлэн",   phone:"99114455",role:"AGENT",  status:"ACTIVE",  joined_on:"2023.09.04",pin:"111111",must_change_pin:false,ytd_commission:33600000,ytd_count:14},
+  {agent_id:"119038203",office_id:"119038",full_name:"С.Оюунбилэг",  phone:"99116677",role:"AGENT",  status:"ACTIVE",  joined_on:"2025.01.20",pin:"111111",must_change_pin:false},
+  {agent_id:"119038204",office_id:"OFFICE_2",full_name:"Н.Батжаргал",phone:"99118899",role:"AGENT",  status:"ACTIVE",  joined_on:"2024.11.05",pin:"111111",must_change_pin:false},
+  {agent_id:"119038205",office_id:"OFFICE_2",full_name:"Г.Мөнхзул",  phone:"99120011",role:"AGENT",  status:"ACTIVE",  joined_on:"2025.05.14",pin:"111111",must_change_pin:false,ytd_commission:9400000,ytd_count:11},
+  {agent_id:"119038206",office_id:"119038",full_name:"Ж.Энхтуяа",    phone:"99122233",role:"AGENT",  status:"ACTIVE",  joined_on:"2023.02.27",pin:"111111",must_change_pin:false,ytd_commission:22900000,ytd_count:10},
+  {agent_id:"119038207",office_id:"119038",full_name:"Ц.Ганзориг",   phone:"99124455",role:"MANAGER",status:"ACTIVE",  joined_on:"2022.06.01",pin:"111111",must_change_pin:false},
+  {agent_id:"119038208",office_id:"OFFICE_3",full_name:"Б.Сарантуяа",phone:"99126677",role:"AGENT",  status:"ACTIVE",  joined_on:"2024.08.19",pin:"111111",must_change_pin:false,ytd_commission:15700000,ytd_count:10},
+  {agent_id:"119038209",office_id:"OFFICE_3",full_name:"Х.Эрдэнэбат",phone:"99128899",role:"AGENT",  status:"ACTIVE",  joined_on:"2025.07.07",pin:"111111",must_change_pin:false,ytd_commission:6200000,ytd_count:5},
+  {agent_id:"119038210",office_id:"119038",full_name:"О.Наранцэцэг", phone:"99130011",role:"AGENT",  status:"ACTIVE",  joined_on:"2024.01.15",pin:"111111",must_change_pin:false,ytd_commission:18100000,ytd_count:9},
+  {agent_id:"119038211",office_id:"OFFICE_2",full_name:"Л.Бат-Эрдэнэ",phone:"99132233",role:"AGENT", status:"INACTIVE",joined_on:"2025.03.02",pin:"111111",must_change_pin:false,ytd_commission:4900000,ytd_count:3},
+  {agent_id:"119038212",office_id:"119038",full_name:"Т.Золжаргал",  phone:"99134455",role:"AGENT",  status:"ACTIVE",  joined_on:"2026.09.07",pin:"482910",must_change_pin:true}
+];
+
+/* Гүйлгээ — [trr, agent, deal, trr_type, хаяг, огноо, үнэ, шимтгэл, бөглөсөн эсэх] */
+const TX_RAW = [
+  ["TRR-26-000412","119038201","LEASE","LISTING","Хан-Уул, 11-р хороо · Зайсан, 5-р байр","2026.09.18",2800000,1100000,null],
+  ["TRR-26-000407","119038201","SALE","BUYER","Баянзүрх, 14-р хороо · 26-р хороолол, 12-р байр","2026.09.16",285000000,2500000,null],
+  ["TRR-26-000401","119038201","LEASE","SOLO","Сүхбаатар, 8-р хороо · 3-р байр","2026.09.11",1900000,820000,null],
+  ["TRR-26-000398","119038201","LEASE","LISTING","Хан-Уул, 4-р хороо · Яармаг, 7-р байр","2026.09.15",1600000,680000,["SOLO","PLATFORM",null,null]],
+  ["TRR-26-000389","119038201","SALE","LISTING","Баянгол, 4-р хороо · 9-р байр","2026.08.28",420000000,4200000,["SOLO","PLATFORM","BANK_LOAN","Хаан"]],
+  ["TRR-26-000376","119038201","LEASE","SOLO","Чингэлтэй, 2-р хороо · 6-р байр","2026.08.14",1500000,640000,["SOLO","SHARE",null,null]],
+  ["TRR-26-000362","119038201","LEASE","LISTING","Хан-Уул, 11-р хороо · Зайсан, 2-р байр","2026.07.30",2100000,900000,["CO_BROKE","CALL",null,null]],
+  ["TRR-26-000351","119038201","SALE","BUYER","Сонгинохайрхан, 21-р хороо · 14-р байр","2026.07.09",195000000,2900000,["SOLO","PLATFORM","GOV_MORTGAGE",null]],
+  ["TRR-26-000337","119038201","LEASE","LISTING","Баянзүрх, 13-р хороо · 8-р байр","2026.06.19",1750000,760000,["SOLO","PLATFORM",null,null]],
+  ["TRR-26-000318","119038201","LEASE","SOLO","Сүхбаатар, 1-р хороо · 4-р байр","2026.05.22",1350000,580000,["SOLO","CALL",null,null]],
+  ["TRR-26-000295","119038201","SALE","LISTING","Хан-Уул, 4-р хороо · Яармаг, 10-р байр","2026.04.10",310000000,3600000,["REFERRAL_IN","CALL","BANK_LOAN","Голомт"]],
+  ["TRR-26-000271","119038201","LEASE","LISTING","Баянгол, 16-р хороо · 1-р байр","2026.02.27",1650000,720000,["SOLO","PLATFORM",null,null]],
+
+  ["TRR-26-000410","119038203","LEASE","LISTING","Баянзүрх, 26-р хороо · 15-р байр","2026.09.17",1450000,620000,null],
+  ["TRR-26-000394","119038203","LEASE","SOLO","Чингэлтэй, 6-р хороо · 11-р байр","2026.09.08",1700000,750000,["SOLO","PLATFORM",null,null]],
+  ["TRR-26-000381","119038203","LEASE","LISTING","Сонгинохайрхан, 32-р хороо · 3-р байр","2026.08.21",1250000,540000,["SOLO","SHARE",null,null]],
+  ["TRR-26-000369","119038203","LEASE","LISTING","Хан-Уул, 15-р хороо · 6-р байр","2026.08.04",2000000,880000,["SOLO","PLATFORM",null,null]],
+  ["TRR-26-000344","119038203","LEASE","SOLO","Баянгол, 20-р хороо · 4-р байр","2026.06.30",1600000,700000,["SOLO","CALL",null,null]],
+  ["TRR-26-000326","119038203","LEASE","LISTING","Сүхбаатар, 11-р хороо · 8-р байр","2026.06.02",2200000,960000,["SOLO","PLATFORM",null,null]],
+  ["TRR-26-000301","119038203","SALE","LISTING","Хан-Уул, 11-р хороо · Зайсан, 9-р байр","2026.04.24",395000000,3900000,["SOLO","PLATFORM","BANK_LOAN","ХХБ"]],
+  ["TRR-26-000283","119038203","SALE","BUYER","Баянзүрх, 5-р хороо · 7-р байр","2026.03.19",265000000,3450000,["SOLO","CALL","GOV_MORTGAGE",null]],
+
+  ["TRR-26-000414","119038207","LEASE","LISTING","Сүхбаатар, 4-р хороо · 2-р байр","2026.09.19",1650000,700000,null],
+  ["TRR-26-000409","119038207","SALE","LISTING","Хан-Уул, 11-р хороо · Зайсан, 1-р байр","2026.09.16",640000000,7400000,null],
+  ["TRR-26-000399","119038207","LEASE","SOLO","Баянгол, 6-р хороо · 13-р байр","2026.09.12",1950000,850000,["SOLO","CALL",null,null]],
+  ["TRR-26-000386","119038207","LEASE","LISTING","Чингэлтэй, 13-р хороо · 5-р байр","2026.08.25",1500000,640000,["SOLO","PLATFORM",null,null]],
+  ["TRR-26-000372","119038207","LEASE","LISTING","Баянзүрх, 26-р хороо · 9-р байр","2026.08.11",2150000,920000,["SOLO","MARKETING",null,null]],
+  ["TRR-26-000358","119038207","SALE","BUYER","Хан-Уул, 4-р хороо · Яармаг, 3-р байр","2026.07.24",520000000,6800000,["REFERRAL_IN","CALL","BANK_LOAN","Голомт"]],
+  ["TRR-26-000341","119038207","LEASE","SOLO","Сүхбаатар, 8-р хороо · 12-р байр","2026.06.26",2400000,1050000,["SOLO","CALL",null,null]],
+  ["TRR-26-000333","119038207","LEASE","LISTING","Баянгол, 11-р хороо · 6-р байр","2026.06.11",1750000,760000,["SOLO","PLATFORM",null,null]],
+  ["TRR-26-000315","119038207","LEASE","LISTING","Сонгинохайрхан, 7-р хороо · 10-р байр","2026.05.18",2050000,880000,["SOLO","MARKETING",null,null]],
+  ["TRR-26-000308","119038207","SALE","LISTING","Баянзүрх, 14-р хороо · 26-р хороолол, 4-р байр","2026.05.05",430000000,5200000,["SOLO","MARKETING","INSTALLMENT",null]],
+  ["TRR-26-000289","119038207","LEASE","SOLO","Чингэлтэй, 3-р хороо · 8-р байр","2026.03.31",1400000,600000,["SOLO","CALL",null,null]],
+  ["TRR-26-000276","119038207","SALE","BUYER","Хан-Уул, 15-р хороо · 11-р байр","2026.03.06",360000000,4500000,["SOLO","MARKETING","BANK_LOAN","Хас"]],
+  ["TRR-26-000262","119038207","LEASE","LISTING","Сүхбаатар, 1-р хороо · 7-р байр","2026.02.10",2750000,1200000,["REFERRAL_OUT","CALL",null,null]],
+
+  ["TRR-26-000405","119038204","LEASE","LISTING","Баянгол, 20-р хороо · 2-р байр","2026.09.14",1550000,680000,["SOLO","PLATFORM",null,null]],
+  ["TRR-26-000391","119038204","LEASE","SOLO","Сонгинохайрхан, 21-р хороо · 5-р байр","2026.09.02",1650000,720000,["SOLO","PLATFORM",null,null]],
+  ["TRR-26-000378","119038204","LEASE","LISTING","Хан-Уул, 4-р хороо · Яармаг, 8-р байр","2026.08.18",2100000,900000,["SOLO","SHARE",null,null]],
+  ["TRR-26-000364","119038204","LEASE","LISTING","Баянзүрх, 13-р хороо · 3-р байр","2026.07.31",1400000,620000,["SOLO","PLATFORM",null,null]],
+  ["TRR-26-000349","119038204","LEASE","SOLO","Чингэлтэй, 6-р хороо · 14-р байр","2026.07.06",1900000,840000,["SOLO","CALL",null,null]],
+  ["TRR-26-000330","119038204","LEASE","LISTING","Сүхбаатар, 11-р хороо · 1-р байр","2026.06.08",1750000,760000,["SOLO","PLATFORM",null,null]],
+  ["TRR-26-000312","119038204","LEASE","LISTING","Баянгол, 4-р хороо · 10-р байр","2026.05.12",2250000,980000,["SOLO","MARKETING",null,null]],
+  ["TRR-26-000298","119038204","SALE","LISTING","Баянзүрх, 26-р хороо · 6-р байр","2026.04.16",380000000,4600000,["SOLO","PLATFORM","BANK_LOAN","Төрийн"]],
+  ["TRR-26-000280","119038204","SALE","BUYER","Сонгинохайрхан, 32-р хороо · 12-р байр","2026.03.13",225000000,3300000,["SOLO","CALL","GOV_MORTGAGE",null]],
+  ["TRR-26-000266","119038204","SALE","SOLO","Хан-Уул, 15-р хороо · 4-р байр","2026.02.18",198000000,2800000,["SOLO","CALL","CASH",null]]
+];
+
+/* Event — сүүлийн 8 долоо хоногийн Даваа/Пүрэв 09:00 + зарласан event */
+const EVENT_DATES = [
+  ["2026.09.21","MON"],["2026.09.17","THU"],["2026.09.14","MON"],["2026.09.10","THU"],
+  ["2026.09.07","MON"],["2026.09.03","THU"],["2026.08.31","MON"],["2026.08.27","THU"],
+  ["2026.08.24","MON"],["2026.08.20","THU"],["2026.08.17","MON"],["2026.08.13","THU"],
+  ["2026.08.10","MON"],["2026.08.06","THU"],["2026.08.03","MON"],["2026.07.30","THU"]
+];
+/* Үндсэн демо агентын ирцийн түүх — шинээс хуучин руу, EVENT_DATES-тай ижил дараалал */
+const MY_ATTENDANCE = ["","P","P","L","P","E","P","P","L","P","P","A","P","P","L","P"];
+
+const LEADS_RAW = [
+  ["LD-2601","BUYER","PLATFORM","Зайсан 3 өрөө","NEGOTIATION","2026.09.08"],
+  ["LD-2602","SELLER","PLATFORM","Яармаг 2 өрөө, яаралтай","VIEWED","2026.09.10"],
+  ["LD-2603","TENANT","SHARE","26-р хороолол студи","VIEW_SCHEDULED","2026.09.15"],
+  ["LD-2604","LANDLORD","CALL","Сүхбаатар 4 өрөө түрээс","CONTACTED","2026.09.16"],
+  ["LD-2605","BUYER","PLATFORM","Хан-Уул 2 өрөө, ипотек","NEW","2026.09.19"],
+  ["LD-2606","TENANT","PLATFORM","Баянгол 1 өрөө","NEW","2026.09.20"],
+  ["LD-2607","BUYER","CALL","Зайсан пентхаус","WON","2026.09.05"],
+  ["LD-2608","SELLER","MARKETING","Чингэлтэй 3 өрөө","LOST","2026.09.02"],
+  ["LD-2609","TENANT","PLATFORM","Яармаг 2 өрөө түрээс","VIEWED","2026.09.11"],
+  ["LD-2610","BUYER","INSTAGRAM","Баянзүрх 2 өрөө","CONTACTED","2026.09.13"],
+  ["LD-2611","LANDLORD","CALL","Сонгинохайрхан оффис","NEW","2026.09.18"],
+  ["LD-2612","BUYER","MARKETING","Шинэ барилга, 3 өрөө","VIEW_SCHEDULED","2026.09.14"],
+  ["LD-2613","SELLER","CALL","Баянгол 2 өрөө","NEGOTIATION","2026.09.06"],
+  ["LD-2614","TENANT","CALL","Оффис түрээс 80 м²","LOST","2026.08.30"],
+  ["LD-2615","BUYER","CALL","Хоёр дахь удаагаа","CONTACTED","2026.09.17"]
+];
+
+const LISTING_QUEUE = [
+  {mls:"MLS-26-1184",address:"Хан-Уул, 11-р хороо · Зайсан, 5-р байр",hours:96},
+  {mls:"MLS-26-1177",address:"Баянзүрх, 26-р хороо · 9-р байр",hours:210}
+];
+
+/* ---------- ОБЪЕКТ · чеклист (шинэ модуль) ---------- */
+/* Үнийн сан: iList-ийн 2026.09.22-ны экспортоос. Худалдах·орон сууц, давхардсан
+   олон нэгжийг цэгцэлсэн (371 → 280), м² нэгж үнэ сая ₮-өөр. */
+const PRICE = {"meta":{"source":"iList экспорт 2026.09.22","n_total":151,"dedup":true},"overall":4.0,"d":{"Баянгол":{"n":10,"med":3.91,"p25":3.49,"p75":4.43},"Баянзүрх":{"n":31,"med":3.6,"p25":3.4,"p75":4.12},"Сонгинохайрхан":{"n":11,"med":3.3,"p25":2.99,"p75":3.54},"Сүхбаатар":{"n":9,"med":4.33,"p25":4.2,"p75":5.2},"Хан-Уул":{"n":88,"med":4.29,"p25":3.48,"p75":5.7}},"dr":{"Баянгол|2":{"n":4,"med":3.49},"Баянгол|3":{"n":6,"med":4.25},"Баянзүрх|2":{"n":20,"med":3.67},"Баянзүрх|3":{"n":11,"med":3.5},"Сонгинохайрхан|2":{"n":6,"med":3.41},"Сонгинохайрхан|3":{"n":4,"med":2.94},"Хан-Уул|2":{"n":27,"med":3.6},"Хан-Уул|3":{"n":25,"med":4.25},"Хан-Уул|4":{"n":30,"med":5.7}},"comps":[{"d":"Чингэлтэй","h":"Сайд нарын байр","r":2,"a":52.0,"p":280,"u":5.38},{"d":"Баянгол","h":"10","r":2,"a":52.0,"p":220,"u":4.23},{"d":"Хан-Уул","h":"Рапид харш","r":1,"a":33.7,"p":214,"u":6.35},{"d":"Баянгол","h":null,"r":3,"a":72.2,"p":354,"u":4.9},{"d":"Хан-Уул","h":"Буянт-Ухаа 2","r":3,"a":68.6,"p":185,"u":2.7},{"d":"Баянзүрх","h":null,"r":2,"a":46.1,"p":175,"u":3.8},{"d":"Хан-Уул","h":"Арвай вилла","r":2,"a":57.1,"p":200,"u":3.49},{"d":"Хан-Уул","h":"Хан-Гарьд сити 1","r":3,"a":85.3,"p":285,"u":3.34},{"d":"Баянгол","h":null,"r":3,"a":81.0,"p":310,"u":3.83},{"d":"Хан-Уул","h":"hunnu 2222","r":3,"a":69.9,"p":600,"u":8.58},{"d":"Хан-Уул","h":"MAXWELL хотхон","r":3,"a":81.7,"p":351,"u":4.3},{"d":"Хан-Уул","h":"Aero town","r":2,"a":52.0,"p":170,"u":3.27},{"d":"Налайх","h":"77","r":1,"a":33.3,"p":85,"u":2.55},{"d":"Хан-Уул","h":"Seven Star","r":3,"a":110.0,"p":572,"u":5.2},{"d":"Сонгинохайрхан","h":"1-хороолол","r":5,"a":56.0,"p":279,"u":4.98},{"d":"Хан-Уул","h":"N PALACE apartment","r":3,"a":72.7,"p":250,"u":3.44},{"d":"Хан-Уул","h":"Мишээл","r":4,"a":138.0,"p":856,"u":6.2},{"d":"Хан-Уул","h":"Цэнгэлдэх хотхон","r":3,"a":80.0,"p":720,"u":9.0},{"d":"Баянзүрх","h":null,"r":3,"a":75.6,"p":260,"u":3.44},{"d":"Баянзүрх","h":"Garden Residence 1","r":2,"a":49.0,"p":183,"u":3.74},{"d":"Баянзүрх","h":"Chuluut sky villa condo ","r":3,"a":99.0,"p":880,"u":8.89},{"d":"Хан-Уул","h":"Гэрэлт өргөө","r":2,"a":45.7,"p":171,"u":3.75},{"d":"Хан-Уул","h":"ГЛОБАЛ ВИСТА","r":2,"a":47.0,"p":174,"u":3.7},{"d":"Хан-Уул","h":"Versal garden","r":3,"a":66.9,"p":302,"u":4.51},{"d":"Хан-Уул","h":"Парагон","r":3,"a":98.4,"p":290,"u":2.95},{"d":"Баянзүрх","h":"home land","r":3,"a":91.3,"p":320,"u":3.5},{"d":"Хан-Уул","h":"Астра Вилла","r":3,"a":81.2,"p":345,"u":4.25},{"d":"Баянзүрх","h":"Алтан тэвш","r":3,"a":72.5,"p":315,"u":4.34},{"d":"Сүхбаатар","h":null,"r":1,"a":29.8,"p":127,"u":4.26},{"d":"Хан-Уул","h":null,"r":2,"a":46.6,"p":184,"u":3.95},{"d":"Хан-Уул","h":"Enkhjin","r":2,"a":54.7,"p":235,"u":4.3},{"d":"Сонгинохайрхан","h":null,"r":2,"a":46.1,"p":148,"u":3.21},{"d":"Сонгинохайрхан","h":"Москва хороолол","r":3,"a":86.1,"p":250,"u":2.9},{"d":"Баянзүрх","h":"Саруун тэнгэр 1","r":3,"a":64.4,"p":210,"u":3.26},{"d":"Хан-Уул","h":null,"r":3,"a":90.7,"p":562,"u":6.2},{"d":"Баянзүрх","h":"Park east residence","r":3,"a":108.6,"p":702,"u":6.47},{"d":"Баянзүрх","h":"Komport","r":2,"a":49.5,"p":195,"u":3.94},{"d":"Хан-Уул","h":"cosmos tower","r":1,"a":44.1,"p":137,"u":3.1},{"d":"Хан-Уул","h":"Cozy apartment","r":2,"a":52.4,"p":310,"u":5.92},{"d":"Баянгол","h":null,"r":3,"a":75.0,"p":229,"u":3.05},{"d":"Хан-Уул","h":"Misheel residence","r":4,"a":109.5,"p":591,"u":5.4},{"d":"Хан-Уул","h":"Khan Hills","r":4,"a":140.7,"p":872,"u":6.2},{"d":"Хан-Уул","h":null,"r":3,"a":114.3,"p":640,"u":5.6},{"d":"Хан-Уул","h":"АТГ н ажилчдын байр","r":2,"a":52.3,"p":175,"u":3.34},{"d":"Хан-Уул","h":"89р байр","r":2,"a":61.3,"p":263,"u":4.29},{"d":"Сонгинохайрхан","h":"Москва","r":2,"a":70.0,"p":209,"u":2.99},{"d":"Хан-Уул","h":"femida town","r":3,"a":71.2,"p":250,"u":3.51},{"d":"Хан-Уул","h":"Energy luxury residence","r":4,"a":101.0,"p":465,"u":4.6},{"d":"Хан-Уул","h":"Energy luxury residence","r":4,"a":113.2,"p":521,"u":4.6},{"d":"Хан-Уул","h":"Шинэ Яармаг","r":4,"a":121.0,"p":484,"u":4.0},{"d":"Баянзүрх","h":"амгалан ресидэнс","r":2,"a":62.9,"p":226,"u":3.6},{"d":"Баянзүрх","h":"есөн өргөө","r":2,"a":50.0,"p":170,"u":3.4},{"d":"Хан-Уул","h":"Хүслийн төгөл","r":4,"a":145.3,"p":871,"u":6.0},{"d":"Хан-Уул","h":"Хүслийн төгөл","r":3,"a":120.0,"p":720,"u":6.0},{"d":"Хан-Уул","h":"Хүслийн төгөл","r":4,"a":156.5,"p":939,"u":6.0},{"d":"Сонгинохайрхан","h":"21 Апартмент","r":2,"a":54.5,"p":198,"u":3.63},{"d":"Баянзүрх","h":"10 к плаза","r":2,"a":52.0,"p":210,"u":4.04},{"d":"Баянзүрх","h":"SKY TOWN 1","r":3,"a":79.5,"p":300,"u":3.77},{"d":"Хан-Уул","h":null,"r":4,"a":95.1,"p":260,"u":2.73},{"d":"Сүхбаатар","h":"Саруул хотхон","r":2,"a":65.4,"p":360,"u":5.5},{"d":"Сүхбаатар","h":"Саруул хотхон","r":1,"a":51.0,"p":280,"u":5.49},{"d":"Баянгол","h":null,"r":3,"a":40.0,"p":250,"u":6.25},{"d":"Хан-Уул","h":null,"r":2,"a":56.0,"p":203,"u":3.62},{"d":"Баянзүрх","h":"Century apartment","r":3,"a":80.3,"p":337,"u":4.2},{"d":"Баянгол","h":"Өргөө 33","r":2,"a":59.8,"p":209,"u":3.5},{"d":"Сүхбаатар","h":null,"r":3,"a":85.0,"p":370,"u":4.35},{"d":"Хан-Уул","h":"Хүслийн төгөл","r":4,"a":145.3,"p":892,"u":6.14},{"d":"Хан-Уул","h":"Хүслийн төгөл","r":4,"a":156.3,"p":939,"u":6.01},{"d":"Хан-Уул","h":"Хүслийн төгөл","r":4,"a":145.2,"p":871,"u":6.0},{"d":"Баянзүрх","h":"Комфорт хотхон","r":2,"a":53.5,"p":185,"u":3.46},{"d":"Хан-Уул","h":"Мишээл","r":4,"a":166.2,"p":781,"u":4.7},{"d":"Баянзүрх","h":"Амартүвшин хотхон","r":2,"a":51.9,"p":197,"u":3.8},{"d":"Баянзүрх","h":"Амгалан","r":2,"a":46.2,"p":199,"u":4.3},{"d":"Хан-Уул","h":"Буянт гарден","r":3,"a":125.0,"p":538,"u":4.3},{"d":"Хан-Уул","h":"Versal Garden хотхон","r":2,"a":62.8,"p":283,"u":4.5},{"d":"Хан-Уул","h":"Элеганс хороолол","r":3,"a":63.3,"p":177,"u":2.8},{"d":"Хан-Уул","h":"Цагаан суварга","r":2,"a":62.8,"p":276,"u":4.4},{"d":"Хан-Уул","h":"Элеганс хороолол","r":4,"a":83.0,"p":231,"u":2.78},{"d":"Хан-Уул","h":"Элеганс хороолол","r":3,"a":75.5,"p":215,"u":2.85},{"d":"Баянзүрх","h":"Chuhag2","r":2,"a":52.3,"p":314,"u":5.99},{"d":"Хан-Уул","h":null,"r":2,"a":52.3,"p":220,"u":4.21},{"d":"Баянзүрх","h":"Apartment 13","r":2,"a":40.5,"p":170,"u":4.19},{"d":"Баянзүрх","h":"14-р хороолол","r":2,"a":42.3,"p":180,"u":4.25},{"d":"Баянзүрх","h":"офицер хороолол","r":2,"a":44.4,"p":160,"u":3.6},{"d":"Хан-Уул","h":null,"r":2,"a":42.7,"p":116,"u":2.72},{"d":"Сүхбаатар","h":"Marta green lake","r":1,"a":39.0,"p":169,"u":4.33},{"d":"Хан-Уул","h":"Энхтөгөл","r":2,"a":69.2,"p":232,"u":3.35},{"d":"Сүхбаатар","h":null,"r":3,"a":81.0,"p":264,"u":3.26},{"d":"Баянгол","h":null,"r":3,"a":78.0,"p":312,"u":4.0},{"d":"Сүхбаатар","h":null,"r":3,"a":74.8,"p":240,"u":3.21},{"d":"Хан-Уул","h":"Ханбогд хороолол","r":2,"a":57.6,"p":205,"u":3.56},{"d":"Баянзүрх","h":"Шинэ Баянзүрх хороолол","r":2,"a":53.5,"p":161,"u":3.0},{"d":"Хан-Уул","h":"Скай Смарт","r":3,"a":79.4,"p":357,"u":4.5},{"d":"Баянзүрх","h":"Бум Бум","r":3,"a":55.0,"p":189,"u":3.44},{"d":"Хан-Уул","h":"Дулаахан байр3","r":2,"a":47.8,"p":160,"u":3.35},{"d":"Хан-Уул","h":null,"r":4,"a":126.0,"p":390,"u":3.1},{"d":"Сонгинохайрхан","h":"Сингли апартмент","r":2,"a":40.0,"p":135,"u":3.38},{"d":"Хан-Уул","h":"Ic town","r":2,"a":57.2,"p":200,"u":3.5},{"d":"Баянзүрх","h":"Garden residence","r":2,"a":54.5,"p":215,"u":3.95},{"d":"Хан-Уул","h":"Инэл зайсан виллаж","r":4,"a":120.0,"p":420,"u":3.5},{"d":"Баянгол","h":"Golden Park","r":2,"a":43.0,"p":150,"u":3.49},{"d":"Хан-Уул","h":"Global vista","r":3,"a":72.0,"p":254,"u":3.52},{"d":"Хан-Уул","h":"Ivy residence","r":3,"a":80.0,"p":320,"u":4.0},{"d":"Хан-Уул","h":"Хүслийн төгөл хотхон","r":4,"a":156.1,"p":968,"u":6.2},{"d":"Хан-Уул","h":null,"r":2,"a":53.1,"p":191,"u":3.6},{"d":"Хан-Уул","h":"Туул гол","r":5,"a":320.0,"p":2550,"u":7.97},{"d":"Хан-Уул","h":"Туул","r":5,"a":260.8,"p":2300,"u":8.82},{"d":"Сонгинохайрхан","h":null,"r":2,"a":52.3,"p":180,"u":3.44},{"d":"Хан-Уул","h":null,"r":2,"a":58.9,"p":212,"u":3.6},{"d":"Хан-Уул","h":null,"r":4,"a":57.0,"p":180,"u":3.16},{"d":"Хан-Уул","h":null,"r":5,"a":252.0,"p":1350,"u":5.36},{"d":"Хан-Уул","h":"Eagle Town хотхон","r":2,"a":61.0,"p":183,"u":3.0},{"d":"Сонгинохайрхан","h":"Оргил2 хороолол","r":3,"a":50.5,"p":140,"u":2.77},{"d":"Хан-Уул","h":"грийн арт","r":3,"a":67.1,"p":270,"u":4.02},{"d":"Хан-Уул","h":"Mandal luxury","r":2,"a":61.6,"p":246,"u":4.0},{"d":"Баянзүрх","h":"Есөн өргөө","r":2,"a":50.0,"p":165,"u":3.3},{"d":"Сүхбаатар","h":"Алтайн нуруу","r":87,"a":87.7,"p":368,"u":4.2},{"d":"Баянгол","h":"Twin Daimond","r":3,"a":102.5,"p":461,"u":4.5},{"d":"Хан-Уул","h":"soul garden","r":2,"a":63.7,"p":229,"u":3.6},{"d":"Хан-Уул","h":"Мишээл","r":4,"a":126.0,"p":693,"u":5.5},{"d":"Хан-Уул","h":"Мишээл","r":3,"a":112.9,"p":643,"u":5.7},{"d":"Хан-Уул","h":"Мишээл","r":4,"a":121.8,"p":694,"u":5.7},{"d":"Хан-Уул","h":null,"r":4,"a":159.4,"p":909,"u":5.7},{"d":"Хан-Уул","h":null,"r":4,"a":135.6,"p":690,"u":5.09},{"d":"Хан-Уул","h":"Мишээл","r":4,"a":162.5,"p":926,"u":5.7},{"d":"Хан-Уул","h":null,"r":4,"a":171.5,"p":978,"u":5.7},{"d":"Хан-Уул","h":"Мишээл резиденс","r":4,"a":151.9,"p":896,"u":5.9},{"d":"Хан-Уул","h":null,"r":4,"a":166.2,"p":947,"u":5.7},{"d":"Хан-Уул","h":"Мишээл резиденс","r":3,"a":135.4,"p":772,"u":5.7},{"d":"Хан-Уул","h":"Мишээл","r":4,"a":130.1,"p":741,"u":5.7},{"d":"Хан-Уул","h":"Мишээл","r":4,"a":177.8,"p":1014,"u":5.7},{"d":"Хан-Уул","h":"Мишээл","r":4,"a":135.0,"p":796,"u":5.9},{"d":"Хан-Уул","h":"Мишээл","r":4,"a":166.2,"p":947,"u":5.7},{"d":"Хан-Уул","h":"Наадам дэнж","r":3,"a":74.2,"p":267,"u":3.6},{"d":"Хан-Уул","h":"Элеганс хороолол","r":1,"a":36.2,"p":117,"u":3.23},{"d":"Хан-Уул","h":null,"r":2,"a":62.7,"p":176,"u":2.8},{"d":"Хан-Уул","h":null,"r":2,"a":48.5,"p":136,"u":2.8},{"d":"Хан-Уул","h":"Онцгой байдлын байр","r":2,"a":59.8,"p":170,"u":2.84},{"d":"Сонгинохайрхан","h":"залуус хороолол","r":3,"a":39.6,"p":118,"u":2.98},{"d":"Баянзүрх","h":"Taiyo luxury apartment","r":2,"a":46.5,"p":158,"u":3.4},{"d":"Баянзүрх","h":"Taiyo luxury apartment","r":3,"a":72.0,"p":238,"u":3.3},{"d":"Баянзүрх","h":"Taiyo luxury apartment","r":2,"a":42.5,"p":149,"u":3.5},{"d":"Баянзүрх","h":"Taiyo luxury apartment","r":3,"a":67.5,"p":223,"u":3.3},{"d":"Баянзүрх","h":"Taiyo luxury apartment","r":2,"a":55.5,"p":189,"u":3.4},{"d":"Баянгол","h":"Арвай хотхон","r":2,"a":46.9,"p":159,"u":3.39},{"d":"Сонгинохайрхан","h":"Оргил хороолол","r":3,"a":79.9,"p":264,"u":3.3},{"d":"Хан-Уул","h":null,"r":2,"a":59.6,"p":202,"u":3.39},{"d":"Хан-Уул","h":"Happy residence","r":3,"a":135.4,"p":542,"u":4.0},{"d":"Баянзүрх","h":"Cozy residense","r":2,"a":48.3,"p":160,"u":3.31},{"d":"Сүхбаатар","h":null,"r":5,"a":50.0,"p":260,"u":5.2},{"d":"Сонгинохайрхан","h":"Найрамдал зуслан","r":2,"a":59.4,"p":327,"u":5.5}]};
+
+const CHK = [
+  {k:"district", label:"Дүүрэг / хороо",        type:"sel", opts:["Хан-Уул","Баянзүрх","Сүхбаатар","Баянгол","Сонгинохайрхан","Чингэлтэй","Налайх","Багануур"], hint:"iList-д заавал"},
+  {k:"khotkhon", label:"Хотхон / хороолол",     type:"txt", hint:"Одоо зөвхөн 49% бөглөгдсөн"},
+  {k:"area",     label:"Нийт талбай (м²)",      type:"num", hint:"Гэрчилгээн дээрх тоо"},
+  {k:"floor",    label:"Хэддүгээр давхарт",     type:"num", hint:"Одоо 0% бөглөгдсөн — үнэд хамгийн их нөлөөлдөг"},
+  {k:"floors",   label:"Барилгын нийт давхар",  type:"num", hint:""},
+  {k:"rooms",    label:"Өрөөний тоо",           type:"num", hint:"Нийт өрөө"},
+  {k:"built",    label:"Ашиглалтад орсон он",   type:"num", hint:""},
+  {k:"ptype",    label:"Объектын төрөл",        type:"sel", opts:["Орон сууц","Хашаа байшин","Таунхаус","Пентхаус","Оффисын талбай","Үйлчилгээний талбай","Газар"], hint:""},
+  {k:"ophone",   label:"Эзэмшигчийн утас",      type:"tel", hint:"Одоо 71% бөглөгдсөн"},
+  {k:"cert",     label:"Гэрчилгээний төлөв",    type:"sel", opts:["эх хувь","хуулбар","шилжилт хийгдээгүй","тодорхойгүй"], ilist:false, hint:"iList-д талбаргүй — тайлбарт бичигдэнэ"},
+  {k:"encum",    label:"Дардас / барьцаа",      type:"sel", opts:["байхгүй","банкны барьцаа","бусад дардас"], ilist:false, hint:"iList-д талбаргүй — тайлбарт бичигдэнэ"},
+  {k:"loan",     label:"Зээлийн боломж",        type:"sel", opts:["Хаан банк","Голомт банк","ХХБ","Хас банк","Төрийн банк","ОССК","ЗЗСС","болохгүй"], ilist:false, hint:"iList-д талбаргүй — тайлбарт бичигдэнэ"}
+];
+const PHOTOS = ["Гадна талбай","Орц / хаалга","Зочид","Унтлага","Гал тогоо","Ариун цэвэр","Тагт","Цонхны харагдац"];
+/* Листингийн 10 алхам (эзний процесс) ба борлуулалтын 9 алхам.
+   w: хэн хийх — A агент · ADM админ · BUY худалдан авагч/банк (агент баталгаажуулна) · FIN оффисын санхүү
+   c: шалгах цэг · doc: алхмыг дуусгахад хавсаргах баримт */
+const SIGNED = "Гарын үсэг зурсан гэрээ";
+const LSTAGES = [
+  {n:1,s:"Холбоо",w:"A",c:"Эх сурвалж сонгогдсон"},
+  {n:2,s:"Уулзалт",w:"A",c:"Уулзалтын цаг товлогдсон"},
+  {n:3,s:"Үнэлгээ",w:"A",c:"12 талбар + 8 зураг → м² медиан"},
+  {n:4,s:"Гэрээний танилцуулга",w:"A",c:"Онцгой / энгийн сонгогдсон"},
+  {n:5,s:"Хөлс",w:"A",c:"Үйлчилгээний хөлс тохирсон"},
+  {n:6,s:"Гарын үсэг",w:"A",c:"Гарын үсэг зурсан гэрээ хавсаргасан",doc:SIGNED},
+  {n:7,s:"Баримт",w:"A",c:"Гэрээний бүх хавсралт баримт"},
+  {n:8,s:"Admin Audit",w:"ADM",c:"Гэрээ дугаарлаж, админ, ГЗ гарын үсэг зурсан"},
+  {n:9,s:"iConnect",w:"A",c:"MLS код бичигдсэн"},
+  {n:10,s:"Approve",w:"ADM",c:"iConnect-д батлагдсан"}
+];
+const DSTAGES = [
+  {n:1,s:"Маркетинг",w:"A",c:"3+ сувагт зар тавигдсан"},
+  {n:2,s:"Үзлэг",w:"A",c:"Худалдан авагч үзэж, санал өгсөн"},
+  {n:3,s:"Гэрээ",w:"A",c:"Гэрээ зураглал — I захиалгын / II гэрчилгээт",doc:"Борлуулалтын гэрээ"},
+  {n:4,s:"Нотариат",w:"A",c:"Нотариатаар гэрчлүүлсэн гэрээ",doc:"Нотариатын гэрчлэлтэй гэрээ"},
+  {n:5,s:"Төлбөр",w:"BUY",c:"Гэрээний дүн орсон баримт",doc:"Төлбөрийн баримт"},
+  {n:6,s:"Акт",w:"A",c:"Дуусгавар акт эсвэл үнэ өөрчлөгдсөн акт",doc:"Акт"},
+  {n:7,s:"Бодолт",w:"ADM",c:"Листинг хааж TRR үүсгэсэн → Solo / Referral бодолт"},
+  {n:8,s:"E-Barimt",w:"A",c:"E-Barimt REMAX TOP руу шивсэн",doc:"E-Barimt"},
+  {n:9,s:"Шимтгэл",w:"FIN",c:"Агентын дансанд шилжсэн"}
+];
+const WHO = {A:"Агент",ADM:"Админ",BUY:"Худалдан авагч / банк",FIN:"Оффисын санхүү"};
+/* Листингийн эх сурвалж — эзний 6 суваг */
+const LSOURCES = [
+  {code:"SPHERE",label:"Танил"},{code:"FB",label:"FB"},{code:"UNEGUI",label:"unegui"},
+  {code:"PAGE",label:"Page"},{code:"OFFICE",label:"Оффис"},{code:"BUYER",label:"Худалдан авагч"}
+];
+/* Гэрээний баримт — хоёр асуулт → жагсаалт */
+const CP_OPTS = [{code:"CITIZEN",label:"Иргэн"},{code:"LEGAL",label:"Хуулийн этгээд"}];
+const PS_OPTS = [{code:"ORDER",label:"Захиалгын гэрээтэй"},{code:"CERT",label:"Гэрчилгээтэй"}];
+const DOCS = {
+  CITIZEN:["Иргэний үнэмлэх"],
+  LEGAL:["Хуулийн этгээдийн гэрчилгээ","Дүрэм","ГЗ-ын иргэний үнэмлэх","Итгэмжилсэн албан тоот (төлөөлөгч ГЗ биш бол)"],
+  ORDER:["Захиалгын гэрээний хуулбар"],
+  CERT:["Гэрчилгээ"]
+};
+/* Хуурамч өгөгдөл. Эзэмшигчийн нэр, утас зохиомол. */
+const OBJECTS = [
+  {id:"TMP-260921-01", agent_id:"119038201", stage:7, deal:0, created:"2026.09.19", source:"FB",
+   title:"Хан-Уул · Зайсан", owner:"Ж.Оюун", ask:280000000, contract:"OPEN", expiry:null, ilist_code:null, ads:{},
+   cp:"CITIZEN", ps:"CERT", docs:[SIGNED,"Иргэний үнэмлэх"],
+   f:{district:"Хан-Уул",khotkhon:"Зайсан вэлли",area:62,floor:9,floors:12,rooms:2,built:2019,ptype:"Орон сууц",ophone:"99XXXXXX",cert:"эх хувь",encum:"байхгүй",loan:"Хаан банк"},
+   ph:PHOTOS.slice(), days:2, views:0, leads:0},
+  {id:"TMP-260918-02", agent_id:"119038201", stage:3, deal:0, created:"2026.09.18", source:"UNEGUI",
+   title:"Баянзүрх · 26-р хороолол", owner:"Б.Сүрэн", ask:265000000, contract:null, expiry:null, ilist_code:null, ads:{},
+   cp:null, ps:null, docs:[],
+   f:{district:"Баянзүрх",khotkhon:null,area:78,floor:null,floors:null,rooms:3,built:null,ptype:"Орон сууц",ophone:null,cert:null,encum:null,loan:null},
+   ph:["Гадна талбай","Зочид","Унтлага"], days:3, views:0, leads:0},
+  {id:"TMP-260919-03", agent_id:"119038202", stage:8, deal:0, created:"2026.09.19", source:"PAGE",
+   title:"Сүхбаатар · 8-р хороо", owner:"Д.Нарантуяа", ask:410000000, contract:"EXCLUSIVE", expiry:"2027.09.18", ilist_code:null, ads:{},
+   cp:"LEGAL", ps:"ORDER", docs:[SIGNED,"Хуулийн этгээдийн гэрчилгээ","Дүрэм","ГЗ-ын иргэний үнэмлэх","Итгэмжилсэн албан тоот (төлөөлөгч ГЗ биш бол)","Захиалгын гэрээний хуулбар"],
+   f:{district:"Сүхбаатар",khotkhon:"Их тойруу",area:96,floor:5,floors:9,rooms:3,built:2024,ptype:"Орон сууц",ophone:"99XXXXXX",cert:"шилжилт хийгдээгүй",encum:"байхгүй",loan:"Голомт банк"},
+   ph:PHOTOS.slice(), days:2, views:0, leads:0},
+  /* Цахим гарын үсгийн демо: 6-р алхамд, гэрээ зураагүй. esign — онлайн гэрээний төлөв (null | SENT | SIGNED) */
+  {id:"TMP-260920-05", agent_id:"119038201", stage:6, deal:0, created:"2026.09.20", source:"SPHERE",
+   title:"Баянзүрх · 13-р хороолол", owner:"Т.Болор", ask:245000000, contract:"EXCLUSIVE", fee:"3%", term:"12 сар",
+   expiry:null, ilist_code:null, ads:{}, esign:null,
+   cp:null, ps:null, docs:[],
+   f:{district:"Баянзүрх",khotkhon:"13-р хороолол",area:58,floor:4,floors:9,rooms:2,built:2012,ptype:"Орон сууц",ophone:"99118834",cert:"эх хувь",encum:"байхгүй",loan:"Төрийн банк"},
+   ph:PHOTOS.slice(), days:1, views:0, leads:0},
+  {id:"MLS-26-1184", agent_id:"119038201", stage:10, deal:1, created:"2026.09.02", source:"SPHERE",
+   title:"Хан-Уул · Яармаг", owner:"Д.Ганбат", ask:750000000, contract:"EXCLUSIVE", expiry:"2027.08.30", ilist_code:"MLS-26-1184",
+   ads:{UNEGUI:"тавигдсан",FB_MARKETPLACE:"тавигдсан",FB_GROUP:"тавигдсан"},
+   cp:"CITIZEN", ps:"CERT", docs:[SIGNED,"Иргэний үнэмлэх","Гэрчилгээ"],
+   f:{district:"Хан-Уул",khotkhon:"Яармаг хотхон",area:132,floor:7,floors:16,rooms:4,built:2022,ptype:"Орон сууц",ophone:"99XXXXXX",cert:"эх хувь",encum:"байхгүй",loan:"Хаан банк"},
+   ph:PHOTOS.slice(), days:19, views:412, leads:6},
+  {id:"MLS-26-1102", agent_id:"119038201", stage:10, deal:2, created:"2026.06.18", source:"OFFICE",
+   title:"Баянгол · 4-р хороо", owner:"Н.Цэрэн", ask:190000000, contract:"OPEN", expiry:"2026.10.10", ilist_code:"MLS-26-1102",
+   ads:{UNEGUI:"тавигдсан",FB_MARKETPLACE:"тавигдсан"},
+   cp:"CITIZEN", ps:"CERT", docs:[SIGNED,"Иргэний үнэмлэх","Гэрчилгээ"],
+   f:{district:"Баянгол",khotkhon:"Гандан",area:54,floor:3,floors:9,rooms:2,built:1998,ptype:"Орон сууц",ophone:"99XXXXXX",cert:"эх хувь",encum:"байхгүй",loan:"ОССК"},
+   ph:PHOTOS.slice(), days:95, views:96, leads:0},
+  {id:"MLS-26-0987", agent_id:"119038201", stage:10, deal:6, created:"2026.05.04", source:"BUYER",
+   title:"Чингэлтэй · 3-р хороо", owner:"С.Дорж", ask:320000000, contract:"EXCLUSIVE", expiry:"2027.05.02", ilist_code:"MLS-26-0987",
+   ads:{UNEGUI:"тавигдсан",FB_MARKETPLACE:"тавигдсан",FB_GROUP:"тавигдсан",INSTAGRAM:"тавигдсан"},
+   cp:"CITIZEN", ps:"CERT", docs:[SIGNED,"Иргэний үнэмлэх","Гэрчилгээ","Борлуулалтын гэрээ","Нотариатын гэрчлэлтэй гэрээ","Төлбөрийн баримт"],
+   f:{district:"Чингэлтэй",khotkhon:"Цэцэг төв",area:71,floor:6,floors:12,rooms:3,built:2015,ptype:"Орон сууц",ophone:"99XXXXXX",cert:"эх хувь",encum:"байхгүй",loan:"ХХБ"},
+   ph:PHOTOS.slice(), days:142, views:880, leads:11}
+];
+const LEAVE_REQUESTS = [
+  {id:"LV-01",agent:"Г.Мөнхзул",event:"2026.09.17 · Пүрэв гарагийн хурал",reason:"Харилцагчтай гэрээ",status:"PENDING"},
+  {id:"LV-02",agent:"Х.Эрдэнэбат",event:"2026.09.21 · Даваа гарагийн хурал",reason:"Эмнэлэг",status:"PENDING"}
+];
+/* ==========================================================================
+   ТӨЛӨВ + ТУСЛАХ ФУНКЦ
+   ========================================================================== */
+const DEFAULT_DEMO = {
+  persona:"ACTIVE",
+  silver:{commission:15000000,count:10},
+  realDist:null,
+  confirmed:false,
+  importDate:"2026.09.19",
+  openCheckin:true,
+  leadsTab:false,
+  queueCard:true,
+  netError:false,
+  test:{task:null,running:false,taps:0,start:0,result:null,leadId:null}
+};
+const S = {session:null, flow:null, data:null, demo:JSON.parse(JSON.stringify(DEFAULT_DEMO))};
+
+const PERSONA_AGENT = {NEW:"119038212", ACTIVE:"119038201", NEAR:"119038203", MANAGER:"119038207"};
+
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function hashStr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function pd(s){const p=s.split(".").map(Number);return new Date(p[0],p[1]-1,p[2])}
+function daysBetween(a,b){return Math.round((pd(a)-pd(b))/86400000)}
+function mins(t){const p=t.split(":").map(Number);return p[0]*60+p[1]}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function fmtMNT(n){return Number(n).toLocaleString("en-US")+"₮"}
+function fmtShort(n){
+  if(n>=1000000){const v=n/1000000;return (Math.round(v*10)/10).toString().replace(/\.0$/,"")+" сая ₮";}
+  return fmtMNT(n);
+}
+function pctOf(a,b){return b?Math.round(a/b*100):0}
+function $(sel,root){return (root||document).querySelector(sel)}
+function $$(sel,root){return Array.prototype.slice.call((root||document).querySelectorAll(sel))}
+function agentById(id){return S.data.agents.find(a=>a.agent_id===id)}
+function officeName(id){const o=OFFICES.find(o=>o.office_id===id);return o?o.name:id}
+function sourceLabel(c){const s=SOURCES.find(s=>s.code===c);return s?s.label:"—"}
+function subFlowLabel(c){const s=SUB_FLOWS.find(s=>s.code===c);return s?s.label:"—"}
+function finLabel(c){const s=FINANCING.find(s=>s.code===c);return s?s.label:"—"}
+function stageLabel(c){const s=STAGES.find(s=>s.code===c);return s?s.label:c}
+function sideLabel(c){const s=SIDES.find(s=>s.code===c);return s?s.label:c}
+function me(){return S.session?agentById(S.session):null}
+function isManager(){const a=me();return !!a && a.role==="MANAGER"}
+
+/* ---------- Өгөгдлийг шинээр угсрах (Демо дахин эхлүүлэх) ---------- */
+function buildData(){
+  const agents = JSON.parse(JSON.stringify(AGENTS));
+  const transactions = TX_RAW.map(function(r){
+    const f = r[8];
+    return {
+      trr_id:r[0], agent_id:r[1], deal_type:r[2], trr_type:r[3], listing_address:r[4],
+      sold_date:r[5], sold_price:r[6], agent_commission:r[7],
+      source_filled:!!f, sub_flow:f?f[0]:null, source_code:f?f[1]:null,
+      financing:f?f[2]:null, bank:f?f[3]:null, note:null, manual:false
+    };
+  });
+  const events = EVENT_DATES.map(function(e,i){
+    return {
+      event_id:"EVT-"+e[0].replace(/\./g,"")+"-"+e[1]+"-119038",
+      name:(e[1]==="MON"?"Даваа":"Пүрэв")+" гарагийн хурал",
+      date:e[0], time:"09:00", open_from:"08:30", open_to:"09:15",
+      mandatory:true, type:"REGULAR", idx:i, office_id:"119038"
+    };
+  });
+  events.push({event_id:"EVT-20260925-ANN-119038",name:"Сарын нэгдсэн уулзалт",date:"2026.09.25",
+    time:"15:00",open_from:"14:30",open_to:"15:15",mandatory:true,type:"ANNOUNCED",idx:-1,office_id:"119038"});
+
+  /* Ирц: event × агент */
+  const attendance = {};
+  const rnd = mulberry32(hashStr("att-2026"));
+  agents.forEach(function(a){
+    events.forEach(function(ev){
+      if(ev.type==="ANNOUNCED") return;
+      if(daysBetween(ev.date,a.joined_on)<0){attendance[ev.event_id+"|"+a.agent_id]={status:"NA"};return;}
+      if(ev.date===TODAY){return;}
+      const x=rnd();
+      const st = x<0.76?"P":(x<0.88?"L":(x<0.94?"E":"A"));
+      attendance[ev.event_id+"|"+a.agent_id]={status:st,time:st==="P"?"08:5"+(2+Math.floor(rnd()*7)):(st==="L"?"09:0"+(1+Math.floor(rnd()*8)):null)};
+    });
+  });
+  /* Демо персонуудын түүхийг тогтмол болгоно */
+  ["119038201","119038203","119038207"].forEach(function(id){
+    events.forEach(function(ev){
+      if(ev.type==="ANNOUNCED"||ev.idx<0) return;
+      const code = MY_ATTENDANCE[ev.idx];
+      if(!code) return;
+      attendance[ev.event_id+"|"+id]={status:code,time:code==="P"?"08:54":(code==="L"?"09:06":null)};
+    });
+  });
+
+  /* Өнөөдрийн хуралд хэдэн агент аль хэдийн бүртгүүлсэн байдлаар эхэлнэ (демо персонууд ороогүй) */
+  const todayEv = events.find(e=>e.date===TODAY);
+  if(todayEv) ["119038202","119038205","119038206","119038208","119038210"].forEach(function(id,i){
+    attendance[todayEv.event_id+"|"+id]={status:i===4?"L":"P",time:i===4?"09:04":"08:4"+(2+i)};
+  });
+
+  const leads = LEADS_RAW.map(function(r){
+    return {lead_id:r[0],agent_id:"119038201",side:r[1],source_code:r[2],label:r[3],stage:r[4],
+      created_on:r[5],lost_reason:r[4]==="LOST"?"Үнэ таараагүй":null,ref_id:r[4]==="WON"?"TRR-26-000295":null};
+  });
+
+  return {
+    agents:agents, transactions:transactions, events:events, attendance:attendance,
+    leads:leads, listingQueue:JSON.parse(JSON.stringify(LISTING_QUEUE)),
+    leaveRequests:JSON.parse(JSON.stringify(LEAVE_REQUESTS)),
+    objects:JSON.parse(JSON.stringify(OBJECTS)),
+    liveCheckins:{}, importLog:{rows:1284,errors:2}
+  };
+}
+
+/* ---------- Объектын туслах ---------- */
+function objById(id){return S.data.objects.find(function(o){return o.id===id})}
+function myObjects(agentId){return S.data.objects.filter(function(o){return o.agent_id===agentId})}
+function chkFilled(o){return CHK.filter(function(c){const v=o.f[c.k];return v!==null&&v!==undefined&&v!==""}).length}
+function chkReady(o){return chkFilled(o)===CHK.length && o.ph.length>=PHOTOS.length}
+/* Гэрээний баримт: гарын үсэгтэй гэрээ үргэлж + хоёр асуултаас гарах жагсаалт */
+function docsFor(o){
+  return [SIGNED].concat(o.cp?(DOCS[o.cp]||[]):[], o.ps?(DOCS[o.ps]||[]):[]);
+}
+function docsDone(o){const need=docsFor(o);return need.filter(function(d){return o.docs.indexOf(d)>=0}).length}
+function docsReady(o){return !!(o.cp&&o.ps) && docsDone(o)===docsFor(o).length}
+function adReady(o){return !!o.ilist_code}
+/* iConnect блок: баримт бүрэн + Admin Audit дууссан (8-р алхам) */
+function ilistOk(o){return chkReady(o)&&docsReady(o)&&(o.stage>=9||o.deal>0)}
+function chkPct(o){
+  const a=chkFilled(o)/CHK.length, b=Math.min(1,o.ph.length/PHOTOS.length);
+  const need=docsFor(o), d=(o.cp&&o.ps)?docsDone(o)/need.length:0;
+  return Math.round((a*0.5+b*0.25+d*0.25)*100);
+}
+function lstageName(n){const s=LSTAGES[n-1];return s?s.n+". "+s.s:"—"}
+function dstageName(n){const s=DSTAGES[n-1];return s?s.n+". "+s.s:"—"}
+/* Зам: stage = листингийн одоогийн алхам (1–10), deal = борлуулалтын одоогийн алхам
+   (0 эхлээгүй, 1–9, 10 = дууссан). Листинг Approve-оор дуусахад deal=1 болно. */
+function stepState(o,trk,n){
+  if(trk==="L"){ if(o.deal>0) return "done"; return n<o.stage?"done":(n===o.stage?"cur":"todo"); }
+  if(!o.deal) return "todo";
+  if(o.deal>DSTAGES.length) return "done";
+  return n<o.deal?"done":(n===o.deal?"cur":"todo");
+}
+function curStep(o){
+  if(!o.deal) return {trk:"L",n:o.stage,st:LSTAGES[o.stage-1]};
+  if(o.deal<=DSTAGES.length) return {trk:"D",n:o.deal,st:DSTAGES[o.deal-1]};
+  return null;
+}
+function isOfficeStep(st){return st.w==="ADM"||st.w==="FIN"}
+function adsCount(o){return Object.keys(o.ads||{}).filter(function(k){return o.ads[k]==="тавигдсан"}).length}
+/* Одоогийн алхмын шалгах цэг хангагдаагүй бол шалтгааныг буцаана, хангагдсан бол null */
+function stepGate(o){
+  const c=curStep(o); if(!c) return "Процесс дууссан";
+  const st=c.st;
+  if(st.doc && o.docs.indexOf(st.doc)<0) return st.doc+" хавсаргаагүй";
+  if(c.trk==="L"){
+    if(c.n===1 && !o.source) return "Эх сурвалж сонгоогүй";
+    if(c.n===3 && !chkReady(o)) return "12 талбар + 8 зураг бүрэн биш";
+    if(c.n===7 && !docsReady(o)) return (o.cp&&o.ps)?(docsFor(o).length-docsDone(o))+" баримт дутуу":"Баримтын 2 асуултад хариулаагүй";
+    if(c.n===9 && !o.ilist_code) return "MLS код ороогүй";
+  }else{
+    if(c.n===1 && adsCount(o)<3) return "Зар "+adsCount(o)+"/3 сувагт тавигдсан";
+  }
+  return null;
+}
+function nextName(o){
+  const c=curStep(o); if(!c) return "";
+  if(c.trk==="L") return c.n<LSTAGES.length?lstageName(c.n+1):"Борлуулалт эхэлнэ";
+  return c.n<DSTAGES.length?dstageName(c.n+1):"Хаагдана";
+}
+/* Объектын нэг мөр төлөв */
+function stageName(o){
+  if(o.deal>DSTAGES.length) return "Хаагдсан · шимтгэл олгосон";
+  if(o.deal>0) return "Борлуулалт · "+dstageName(o.deal);
+  return "Листинг · "+lstageName(o.stage);
+}
+function fmtSize(b){return b>=1048576?(b/1048576).toFixed(1)+" MB":Math.max(1,Math.round(b/1024))+" KB"}
+function lsourceLabel(c){const s=LSOURCES.find(function(x){return x.code===c});return s?s.label:"—"}
+function daysToExpiry(o){return o.expiry?daysBetween(o.expiry,TODAY):null}
+function missingList(o){
+  const m=CHK.filter(function(c){const v=o.f[c.k];return v===null||v===undefined||v===""}).map(function(c){return c.label});
+  const needPh=PHOTOS.length-o.ph.length;
+  if(needPh>0) m.push(needPh+" зураг");
+  if(!o.cp||!o.ps) m.push("баримтын 2 асуулт");
+  else docsFor(o).forEach(function(d){if(o.docs.indexOf(d)<0) m.push(d)});
+  return m;
+}
+/* Жагсаалтын анхаарлын шалтгаан — нэг л мөр */
+function attention(o){
+  const ex=daysToExpiry(o);
+  if(o.stage>=10 && ex!==null && ex<=30) return {k:"EXPIRY", t:"Гэрээ "+ex+" хоногт дуусна · сунгах акт"};
+  if(o.deal>0 && o.days>=90 && o.leads===0) return {k:"STALE", t:o.days+" хоног · эзэнтэй баталгаажуулах"};
+  if(!chkReady(o)) return {k:"CHK", t:missingList(o).filter(function(x){return x.indexOf("баримт")<0&&docsFor(o).indexOf(x)<0}).length+" зүйл дутуу"};
+  if(o.stage<9 && !docsReady(o)) return {k:"DOCS", t:"Гэрээний баримт дутуу · iConnect цоожтой"};
+  return null;
+}
+/* Үнийн сан — дүүрэг×өрөө байвал түүнийг, үгүй бол дүүргийн, эцэст нь нийт медиан */
+function priceMedian(district,rooms){
+  const dr=PRICE.dr[district+"|"+rooms];
+  if(dr) return {med:dr.med,n:dr.n,lvl:"Дүүрэг + өрөөний тоо"};
+  const d=PRICE.d[district];
+  if(d) return {med:d.med,n:d.n,lvl:"Дүүрэг"};
+  return {med:PRICE.overall,n:PRICE.meta.n_total,lvl:"Нийт зах зээл"};
+}
+function priceComps(o,lim){
+  const d=o.f.district, r=o.f.rooms, a=o.f.area||0;
+  const scored=PRICE.comps.map(function(c){
+    let s=0;
+    if(c.d===d) s+=100;
+    if(c.r===r) s+=40;
+    if(o.f.khotkhon&&c.h&&c.h.indexOf(String(o.f.khotkhon).slice(0,6))>=0) s+=60;
+    s-=Math.min(30,Math.abs(c.a-a)/2);
+    return {c:c,s:s};
+  }).sort(function(x,y){return y.s-x.s});
+  return scored.slice(0,lim||5).map(function(x){return x.c});
+}
+function certLine(o){
+  return "[ГЭРЧИЛГЭЭ: "+(o.f.cert||"—")+" | ДАРДАС: "+(o.f.encum||"—")+" | ЗЭЭЛ: "+(o.f.loan||"—")+"]";
+}
+function ilistBlock(o){
+  const L=[];
+  L.push("Дүүрэг: "+(o.f.district||""));
+  L.push("Хотхон: "+(o.f.khotkhon||""));
+  L.push("Нийт м²: "+(o.f.area||""));
+  L.push("Давхар: "+(o.f.floor||""));
+  L.push("Барилгын давхар: "+(o.f.floors||""));
+  L.push("Өрөө: "+(o.f.rooms||""));
+  L.push("Ашиглалтад орсон он: "+(o.f.built||""));
+  L.push("Төрөл: "+(o.f.ptype||""));
+  L.push("Эзэмшигчийн утас: "+(o.f.ophone||""));
+  L.push("Үнэ: "+(o.ask?fmtMNT(o.ask):""));
+  L.push("");
+  L.push("Тайлбар: "+certLine(o));
+  return L.join("\n");
+}
+function adText(o,ch){
+  const f=o.f, price=o.ask?fmtShort(o.ask):"";
+  const head=(f.rooms||"")+" өрөө · "+(f.area||"")+"м² · "+(f.district||"")+(f.khotkhon?", "+f.khotkhon:"");
+  const facts=[
+    (f.floor&&f.floors)?(f.floor+"/"+f.floors+" давхар"):null,
+    f.built?(f.built+" онд ашиглалтад орсон"):null,
+    f.loan&&f.loan!=="болохгүй"?("Зээл: "+f.loan):null,
+    f.encum&&f.encum!=="байхгүй"?("Анхаар: "+f.encum):null
+  ].filter(Boolean);
+  if(ch==="UNEGUI"){
+    return head+"\n\nҮнэ: "+price+"\n"+facts.map(function(x){return "• "+x}).join("\n")+
+      "\n\nҮзэхээр товлохыг хүсвэл холбогдоно уу.\nREMAX TOP · "+(o.ilist_code||o.id);
+  }
+  if(ch==="FB_MARKETPLACE"){
+    return head+" — "+price+"\n"+facts.join(" · ")+"\nҮзлэгийн цаг товлоё. REMAX TOP";
+  }
+  if(ch==="FB_GROUP"){
+    return "🏠 "+head+"\n💰 "+price+"\n"+facts.map(function(x){return "✔ "+x}).join("\n")+
+      "\n\nДэлгэрэнгүй мэдээлэл, үзлэгийн товлолт — коммент эсвэл хувийн зурвас.\nREMAX TOP";
+  }
+  return head+"\n"+price+"\n"+facts.join(" · ")+"\n#REMAXTOP #"+(f.district||"").replace(/\s/g,"")+" #үлхөдлөх";
+}
+const AD_CH=[{k:"UNEGUI",t:"unegui.mn"},{k:"FB_MARKETPLACE",t:"FB Marketplace"},{k:"FB_GROUP",t:"FB групп"},{k:"INSTAGRAM",t:"Instagram"}];
+function copyText(s){
+  try{
+    const ta=document.createElement("textarea");
+    ta.value=s; ta.style.position="fixed"; ta.style.opacity="0";
+    document.body.appendChild(ta); ta.select();
+    document.execCommand("copy"); document.body.removeChild(ta);
+    return true;
+  }catch(e){return false}
+}
+
+/* ---------- Цолны тооцоо ---------- */
+function rankStats(agentId){
+  const txs = S.data.transactions.filter(t=>t.agent_id===agentId);
+  if(txs.length){
+    return {commission:txs.reduce((s,t)=>s+t.agent_commission,0), count:txs.length, txs:txs};
+  }
+  const a = agentById(agentId)||{};
+  return {commission:a.ytd_commission||0, count:a.ytd_count||0, txs:[]};
+}
+function silverReached(agentId){
+  const st = rankStats(agentId), th = S.demo.silver;
+  return st.commission>=th.commission && st.count>=th.count;
+}
+function realDist(){const r=S.demo.realDist;return (r&&r.length)?r:null}
+function silverIsReal(){return !!realDist()}
+function silverCount(){
+  const r=realDist();
+  if(r) return r.filter(function(v){return v*1e6>=S.demo.silver.commission}).length;
+  return S.data.agents.filter(a=>silverReached(a.agent_id)).length;
+}
+function silverTotal(){const r=realDist();return r?r.length:S.data.agents.length}
+function todayEvent(){return S.data.events.find(e=>e.date===TODAY)}
+function checkinState(ev){
+  /* NOT_OPEN | OPEN | LATE | CLOSED  — демо цагаар */
+  if(!ev) return "NONE";
+  const d = daysBetween(ev.date,TODAY);
+  if(d>0) return "NOT_OPEN_DAY";
+  if(d<0) return "CLOSED";
+  const now = mins(DEMO_CLOCK.t);
+  if(now < mins(ev.open_from)) return "NOT_OPEN";
+  if(now > mins(ev.open_to)) return "CLOSED";
+  return now > mins(ev.time) ? "LATE" : "OPEN";
+}
+function myAttendance(eventId){return S.data.attendance[eventId+"|"+S.session]||null}
+function pendingTx(agentId){return S.data.transactions.filter(t=>t.agent_id===agentId && !t.source_filled)}
+function txEditable(t){return daysBetween(TODAY,t.sold_date)<=7}
+
+/* ---------- Цахим гарын үсэг: 2-р түвшин (SMS код + дэлгэц дээр зурах), docs/tsakhim-geree-sudalgaa.md ----------
+   Тоон гарын үсэг (G-Sign) биш — маргаанд баримтын мөр (огноо цаг, утас, код, hash) нотолгоо болно. */
+const ESIGN_BASE = "https://script.google.com/macros/s/DEMO/exec?t=";   // mock — Apps Script нийтийн вэб апп-ын линкийн хэлбэр
+const ESIGN_DEMO_OBJ = "TMP-260920-05";
+const ESIGN_CH = [{code:"SMS",label:"SMS"},{code:"MESSENGER",label:"Messenger"}];
+const ESIGN_MAX_TRIES = 5;
+function esignChLabel(c){const x=ESIGN_CH.find(function(s){return s.code===c});return x?x.label:c}
+function esignLabel(e){return !e?"Илгээгээгүй":(e.status==="SIGNED"?"Зурсан":"Илгээсэн")}
+function esignByToken(t){return S.data.objects.find(function(o){return o.esign&&o.esign.token===t})}
+function maskPhone(p){p=String(p||"");return p.length===8?p.slice(0,2)+"•• ••"+p.slice(-2):"—"}
+function stampNow(){const d=new Date(),z=function(n){return String(n).padStart(2,"0")};return TODAY+" "+z(d.getHours())+":"+z(d.getMinutes())+":"+z(d.getSeconds())}
+function randToken(n,abc){let s="";for(let i=0;i<n;i++)s+=abc.charAt(Math.floor(Math.random()*abc.length));return s}
+/* Эзэмшигчид харагдах гэрээний нөхцөл — hash-ийн эх текст мөн энэ */
+function contractTerms(o){
+  const a=agentById(o.agent_id), f=o.f;
+  return [
+    ["Гэрээний төрөл",o.contract==="EXCLUSIVE"?"Онцгой гэрээ":"Энгийн гэрээ"],
+    ["Объект",o.title+(f.area?" · "+f.area+" м²":"")+(f.rooms?" · "+f.rooms+" өрөө":"")],
+    ["Хаяг",[f.district,f.khotkhon].filter(Boolean).join(", ")+(f.floor?" · "+f.floor+"/"+(f.floors||"?")+" давхар":"")],
+    ["Худалдах үнэ",fmtMNT(o.ask)],
+    ["Үйлчилгээний хөлс",o.fee||"—"],
+    ["Хугацаа",(o.term||"—")+" (зурсан өдрөөс)"],
+    ["Эзэмшигч",o.owner],
+    ["Агент",a?a.full_name+" · REMAX TOP":"REMAX TOP"],
+    ["Гэрээний код",o.id]
+  ];
+}
+function termsListHtml(terms){
+  return '<dl class="terms">'+terms.map(function(t){return "<div><dt>"+esc(t[0])+"</dt><dd>"+esc(t[1])+"</dd></div>"}).join("")+"</dl>";
+}
+function termsHtml(o){return termsListHtml(contractTerms(o))}
+/* Баримтын мөр — агентын гэрээний хавсралт, эзэмшигчийн дуусах дэлгэц хоёуланд */
+function esignAuditHtml(e){
+  const rows=[
+    ["Зурсан огноо цаг",e.signed_at||"—"],
+    ["Утас",maskPhone(e.phone)],
+    ["Код баталгаажсан",e.verified_at?"тийм · "+e.verified_at:"үгүй"],
+    ["Баримтын hash",e.hash?e.hash_alg+" · "+e.hash:"—"],
+    ["Линк",esignChLabel(e.ch)+" · "+e.sent_at]
+  ];
+  return '<div class="audit">'+rows.map(function(r){return "<div><span>"+esc(r[0])+"</span><span>"+esc(r[1])+"</span></div>"}).join("")+"</div>"+
+    '<div class="section-label">Үйл явдлын бүртгэл</div><div class="audit">'+
+    e.log.map(function(l){return "<div><span>"+esc(l[0].slice(11))+"</span><span>"+esc(l[1])+"</span></div>"}).join("")+"</div>";
+}
+async function sha256Hex(s){
+  try{
+    if(window.crypto&&crypto.subtle){
+      const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));
+      return {alg:"SHA-256",hex:Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,"0")}).join("")};
+    }
+  }catch(e){}
+  /* file:// зэрэг crypto.subtle-гүй орчинд — зөвхөн прототипийн нөөц */
+  let h="";for(let i=0;i<8;i++)h+=hashStr(i+"|"+s).toString(16).padStart(8,"0");
+  return {alg:"FNV (прототип)",hex:h};
+}
+/* Онлайн гэрээний линк үүсгэх — api.esignCreate болон демо самбар хоёулаа ашиглана */
+function esignMake(o,ch){
+  const ph=String(o.f.ophone||"").replace(/\D/g,"");
+  if(ph.length!==8) return {ok:false,err:"Эзэмшигчийн утас (8 орон) бөглөөгүй"};
+  if(o.docs.indexOf(SIGNED)>=0) return {ok:false,err:SIGNED+" аль хэдийн хавсаргасан"};
+  const token=randToken(10,"abcdefghjkmnpqrstuvwxyz23456789"), at=stampNow();
+  o.esign={status:"SENT",token:token,link:ESIGN_BASE+token,phone:ph,ch:ch||"SMS",sent_at:at,
+    code:null,tries:0,verified_at:null,signed_at:null,hash:null,hash_alg:null,png:null,
+    log:[[at,"Линк үүсгэж "+esignChLabel(ch||"SMS")+"-ээр "+maskPhone(ph)+" руу илгээсэн"]]};
+  return {ok:true,esign:o.esign};
+}
+
+/* ==========================================================================
+   ДАВХАРГА 2 — api. Бодит хувилбарт мөр болгон google.script.run болно.
+   Жишээ:  return new Promise((ok,err)=>google.script.run
+              .withSuccessHandler(ok).withFailureHandler(err).getHome(agentId));
+   ========================================================================== */
+function wait(){return new Promise(r=>setTimeout(r,300+Math.random()*300))}
+async function call(fn,opts){
+  opts = opts||{};
+  await wait();
+  if(opts.write && S.demo.netError){S.demo.netError=false;renderDemo();const e=new Error("NETWORK");e.code="NETWORK";throw e;}
+  return fn();
+}
+const api = {
+  login:(phone,pin)=>call(function(){
+    const a = S.data.agents.find(a=>a.phone===phone.replace(/\s/g,""));
+    if(!a) return {ok:false,reason:"NO_AGENT"};
+    if(a.pin!==pin) return {ok:false,reason:"BAD_PIN"};
+    return {ok:true,agent:a,must_change_pin:a.must_change_pin};
+  }),
+  setPin:(agentId,pin)=>call(function(){
+    const a=agentById(agentId); a.pin=pin; a.must_change_pin=false; return {ok:true};
+  },{write:true}),
+  getHome:(agentId)=>call(function(){
+    const ev = todayEvent();
+    return {
+      agent:agentById(agentId),
+      event: ev && S.demo.openCheckin ? ev : null,
+      eventState: ev ? checkinState(ev) : "NONE",
+      checkedIn: !!myAttendance(ev?ev.event_id:""),
+      pending: pendingTx(agentId).length,
+      rank: rankStats(agentId),
+      queue: S.demo.queueCard ? S.data.listingQueue : [],
+      importDate: S.demo.importDate
+    };
+  }),
+  getEvents:(agentId)=>call(function(){
+    return S.data.events.map(function(e){
+      const a = S.data.attendance[e.event_id+"|"+agentId];
+      return Object.assign({},e,{my:a?a.status:null,my_time:a?a.time:null});
+    });
+  }),
+  checkIn:(eventId)=>call(function(){
+    const ev = S.data.events.find(e=>e.event_id===eventId);
+    if(!ev) return {ok:false,reason:"NO_EVENT"};
+    const exist = myAttendance(eventId);
+    if(exist) return {ok:false,reason:"ALREADY",time:exist.time,status:exist.status};
+    const st = checkinState(ev);
+    if(st==="NOT_OPEN"||st==="NOT_OPEN_DAY") return {ok:false,reason:"NOT_OPEN",from:ev.open_from,date:ev.date};
+    if(st==="CLOSED") return {ok:false,reason:"CLOSED",to:ev.open_to};
+    const status = st==="LATE"?"L":"P";
+    S.data.attendance[eventId+"|"+S.session]={status:status,time:DEMO_CLOCK.t};
+    return {ok:true,status:status,time:DEMO_CLOCK.t,event:ev};
+  },{write:true}),
+  requestLeave:(eventId,reason)=>call(function(){
+    const ev=S.data.events.find(e=>e.event_id===eventId);
+    S.data.leaveRequests.push({id:"LV-"+(S.data.leaveRequests.length+1),agent:me().full_name,
+      event:ev.date+" · "+ev.name,reason:reason,status:"PENDING"});
+    return {ok:true};
+  },{write:true}),
+  getTransactions:(agentId)=>call(function(){
+    return S.data.transactions.filter(t=>t.agent_id===agentId)
+      .slice().sort((a,b)=>pd(b.sold_date)-pd(a.sold_date));
+  }),
+  saveTxSource:(trrId,payload)=>call(function(){
+    const t=S.data.transactions.find(t=>t.trr_id===trrId);
+    Object.assign(t,payload,{source_filled:true});
+    return {ok:true};
+  },{write:true}),
+  addManualTx:(trrId)=>call(function(){
+    if(S.data.transactions.some(t=>t.trr_id===trrId)) return {ok:false,reason:"DUP"};
+    S.data.transactions.push({trr_id:trrId,agent_id:S.session,deal_type:"LEASE",trr_type:"SOLO",
+      listing_address:"Гараар нэмсэн бичилт",sold_date:TODAY,sold_price:0,agent_commission:0,
+      source_filled:false,sub_flow:null,source_code:null,financing:null,bank:null,manual:true});
+    return {ok:true};
+  },{write:true}),
+  getLeads:(agentId)=>call(function(){return S.data.leads.filter(l=>l.agent_id===agentId)}),
+  addLead:(lead)=>call(function(){
+    const id="LD-"+(2615+S.data.leads.length-14);
+    const l=Object.assign({lead_id:id,agent_id:S.session,stage:"NEW",created_on:TODAY,lost_reason:null,ref_id:null},lead);
+    S.data.leads.unshift(l); return {ok:true,lead:l};
+  },{write:true}),
+  moveLead:(leadId,stage,extra)=>call(function(){
+    const l=S.data.leads.find(l=>l.lead_id===leadId);
+    l.stage=stage; if(extra) Object.assign(l,extra); return {ok:true,lead:l};
+  },{write:true}),
+  getRank:(agentId)=>call(function(){
+    return {stats:rankStats(agentId),threshold:S.demo.silver,confirmed:S.demo.confirmed};
+  }),
+  adminSummary:()=>call(function(){
+    const recent = S.data.events.filter(e=>e.type==="REGULAR"&&daysBetween(TODAY,e.date)>0&&daysBetween(TODAY,e.date)<=7);
+    let tot=0,pres=0;
+    recent.forEach(function(ev){
+      S.data.agents.forEach(function(a){
+        const r=S.data.attendance[ev.event_id+"|"+a.agent_id];
+        if(!r||r.status==="NA") return;
+        tot++; if(r.status==="P"||r.status==="L") pres++;
+      });
+    });
+    const txs=S.data.transactions;
+    return {
+      attendance:pctOf(pres,tot),
+      sourceFill:pctOf(txs.filter(t=>t.source_filled).length,txs.length),
+      inactive:S.data.agents.filter(a=>a.status==="INACTIVE").length,
+      silver:silverCount(),
+      auditQueue:S.data.objects.filter(function(o){return o.stage===8}).length,
+      expiring30:S.data.objects.filter(function(o){const d=daysToExpiry(o);return o.stage>=10&&d!==null&&d>=0&&d<=30}).length,
+      stale90:S.data.objects.filter(function(o){return o.deal>0&&o.days>=90&&o.leads===0}).length
+    };
+  }),
+  markAttendance:(eventId,agentId,status)=>call(function(){
+    S.data.attendance[eventId+"|"+agentId]={status:status,time:status==="P"?"09:00":null};return {ok:true};
+  },{write:true}),
+  resolveLeave:(id,ok)=>call(function(){
+    const r=S.data.leaveRequests.find(r=>r.id===id); r.status=ok?"APPROVED":"DECLINED"; return {ok:true};
+  },{write:true}),
+  createEvent:(ev)=>call(function(){
+    const id="EVT-"+ev.date.replace(/\./g,"")+"-ANN-119038";
+    S.data.events.push(Object.assign({event_id:id,type:"ANNOUNCED",idx:-1,office_id:"119038",
+      open_from:"08:30",open_to:"09:15"},ev));
+    return {ok:true};
+  },{write:true}),
+  runImport:()=>call(function(){
+    S.data.importLog={rows:1284+Math.floor(Math.random()*40),errors:Math.floor(Math.random()*3)};
+    S.demo.importDate=TODAY; return {ok:true,log:S.data.importLog};
+  },{write:true}),
+  resetPin:(agentId)=>call(function(){
+    const a=agentById(agentId); a.pin="482910"; a.must_change_pin=true; return {ok:true,pin:"482910"};
+  },{write:true}),
+  getObjects:(agentId)=>call(function(){
+    return myObjects(agentId).map(function(o){
+      const c=curStep(o);
+      return {id:o.id,title:o.title,stage:o.stage,deal:o.deal,label:stageName(o),code:o.ilist_code,ask:o.ask,
+              days:o.days,leads:o.leads,views:o.views,pct:chkPct(o),ready:chkReady(o)&&docsReady(o),att:attention(o),
+              wait:(c&&isOfficeStep(c.st))?WHO[c.st.w]:null};
+    });
+  }),
+  getObject:(id)=>call(function(){
+    const o=objById(id); if(!o) return null;
+    return {o:o,pct:chkPct(o),chkOk:chkReady(o),docsOk:docsReady(o),adOk:adReady(o),ilOk:ilistOk(o),
+            miss:missingList(o),filled:chkFilled(o),docsNeed:docsFor(o),docsDone:docsDone(o)};
+  }),
+  setSource:(id,code)=>call(function(){const o=objById(id); if(o) o.source=code; return {ok:true}},{write:true}),
+  setCp:(id,code)=>call(function(){const o=objById(id); if(o){o.cp=code;} return {ok:true}},{write:true}),
+  setPs:(id,code)=>call(function(){const o=objById(id); if(o){o.ps=code;} return {ok:true}},{write:true}),
+  /* Бодит: google.script.run.uploadDoc(id, doc, base64) → Drive/REMAX TOP/Объект/{код}/ хавтас */
+  attachDoc:(id,doc,meta)=>call(function(){
+    const o=objById(id); if(!o) return {ok:false};
+    if(o.docs.indexOf(doc)<0) o.docs.push(doc);
+    o.files=o.files||{}; o.files[doc]=Object.assign({at:TODAY},meta||{});
+    if(doc===SIGNED) o.esign=null;   // цаасан гэрээ хавсаргавал илгээсэн онлайн линк хүчингүй болно
+    return {ok:true,n:o.docs.length};
+  },{write:true}),
+  removeDoc:(id,doc)=>call(function(){
+    const o=objById(id); if(!o) return {ok:false};
+    const i=o.docs.indexOf(doc); if(i>=0) o.docs.splice(i,1);
+    if(o.files) delete o.files[doc];
+    if(doc===SIGNED) o.esign=null;   // цахим гэрээг хасвал онлайн линк мөн хүчингүй
+    return {ok:true};
+  },{write:true}),
+  /* ---- Цахим гарын үсэг (6-р алхам). Бүгд mock — SMS, API холболт байхгүй. ----
+     Бодит: google.script.run.esignCreate(id, ch) → Sheets «ЦахимГэрээ» хуудсанд мөр (token, утас, төлөв),
+            SMS үйлчилгээ рүү UrlFetchApp-аар линк илгээнэ. SMS токен Script Properties-д — repo-д хэзээ ч биш. */
+  esignCreate:(id,ch)=>call(function(){
+    const o=objById(id); if(!o) return {ok:false,err:"Объект олдсонгүй"};
+    return esignMake(o,ch);
+  },{write:true}),
+  /* Бодит: google.script.run.esignCancel(id) → мөрийн төлөвийг CANCELLED, линк хүчингүй */
+  esignCancel:(id)=>call(function(){
+    const o=objById(id); if(o&&o.esign&&o.esign.status!=="SIGNED") o.esign=null; return {ok:true};
+  },{write:true}),
+  /* Эзэмшигчийн тал — нэвтрэлтгүй нийтийн хуудас (Apps Script doGet(e), e.parameter.t = token).
+     Бодит: google.script.run.esignGet(token) — утсыг бүтнээр биш, зөвхөн далдалж буцаана */
+  esignGet:(token)=>call(function(){
+    const o=esignByToken(token); if(!o) return null;
+    const e=o.esign;
+    return {id:o.id,terms:contractTerms(o),status:e.status,phone:maskPhone(e.phone),verified:!!e.verified_at,
+            locked:e.tries>=ESIGN_MAX_TRIES,audit:e.status==="SIGNED"?e:null,agent_obj:o.id};
+  }),
+  /* Бодит: google.script.run.esignSendCode(token, last4) → 6 оронтой код үүсгэж хэш хэлбэрээр хадгална,
+            SMS үйлчилгээгээр илгээнэ, 5 минут хүчинтэй. Кодыг хариунд БУЦААХГҮЙ. Прототип демо учир demoCode буцаана. */
+  esignSendCode:(token,last4)=>call(function(){
+    const o=esignByToken(token); if(!o) return {ok:false,err:"Линк хүчингүй"};
+    const e=o.esign;
+    if(e.status==="SIGNED") return {ok:false,err:"Гэрээнд аль хэдийн гарын үсэг зурсан"};
+    if(e.tries>=ESIGN_MAX_TRIES) return {ok:false,err:"Оролдлого дууссан. Агенттайгаа холбогдоно уу."};
+    if(String(last4)!==e.phone.slice(-4)){
+      e.tries++; e.log.push([stampNow(),"Утасны сүүлийн 4 орон буруу ("+e.tries+"/"+ESIGN_MAX_TRIES+")"]);
+      return {ok:false,err:"Гэрээнд бүртгэлтэй дугаартай таарахгүй байна. Үлдсэн оролдлого: "+(ESIGN_MAX_TRIES-e.tries)};
+    }
+    e.code=randToken(6,"0123456789");
+    e.log.push([stampNow(),"Баталгаажуулах код "+maskPhone(e.phone)+" руу илгээсэн"]);
+    return {ok:true,demoCode:e.code};
+  },{write:true}),
+  /* Бодит: google.script.run.esignVerify(token, code) */
+  esignVerify:(token,code)=>call(function(){
+    const o=esignByToken(token); if(!o) return {ok:false,err:"Линк хүчингүй"};
+    const e=o.esign;
+    if(e.tries>=ESIGN_MAX_TRIES) return {ok:false,err:"Оролдлого дууссан. Агенттайгаа холбогдоно уу."};
+    if(!e.code||String(code)!==e.code){
+      e.tries++; e.log.push([stampNow(),"Код буруу ("+e.tries+"/"+ESIGN_MAX_TRIES+")"]);
+      return {ok:false,err:"Код буруу байна. Үлдсэн оролдлого: "+(ESIGN_MAX_TRIES-e.tries)};
+    }
+    e.verified_at=stampNow(); e.code=null;
+    e.log.push([e.verified_at,"Код баталгаажсан"]);
+    return {ok:true};
+  },{write:true}),
+  /* Бодит: google.script.run.esignSign(token, pngBase64) → Docs загвараас гэрээ үүсгэж гарын үсгийн зургийг
+            оруулна → PDF → Drive/REMAX TOP/Объект/{код}/ хавтас; Utilities.computeDigest(SHA_256) → hash;
+            баримтын мөрийг Sheets-д; PDF-ийг эзэмшигчид SMS линкээр, агентад апп-д. */
+  esignSign:(token,png)=>call(async function(){
+    const o=esignByToken(token); if(!o) return {ok:false,err:"Линк хүчингүй"};
+    const e=o.esign;
+    if(!e.verified_at) return {ok:false,err:"Утасны код баталгаажаагүй"};
+    if(e.status==="SIGNED") return {ok:false,err:"Аль хэдийн зурсан"};
+    e.signed_at=stampNow();
+    const h=await sha256Hex(JSON.stringify(contractTerms(o))+"|"+e.phone+"|"+e.verified_at+"|"+e.signed_at+"|"+png);
+    e.hash=h.hex; e.hash_alg=h.alg; e.png=png; e.status="SIGNED";
+    e.log.push([e.signed_at,"Гарын үсэг зурсан · PDF үүсгэж «"+SIGNED+"»-д хавсаргасан"]);
+    if(o.docs.indexOf(SIGNED)<0) o.docs.push(SIGNED);
+    o.files=o.files||{};
+    o.files[SIGNED]={name:"Гэрээ_"+o.id+"_цахим.pdf",size:Math.round(png.length*0.75)+48000,type:"application/pdf",at:TODAY,esign:true};
+    return {ok:true,audit:e};
+  },{write:true}),
+  /* Одоогийн алхмыг дуусгах. who: AGENT (агент, худалдан авагчийн алхам) | OFFICE (админ, санхүү) */
+  advance:(id,who)=>call(function(){
+    const o=objById(id); if(!o) return {ok:false,err:"Объект олдсонгүй"};
+    const c=curStep(o); if(!c) return {ok:false,err:"Процесс дууссан"};
+    if((isOfficeStep(c.st)?"OFFICE":"AGENT")!==who) return {ok:false,err:WHO[c.st.w]+" хийх алхам"};
+    const g=stepGate(o); if(g) return {ok:false,err:g};
+    if(c.trk==="L"){ if(o.stage<LSTAGES.length) o.stage++; else o.deal=1; }
+    else o.deal++;
+    return {ok:true,label:stageName(o)};
+  },{write:true}),
+  officeQueue:()=>call(function(){
+    return S.data.objects.map(function(o){return {o:o,c:curStep(o)}})
+      .filter(function(x){return x.c&&isOfficeStep(x.c.st)})
+      .map(function(x){
+        const a=S.data.agents.find(function(g){return g.agent_id===x.o.agent_id});
+        return {id:x.o.id,title:x.o.title,code:x.o.ilist_code||x.o.id,agent:a?a.full_name:"—",
+                trk:x.c.trk,n:x.c.n,s:x.c.st.s,w:x.c.st.w,chk:x.c.st.c};
+      });
+  }),
+  setField:(id,k,v)=>call(function(){
+    const o=objById(id); if(o) o.f[k]=(v===""?null:v); return {ok:true};
+  },{write:true}),
+  togglePhoto:(id,slot)=>call(function(){
+    const o=objById(id); const i=o.ph.indexOf(slot);
+    if(i>=0) o.ph.splice(i,1); else o.ph.push(slot);
+    return {ok:true,n:o.ph.length};
+  },{write:true}),
+  getPrice:(id)=>call(function(){
+    const o=objById(id); const m=priceMedian(o.f.district,o.f.rooms);
+    const u=(o.ask&&o.f.area)?o.ask/o.f.area/1e6:null;
+    return {o:o,m:m,unit:u?Math.round(u*100)/100:null,comps:priceComps(o,5),meta:PRICE.meta};
+  }),
+  setIList:(id,code)=>call(function(){
+    const o=objById(id); if(o){o.ilist_code=code; if(!o.deal&&o.stage===9)o.stage=10;} return {ok:true};
+  },{write:true}),
+  markAd:(id,ch)=>call(function(){
+    const o=objById(id); if(o){o.ads[ch]="тавигдсан";} return {ok:true};
+  },{write:true}),
+  getAgents:()=>call(function(){return S.data.agents})
+};
+/* ==========================================================================
+   UI ТУСЛАХ
+   ========================================================================== */
+const screenEl=$("#screen"), overlayEl=$("#overlay"), toastEl=$("#toastRoot");
+let ACTIONS={}, timers=[], RID=0;
+function newRid(){return ++RID}
+function rvStale(id){return id!==RID}
+function clearTimers(){timers.forEach(clearInterval);timers=[]}
+function setTimer(fn,ms){const id=setInterval(fn,ms);timers.push(id);return id}
+document.addEventListener("click",function(e){
+  const t=e.target.closest("[data-act]"); if(!t) return;
+  const fn=ACTIONS[t.getAttribute("data-act")];
+  if(fn){e.preventDefault();fn(t);}
+});
+$("#phone").addEventListener("click",function(){ if(S.demo.test.running) S.demo.test.taps++; renderTestLive(); },true);
+
+function toast(msg,type){
+  toastEl.innerHTML='<div class="toast'+(type==="err"?" err":"")+'" role="status">'+esc(msg)+"</div>";
+  setTimeout(function(){toastEl.innerHTML=""},2600);
+}
+function openSheet(title,bodyHtml,footHtml,actions){
+  overlayEl.innerHTML=
+    '<div class="sheet-backdrop" data-act="sheetClose"></div>'+
+    '<div class="sheet" role="dialog" aria-modal="true" aria-label="'+esc(title)+'">'+
+      '<div class="sheet-head"><div class="sheet-grab"></div>'+
+        '<div class="spread"><strong>'+esc(title)+'</strong>'+
+        '<button class="btn ghost sm" data-act="sheetClose">Хаах</button></div></div>'+
+      '<div class="sheet-body">'+bodyHtml+'</div>'+
+      (footHtml?'<div class="sheet-foot">'+footHtml+"</div>":"")+
+    "</div>";
+  Object.assign(ACTIONS,actions||{},{sheetClose:closeSheet});
+  const f=overlayEl.querySelector("button,input,[tabindex]"); if(f) f.focus();
+}
+function closeSheet(){overlayEl.innerHTML=""}
+function skeleton(n){let h='<div class="body-pad">';for(let i=0;i<(n||5);i++)h+='<div class="sk" style="width:'+(60+Math.random()*40)+'%"></div>';return h+"</div>"}
+function go(h){location.hash=h}
+
+const ICONS={
+  home:'<path d="M3 11.5 12 4l9 7.5M5.5 10.5V20h13v-9.5"/>',
+  att:'<path d="M4.5 5.5h15v15h-15z"/><path d="M8.5 13l2.5 2.5 4.5-5"/>',
+  tx:'<path d="M6.5 3.5h8l4 4v13h-12z"/><path d="M14.5 3.5v4.5h4.5"/><path d="M9 13h6M9 16.5h4"/>',
+  lead:'<path d="M4 5.5h16l-6.2 7.2V19l-3.6 1.5v-8.8z"/>',
+  me:'<path d="M12 4a3.6 3.6 0 1 1 0 7.2A3.6 3.6 0 0 1 12 4Z"/><path d="M4.8 20.2c0-3.7 3.2-6 7.2-6s7.2 2.3 7.2 6"/>',
+  obj:'<path d="M4 9.5 12 4l8 5.5V20H4z"/><path d="M9.5 20v-6h5v6"/>',
+  admin:'<path d="M4 7h16M4 12h16M4 17h16"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="8" cy="17" r="2"/>'
+};
+function icon(k){return '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+ICONS[k]+"</svg>"}
+
+function topbar(title,sub){
+  return '<div class="topbar"><div class="topbar-row"><h1>'+esc(title)+'</h1>'+
+    '<span class="demo-tag">Демо өгөгдөл</span></div>'+
+    (sub?'<p class="small muted" style="margin:4px 0 0">'+sub+"</p>":"")+"</div>";
+}
+function renderNav(active){
+  const nav=$("#nav");
+  if(!S.session||active==="none"){nav.style.display="none";nav.innerHTML="";return;}
+  nav.style.display="flex";
+  const items=[["home","Нүүр","#/home"],["obj","Объект","#/objects"],["att","Ирц","#/attendance"],["tx","Гүйлгээ","#/tx"]];
+  if(S.demo.leadsTab) items.push(["lead","Лид","#/leads"]);
+  items.push(["me","Би","#/me"]);
+  if(isManager()) items.push(["admin","Удирдлага","#/admin"]);
+  const pend=pendingTx(S.session).length;
+  nav.innerHTML=items.map(function(it){
+    const cur=it[0]===active?' aria-current="page"':"";
+    const dot=(it[0]==="tx"&&pend)?'<i class="dot"></i>':"";
+    return '<button'+cur+' data-act="nav:'+it[2]+'">'+dot+icon(it[0])+"<span>"+it[1]+"</span></button>";
+  }).join("");
+}
+ACTIONS.__nav=null;
+document.addEventListener("click",function(e){
+  const t=e.target.closest('[data-act^="nav:"]'); if(!t) return;
+  go(t.getAttribute("data-act").slice(4));
+});
+
+/* ==========================================================================
+   ДАВХАРГА 3 — views
+   ========================================================================== */
+/* ---------- Нэвтрэх ---------- */
+function loginInit(force){
+  if(force||!S.flow||S.flow.type!=="login"){
+    const a=agentById(PERSONA_AGENT[S.demo.persona]);
+    S.flow={type:"login",step:"LOGIN",phone:a.phone,pin:"",attempts:0,locked:false,newPin:"",err:"",afterHash:null};
+  }
+}
+function keypad(){
+  let h='<div class="keypad">';
+  [1,2,3,4,5,6,7,8,9].forEach(function(n){h+='<button class="key" data-act="key" data-n="'+n+'">'+n+"</button>"});
+  h+='<button class="key blank" tabindex="-1" aria-hidden="true"></button>';
+  h+='<button class="key" data-act="key" data-n="0">0</button>';
+  h+='<button class="key" data-act="del" aria-label="Устгах">⌫</button>';
+  return h+"</div>";
+}
+function dots(len){
+  let h='<div class="pin-dots" aria-hidden="true">';
+  for(let i=0;i<6;i++)h+='<span class="pin-dot'+(i<len?" on":"")+'"></span>';
+  return h+"</div>";
+}
+async function viewLogin(){
+  newRid(); loginInit(); renderNav("none"); renderLogin();
+}
+function renderLogin(){
+  const f=S.flow;
+  let body="";
+  if(f.step==="LOGIN"){
+    body='<p class="muted small" style="margin:0 0 18px">Бүртгэлтэй утасны дугаараа оруулаад PIN-ээ бичнэ үү.</p>'+
+      '<div class="field"><label for="ph">Утасны дугаар</label>'+
+      '<div style="display:flex;gap:8px"><span class="input" style="width:78px;display:flex;align-items:center;background:#F2F4F5">+976</span>'+
+      '<input class="input" id="ph" inputmode="numeric" maxlength="8" value="'+esc(f.phone)+'" data-act="none"></div></div>'+
+      '<label class="small" style="font-weight:600;color:var(--muted)">PIN (6 орон)</label>'+
+      dots(f.pin.length)+
+      (f.err?'<p class="err-text center" style="margin-top:-12px">'+esc(f.err)+"</p>":"")+
+      (f.locked?'<div class="notice err" style="margin-bottom:14px">15 минут түгжигдлээ. Дараа дахин оролдоно уу.</div>':keypad())+
+      '<p class="hint center" style="margin-top:18px">Демо: PIN <strong>111111</strong>'+
+      (S.demo.persona==="NEW"?" · шинэ агентын түр PIN <strong>482910</strong>":"")+"</p>";
+  } else if(f.step==="NEW_PIN"||f.step==="NEW_PIN2"){
+    body='<p class="muted small" style="margin:0 0 6px">'+
+      (f.step==="NEW_PIN"?"Шинэ PIN зохионо уу.":"Шинэ PIN-ээ давтан оруулна уу.")+"</p>"+
+      dots(f.pin.length)+
+      (f.err?'<p class="err-text center" style="margin-top:-12px">'+esc(f.err)+"</p>":"")+
+      keypad();
+  } else if(f.step==="CONSENT"){
+    body='<div class="notice info" style="margin-bottom:16px;display:block">'+
+      "<p style=\"margin:0 0 8px\"><strong>Хувийн мэдээллийн зөвшөөрөл</strong></p>"+
+      "<p style=\"margin:0\">Энэ апп таны нэр, утасны дугаар, ирцийн бүртгэл, гүйлгээний шимтгэлийн дүнг "+
+      "цол тооцох болон ирцийн тайланд ашиглана. Мэдээллийг зөвхөн оффисын удирдлага харна.</p></div>"+
+      '<button class="btn" data-act="consent">Зөвшөөрөх</button>'+
+      '<button class="btn ghost" style="margin-top:10px" data-act="logout">Болих</button>';
+  }
+  screenEl.innerHTML=
+    '<div class="topbar"><div class="topbar-row"><h1>TOP Agent</h1><span class="demo-tag">Демо өгөгдөл</span></div></div>'+
+    '<div class="body-pad">'+body+"</div>";
+  ACTIONS={
+    key:function(el){
+      const f=S.flow; if(f.locked) return;
+      if(f.pin.length>=6) return;
+      f.pin+=el.getAttribute("data-n"); f.err="";
+      renderLogin();
+      if(f.pin.length===6) submitPin();
+    },
+    del:function(){S.flow.pin=S.flow.pin.slice(0,-1);renderLogin()},
+    consent:function(){finishLogin()},
+    logout:function(){S.session=null;S.flow=null;go("#/login")},
+    none:function(){}
+  };
+  const ph=$("#ph"); if(ph) ph.addEventListener("input",function(){S.flow.phone=ph.value.replace(/\D/g,"")});
+}
+async function submitPin(){
+  const f=S.flow;
+  if(f.step==="LOGIN"){
+    const r=await api.login(f.phone,f.pin);
+    if(!r.ok){
+      f.attempts++; f.pin="";
+      if(f.attempts>=5){f.locked=true;f.err="5 удаа буруу оруулсан.";}
+      else f.err=(r.reason==="NO_AGENT"?"Энэ дугаар бүртгэлгүй байна.":"PIN буруу байна.")+" Үлдсэн оролдлого: "+(5-f.attempts);
+      renderLogin(); return;
+    }
+    S.session=r.agent.agent_id;
+    if(r.must_change_pin){f.step="NEW_PIN";f.pin="";f.err="";renderLogin();}
+    else finishLogin();
+  } else if(f.step==="NEW_PIN"){
+    f.newPin=f.pin; f.pin=""; f.step="NEW_PIN2"; renderLogin();
+  } else if(f.step==="NEW_PIN2"){
+    if(f.pin!==f.newPin){f.pin="";f.step="NEW_PIN";f.newPin="";f.err="PIN хоёр адил биш байна. Дахин оролдоно уу.";renderLogin();return;}
+    try{
+      await api.setPin(S.session,f.pin);
+      markTest("T1");
+      if(agentById(S.session).must_change_pin===false && f.fromProfile){toast("PIN солигдлоо");S.flow=null;go("#/me");return;}
+      f.step="CONSENT"; renderLogin();
+    }catch(e){f.pin="";f.err="Хадгалж чадсангүй. Сүлжээгээ шалгаад дахин оролдоно уу.";renderLogin();}
+  }
+}
+function finishLogin(){
+  const after=S.flow&&S.flow.afterHash;
+  S.flow=null;
+  toast("Тавтай морилно уу");
+  go(after||"#/home");
+}
+
+/* ---------- QR бүртгэл ---------- */
+async function viewCheckin(q){
+  newRid(); renderNav("none");
+  const ev=S.data.events.find(e=>e.event_id===q.e)||todayEvent();
+  if(!ev){screenEl.innerHTML=topbar("Ирц")+'<div class="body-pad"><div class="notice warn">Энэ QR-т тохирох арга хэмжээ олдсонгүй.</div></div>';return;}
+  if(!S.session){
+    loginInit(true); S.flow.afterHash=location.hash; S.flow.compact=ev;
+    renderCheckinLogin(ev); return;
+  }
+  renderCheckinReady(ev);
+}
+function renderCheckinLogin(ev){
+  const f=S.flow;
+  screenEl.innerHTML=topbar("Ирцийн бүртгэл")+
+    '<div class="body-pad">'+
+    '<div class="primary-block" style="margin-bottom:18px"><h2>'+esc(ev.name)+"</h2>"+
+    '<p class="small muted" style="margin:2px 0 0">'+esc(ev.date)+" · "+esc(ev.time)+"</p></div>"+
+    '<p class="muted small" style="margin:0 0 12px">Бүртгүүлэхийн тулд нэвтэрнэ үү.</p>'+
+    '<div class="field"><label for="ph">Утасны дугаар</label>'+
+    '<div style="display:flex;gap:8px"><span class="input" style="width:78px;display:flex;align-items:center;background:#F2F4F5">+976</span>'+
+    '<input class="input" id="ph" inputmode="numeric" maxlength="8" value="'+esc(f.phone)+'"></div></div>'+
+    '<label class="small" style="font-weight:600;color:var(--muted)">PIN</label>'+dots(f.pin.length)+
+    (f.err?'<p class="err-text center" style="margin-top:-12px">'+esc(f.err)+"</p>":"")+
+    keypad()+'<p class="hint center" style="margin-top:16px">Демо: PIN <strong>111111</strong></p></div>';
+  ACTIONS={
+    key:function(el){const f=S.flow;if(f.pin.length>=6)return;f.pin+=el.getAttribute("data-n");f.err="";
+      renderCheckinLogin(ev); if(f.pin.length===6) submitCheckinLogin(ev);},
+    del:function(){S.flow.pin=S.flow.pin.slice(0,-1);renderCheckinLogin(ev)}
+  };
+  const ph=$("#ph"); if(ph) ph.addEventListener("input",function(){S.flow.phone=ph.value.replace(/\D/g,"")});
+}
+async function submitCheckinLogin(ev){
+  const f=S.flow;
+  const r=await api.login(f.phone,f.pin);
+  if(!r.ok){f.attempts++;f.pin="";f.err="PIN буруу байна. Үлдсэн оролдлого: "+Math.max(0,5-f.attempts);renderCheckinLogin(ev);return;}
+  S.session=r.agent.agent_id; S.flow=null;
+  renderCheckinReady(ev);
+}
+function renderCheckinReady(ev){
+  const st=checkinState(ev), mine=myAttendance(ev.event_id);
+  let inner="";
+  if(mine){
+    inner='<div class="notice ok-note" style="background:var(--ok-bg);color:#0E5C3D;border-radius:10px;padding:14px">'+
+      "Та "+esc(mine.time||ev.time)+"-д бүртгүүлсэн"+(mine.status==="L"?" (хоцорсон)":"")+".</div>"+
+      '<button class="btn secondary" style="margin-top:16px" data-act="home">Нүүр хуудас руу</button>';
+  } else if(st==="NOT_OPEN"||st==="NOT_OPEN_DAY"){
+    inner='<div class="notice warn">Бүртгэл '+(st==="NOT_OPEN_DAY"?esc(ev.date)+" "+esc(ev.open_from):esc(ev.open_from))+"-д нээгдэнэ.</div>"+
+      '<button class="btn secondary" style="margin-top:16px" data-act="home">Нүүр хуудас руу</button>';
+  } else if(st==="CLOSED"){
+    inner='<div class="notice err">Бүртгэл '+esc(ev.open_to)+'-д хаагдсан. Менежерээс гараар бүртгүүлэхийг хүснэ үү.</div>'+
+      '<button class="btn secondary" style="margin-top:16px" data-act="leave">Чөлөө хүсэх</button>'+
+      '<button class="btn ghost" style="margin-top:10px" data-act="home">Нүүр хуудас руу</button>';
+  } else {
+    inner=(st==="LATE"?'<div class="notice warn" style="margin-bottom:14px">Хурал '+esc(ev.time)+"-д эхэлсэн. Та хоцорсон гэж бүртгэгдэнэ.</div>":"")+
+      '<button class="btn" data-act="checkin">Бүртгүүлэх</button>'+
+      '<p class="hint center">Одоогийн цаг '+esc(DEMO_CLOCK.t)+" (демо)</p>";
+  }
+  screenEl.innerHTML=topbar("Ирцийн бүртгэл")+
+    '<div class="body-pad">'+
+    '<div class="primary-block" style="margin-bottom:20px"><h2>'+esc(ev.name)+"</h2>"+
+    '<p class="small muted" style="margin:2px 0 0">'+esc(ev.date)+" · "+esc(ev.time)+
+    (ev.mandatory?' · <span class="badge accent">Заавал</span>':"")+"</p></div>"+inner+"</div>";
+  ACTIONS={
+    home:function(){go("#/home")},
+    leave:function(){go("#/attendance")},
+    checkin:async function(el){
+      el.disabled=true; el.textContent="Бүртгэж байна…";
+      try{
+        const r=await api.checkIn(ev.event_id);
+        if(!r.ok){toast("Бүртгэж чадсангүй","err");renderCheckinReady(ev);return;}
+        markTest("T2");
+        renderCheckinDone(ev,r);
+      }catch(e){
+        el.disabled=false; el.textContent="Бүртгүүлэх";
+        toast("Бүртгэж чадсангүй. Сүлжээгээ шалгаад дахин оролдоно уу.","err");
+      }
+    }
+  };
+}
+function renderCheckinDone(ev,r){
+  screenEl.innerHTML=topbar("Ирцийн бүртгэл")+
+    '<div class="body-pad center" style="padding-top:60px">'+
+    '<div style="font-size:52px;line-height:1">'+(r.status==="L"?"⏱":"✓")+"</div>"+
+    '<h2 style="margin:14px 0 6px;font-size:22px">'+(r.status==="L"?"Хоцорсон гэж бүртгэгдлээ":"Бүртгэгдлээ · "+esc(r.time))+"</h2>"+
+    '<p class="muted small">'+esc(ev.name)+" · "+esc(ev.date)+"</p>"+
+    '<button class="btn" style="margin-top:26px" data-act="home">Нүүр хуудас руу</button></div>';
+  ACTIONS={home:function(){go("#/home")}};
+}
+
+/* ---------- Эзэмшигчийн тал: онлайн гэрээ зурах (#/sign/{token}) ----------
+   Агентын апп биш — эзэмшигч SMS / Messenger линкээр нэвтрэлтгүй орно. Бодит: Apps Script нийтийн вэб апп. */
+async function viewSign(token){
+  const rid=newRid(); renderNav("none");
+  screenEl.innerHTML=topbar("Гэрээ зурах","REMAX TOP · листингийн гэрээ")+skeleton(5);
+  const r=await api.esignGet(token); if(rvStale(rid)) return;
+  if(!r){
+    screenEl.innerHTML=topbar("Гэрээ зурах","REMAX TOP · листингийн гэрээ")+
+      '<div class="body-pad"><div class="notice err"><span>Линк хүчингүй эсвэл цуцлагдсан байна. Агенттайгаа холбогдоно уу.</span></div>'+
+      signBackHtml()+"</div>";
+    ACTIONS={back:function(){go(S.session?"#/objects":"#/login")}};
+    return;
+  }
+  if(!S.sign||S.sign.token!==token) S.sign={token:token,step:r.verified?"REVIEW":"PHONE",last4:"",code:"",demoCode:null,agree:false,err:""};
+  if(r.status==="SIGNED") S.sign.step="DONE";
+  renderSign(r);
+}
+function termVal(terms,k){const t=terms.find(function(x){return x[0]===k});return t?t[1]:""}
+function signBackHtml(){
+  return S.session?'<button class="btn ghost" style="margin-top:18px" data-act="back">← Агентын тал руу буцах (демо)</button>':"";
+}
+function renderSign(r){
+  const f=S.sign, idx={PHONE:0,CODE:0,REVIEW:1,DRAW:2,DONE:3}[f.step];
+  const bar='<div class="sign-steps">'+["1. Утас","2. Гэрээ","3. Гарын үсэг"].map(function(t,i){
+    return '<span class="'+(i<idx?"done":(i===idx?"on":""))+'">'+(i<idx?"✓ ":"")+t+"</span>"}).join("")+"</div>";
+  const errH=f.err?'<p class="err-text" role="alert">'+esc(f.err)+"</p>":"";
+  let inner="";
+  if(r.locked&&f.step!=="DONE"){
+    inner='<div class="notice err"><span>Оролдлого дууссан тул линк түгжигдлээ. Агенттайгаа холбогдоно уу.</span></div>';
+  } else if(f.step==="PHONE"||f.step==="CODE"){
+    inner='<p class="small muted" style="margin:0 0 14px">Гэрээнд бүртгэлтэй утас <b>'+esc(r.phone)+"</b>. Баталгаажуулахын тулд сүүлийн 4 оронг оруулна уу.</p>"+
+      '<div class="field"><label for="l4">Утасны сүүлийн 4 орон</label>'+
+      '<input class="input" id="l4" inputmode="numeric" maxlength="4" autocomplete="off" value="'+esc(f.last4)+'"'+(f.step==="CODE"?" readonly":"")+"></div>"+
+      (f.step==="PHONE"?errH+'<button class="btn" data-act="send">Код авах</button>':
+        '<div class="sms-mock" aria-live="polite"><div class="tiny muted">📱 Жишээ SMS (демо — бодит SMS илгээгдээгүй)</div>'+
+        "REMAX TOP: Гэрээ баталгаажуулах код <b>"+esc(f.demoCode)+"</b>. 5 минут хүчинтэй.</div>"+
+        '<div class="field"><label for="cd">SMS код</label>'+
+        '<input class="input" id="cd" inputmode="numeric" maxlength="6" autocomplete="one-time-code" value="'+esc(f.code)+'"></div>'+
+        errH+'<button class="btn" data-act="verify">Баталгаажуулах</button>'+
+        '<button class="btn ghost" style="margin-top:10px" data-act="resend">Дугаар засах / код дахин авах</button>');
+  } else if(f.step==="REVIEW"){
+    inner='<p class="small muted" style="margin:0 0 12px">Гэрээний нөхцөл, үнэ, хаягийг шалгана уу.</p>'+termsListHtml(r.terms)+
+      '<div class="notice info" style="margin-top:12px"><span>Талууд энэ гэрээг цахимаар — утасны код баталгаажуулж, дэлгэц дээр гарын үсэг зурах замаар — '+
+      "байгуулахыг зөвшөөрнө. Гарын үсэгтэй PDF хоёр талд үлдэнэ.</span></div>"+
+      '<label class="check-row"><input type="checkbox" id="agree"'+(f.agree?" checked":"")+"><span>Нөхцөлтэй танилцсан, зөвшөөрч байна</span></label>"+
+      '<button class="btn" data-act="toDraw"'+(f.agree?"":" disabled")+">Гарын үсэг зурах руу</button>";
+  } else if(f.step==="DRAW"){
+    inner='<p class="small muted" style="margin:0 0 10px">Доорх хүрээнд хуруугаараа гарын үсгээ зурна уу.</p>'+
+      '<canvas class="sig-pad" id="sig" aria-label="Гарын үсэг зурах талбар"></canvas>'+
+      '<div class="spread" style="margin:8px 0 14px"><span class="tiny muted">'+esc(termVal(r.terms,"Эзэмшигч"))+" · "+esc(r.id)+"</span>"+
+      '<button class="btn ghost sm" data-act="clr">Арилгах</button></div>'+errH+
+      '<button class="btn" id="signBtn" data-act="sign" disabled>Гарын үсэг зурж баталгаажуулах</button>'+
+      '<button class="btn ghost" style="margin-top:10px" data-act="toReview">← Гэрээ рүү буцах</button>';
+  } else {
+    const e=r.audit;
+    inner='<div class="center" style="padding:10px 0 16px"><div style="font-size:48px;line-height:1;color:var(--ok)">✓</div>'+
+      '<h2 style="margin:10px 0 4px;font-size:21px">Гэрээнд гарын үсэг зурлаа</h2>'+
+      '<p class="small muted" style="margin:0">Гарын үсэгтэй PDF таны утсанд линкээр ирнэ (бодит хувилбарт).</p></div>'+
+      '<img class="sig-img" src="'+e.png+'" alt="Таны гарын үсэг">'+
+      '<div class="section-label">Баримтын мөр</div>'+esignAuditHtml(e);
+  }
+  screenEl.innerHTML=topbar("Гэрээ зурах","REMAX TOP · листингийн гэрээ · "+esc(r.id))+
+    '<div class="body-pad">'+bar+inner+
+    signBackHtml()+"</div>";
+  ACTIONS={
+    back:function(){go("#/obj/"+r.agent_obj)},
+    send:async function(el){
+      const v=($("#l4").value||"").replace(/\D/g,"");
+      f.last4=v;
+      if(v.length!==4){f.err="4 орон оруулна уу";renderSign(r);return;}
+      el.disabled=true; el.textContent="Илгээж байна…";
+      let res; try{ res=await api.esignSendCode(f.token,v); }catch(e){ f.err="Сүлжээ тасарлаа — дахин оролдоно уу"; renderSign(r); return; }
+      if(!res.ok){f.err=res.err; if(/Оролдлого дууссан/.test(res.err)) r.locked=true; else r.locked=false; renderSign(r); return;}
+      f.err=""; f.demoCode=res.demoCode; f.step="CODE"; renderSign(r);
+      const cd=$("#cd"); if(cd) cd.focus();
+    },
+    resend:function(){f.step="PHONE";f.code="";f.demoCode=null;f.err="";renderSign(r)},
+    verify:async function(el){
+      const v=($("#cd").value||"").replace(/\D/g,""); f.code=v;
+      el.disabled=true; el.textContent="Шалгаж байна…";
+      let res; try{ res=await api.esignVerify(f.token,v); }catch(e){ f.err="Сүлжээ тасарлаа — дахин оролдоно уу"; renderSign(r); return; }
+      if(!res.ok){f.err=res.err; if(/Оролдлого дууссан/.test(res.err)) r.locked=true; renderSign(r); return;}
+      f.err=""; f.step="REVIEW"; renderSign(r);
+    },
+    toDraw:function(){if(f.agree){f.step="DRAW";f.err="";renderSign(r)}},
+    toReview:function(){f.step="REVIEW";f.err="";renderSign(r)}
+  };
+  const ag=$("#agree");
+  if(ag) ag.addEventListener("change",function(){f.agree=ag.checked;const b=$('[data-act="toDraw"]');if(b)b.disabled=!ag.checked});
+  const cv=$("#sig");
+  if(cv){
+    const pad=sigPad(cv,function(ok){const b=$("#signBtn");if(b)b.disabled=!ok});
+    ACTIONS.clr=function(){pad.clear()};
+    ACTIONS.sign=async function(el){
+      if(!pad.ok()) return;
+      el.disabled=true; el.textContent="Хадгалж байна…";
+      let res; try{ res=await api.esignSign(f.token,pad.png()); }
+      catch(e){ el.disabled=false; el.textContent="Гарын үсэг зурж баталгаажуулах"; toast("Сүлжээ тасарлаа — дахин дарна уу","err"); return; }
+      if(!res.ok){f.err=res.err;renderSign(r);return;}
+      r.status="SIGNED"; r.audit=res.audit; f.step="DONE"; renderSign(r); renderDemo();
+    };
+  }
+}
+/* Хуруугаар зурах талбар (Pointer Events — хулгана, мэдрэгч дэлгэц, стилус) */
+function sigPad(cv,onChange){
+  const dpr=window.devicePixelRatio||1, w=cv.clientWidth, h=cv.clientHeight;
+  cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr);
+  const ctx=cv.getContext("2d");
+  ctx.scale(dpr,dpr); ctx.lineWidth=2.4; ctx.lineCap="round"; ctx.lineJoin="round";
+  ctx.strokeStyle="#10161C"; ctx.fillStyle="#10161C";
+  let down=false, last=null, len=0;
+  function pt(e){const b=cv.getBoundingClientRect();return {x:e.clientX-b.left,y:e.clientY-b.top}}
+  cv.addEventListener("pointerdown",function(e){
+    e.preventDefault(); down=true; last=pt(e);
+    try{cv.setPointerCapture(e.pointerId)}catch(x){}
+    ctx.beginPath(); ctx.arc(last.x,last.y,1.2,0,Math.PI*2); ctx.fill();
+  });
+  cv.addEventListener("pointermove",function(e){
+    if(!down) return; e.preventDefault();
+    const p=pt(e);
+    ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke();
+    len+=Math.hypot(p.x-last.x,p.y-last.y); last=p;
+    onChange(len>=60);
+  });
+  ["pointerup","pointercancel"].forEach(function(t){cv.addEventListener(t,function(){down=false})});
+  return {
+    ok:function(){return len>=60},   // цэг, богино зураас гарын үсэгт тооцогдохгүй
+    clear:function(){ctx.clearRect(0,0,w,h);len=0;onChange(false)},
+    png:function(){
+      /* цагаан дэвсгэртэй PNG — PDF-д шууд орно */
+      const c=document.createElement("canvas"); c.width=cv.width; c.height=cv.height;
+      const x=c.getContext("2d"); x.fillStyle="#fff"; x.fillRect(0,0,c.width,c.height); x.drawImage(cv,0,0);
+      return c.toDataURL("image/png");
+    }
+  };
+}
+
+/* ---------- Нүүр ---------- */
+async function viewHome(){
+  const rid=newRid(); renderNav("home"); screenEl.innerHTML=topbar("Өнөөдөр")+skeleton(4);
+  const d=await api.getHome(S.session); if(rvStale(rid)) return;
+  const th=S.demo.silver, st=d.rank;
+  const needM=Math.max(0,th.commission-st.commission), needC=Math.max(0,th.count-st.count);
+  const reached=needM===0&&needC===0;
+  const cards=[];
+  if(d.event&&!d.checkedIn&&d.eventState!=="CLOSED"&&d.eventState!=="NONE"){
+    cards.push('<div class="primary-block"><div class="spread"><div><h2>'+esc(d.event.name)+"</h2>"+
+      '<p class="small muted" style="margin:2px 0 0">'+esc(d.event.time)+" · "+esc(d.event.date)+
+      (d.eventState==="LATE"?' · <span class="badge warn">Хоцорч байна</span>':"")+"</p></div></div>"+
+      '<button class="btn" style="margin-top:14px" data-act="checkin">Бүртгүүлэх</button></div>');
+  } else if(d.event&&d.checkedIn){
+    cards.push('<div class="list"><div class="item"><div class="item-main"><div class="item-title">'+esc(d.event.name)+"</div>"+
+      '<div class="item-sub">Бүртгэгдсэн · '+esc((myAttendance(d.event.event_id)||{}).time||"")+"</div></div>"+
+      '<span class="badge ok">Ирсэн</span></div></div>');
+  }
+  const rows=[];
+  if(d.pending>0){
+    rows.push('<button class="item" data-act="tx"><div class="item-main"><div class="item-title">Эх сурвалж хүлээж буй '+d.pending+" гүйлгээ</div>"+
+      '<div class="item-sub">Хаанаас ирсэн лид болохыг бөглөнө</div></div><span class="btn sm secondary">Бөглөх</span></button>');
+  }
+  rows.push('<button class="item" data-act="me"><div class="item-main"><div class="item-title">'+
+    (reached?"Silver-ийн босгод хүрсэн":"Silver хүртэл "+(needM?fmtShort(needM):"")+(needM&&needC?", ":"")+(needC?needC+" гүйлгээ":"")+" дутуу")+"</div>"+
+    '<div class="item-sub">'+fmtShort(st.commission)+" · "+st.count+" гүйлгээ"+(S.demo.confirmed?"":" · урьдчилсан")+"</div></div>"+
+    '<span class="chev">›</span></button>');
+  if(d.queue.length){
+    const worst=d.queue.reduce((a,b)=>a.hours>b.hours?a:b);
+    rows.push('<button class="item" data-act="queue"><div class="item-main"><div class="item-title">72+ цаг батлах дараалалд байгаа '+d.queue.length+" листинг</div>"+
+      '<div class="item-sub">Хамгийн удсан нь '+worst.hours+" цаг</div></div><span class=\"chev\">›</span></button>");
+  }
+  const stale=daysBetween(TODAY,d.importDate)>=8;
+  const empty=!cards.length&&d.pending===0&&!d.queue.length;
+  screenEl.innerHTML=topbar("Өнөөдөр")+
+    '<div class="body-pad">'+
+    '<p style="margin:0 0 16px;font-size:18px">Сайн уу, <strong>'+esc(d.agent.full_name)+"</strong></p>"+
+    (empty?'<div class="notice info" style="margin-bottom:14px">Өнөөдөр хийх зүйл алга.</div>':"")+
+    cards.join("")+
+    (rows.length?'<div class="list" style="margin-top:12px">'+rows.join("")+"</div>":"")+
+    '<div style="margin-top:22px" class="'+(stale?"notice warn":"")+'">'+
+      '<p class="small '+(stale?"":"muted")+'" style="margin:0">iList өгөгдөл: '+esc(d.importDate)+"-ний импорт"+
+      (stale?" · "+daysBetween(TODAY,d.importDate)+" хоног шинэчлэгдээгүй. Тоо дутуу байж болзошгүй.":"")+"</p></div>"+
+    "</div>";
+  ACTIONS={
+    checkin:function(){go("#/checkin?e="+d.event.event_id+"&t=demo")},
+    tx:function(){go("#/tx")},
+    me:function(){go("#/me")},
+    queue:function(){
+      openSheet("Батлах дараалал",
+        '<div class="list">'+S.data.listingQueue.map(function(l){
+          return '<div class="item"><div class="item-main"><div class="item-title">'+esc(l.mls)+"</div>"+
+          '<div class="item-sub">'+esc(l.address)+"</div></div>"+
+          '<span class="badge '+(l.hours>168?"err":"warn")+'">'+l.hours+" цаг</span></div>";
+        }).join("")+"</div>"+
+        '<p class="hint">Батлах ажиллагаа iList дээр хийгдэнэ. Энд зөвхөн сануулга харагдана.</p>',
+        '<button class="btn secondary" data-act="sheetClose">Ойлголоо</button>');
+    }
+  };
+}
+
+/* ---------- Ирц ---------- */
+async function viewAttendance(){
+  const rid=newRid(); renderNav("att"); screenEl.innerHTML=topbar("Ирц")+skeleton(5);
+  const evs=await api.getEvents(S.session); if(rvStale(rid)) return;
+  const mons=evs.filter(e=>e.type==="REGULAR"&&e.event_id.indexOf("-MON-")>-1).slice(0,8);
+  let done=0,present=0;
+  const rowsHtml=mons.map(function(m){
+    const thuDate=new Date(pd(m.date).getTime()+3*86400000);
+    const ds=thuDate.getFullYear()+"."+String(thuDate.getMonth()+1).padStart(2,"0")+"."+String(thuDate.getDate()).padStart(2,"0");
+    const thu=evs.find(e=>e.date===ds);
+    function cell(e){
+      if(!e) return '<div class="att-cell att-N">—</div>';
+      const st=e.my||(e.date===TODAY?null:"A");
+      if(!st||st==="NA") return '<div class="att-cell att-N">—</div>';
+      done++; if(st==="P"||st==="L") present++;
+      const map={P:["att-P","Ирсэн"],L:["att-L","Хоцорсон"],E:["att-E","Чөлөөтэй"],A:["att-A","Ирээгүй"]};
+      return '<div class="att-cell '+map[st][0]+'" title="'+esc(e.date)+'">'+map[st][1]+"</div>";
+    }
+    return '<div class="small muted nowrap">'+esc(m.date.slice(5))+"</div>"+cell(m)+cell(thu);
+  }).join("");
+  const ann=evs.filter(e=>e.type==="ANNOUNCED");
+  const today=evs.find(e=>e.date===TODAY);
+  screenEl.innerHTML=topbar("Ирц")+'<div class="body-pad">'+
+    (today&&S.demo.openCheckin?
+      '<div class="primary-block"><div class="spread"><div><h2>'+esc(today.name)+"</h2>"+
+      '<p class="small muted" style="margin:2px 0 0">'+esc(today.time)+" · бүртгэл "+esc(today.open_from)+"–"+esc(today.open_to)+"</p></div>"+
+      (today.my?'<span class="badge ok">Бүртгэгдсэн</span>':"")+"</div>"+
+      (today.my?"":'<button class="btn" style="margin-top:14px" data-act="scan">QR уншуулах</button>')+"</div>"
+      :'<div class="notice info">Одоогоор нээлттэй бүртгэл алга.</div>')+
+    '<div class="section-label">Сүүлийн 8 долоо хоног</div>'+
+    '<div class="grid-att"><div></div><div class="small muted center">Даваа</div><div class="small muted center">Пүрэв</div>'+rowsHtml+"</div>"+
+    '<p class="small muted" style="margin-top:10px">Ирцийн хувь: <strong>'+pctOf(present,done)+"%</strong> ("+present+"/"+done+")</p>"+
+    (ann.length?'<div class="section-label">Зарласан арга хэмжээ</div><div class="list">'+ann.map(function(e){
+      return '<button class="item" data-act="scanAnn" data-id="'+esc(e.event_id)+'"><div class="item-main"><div class="item-title">'+esc(e.name)+"</div>"+
+      '<div class="item-sub">'+esc(e.date)+" · "+esc(e.time)+(e.mandatory?" · заавал":"")+"</div></div><span class=\"chev\">›</span></button>";
+    }).join("")+"</div>":"")+
+    '<button class="btn ghost" style="margin-top:22px" data-act="leave">Чөлөө хүсэх</button>'+
+    "</div>";
+  ACTIONS={
+    scan:function(){go("#/checkin?e="+today.event_id+"&t=demo")},
+    scanAnn:function(el){go("#/checkin?e="+el.getAttribute("data-id")+"&t=demo")},
+    leave:function(){
+      const opts=evs.filter(e=>daysBetween(TODAY,e.date)<=0||e.date===TODAY).slice(0,4);
+      const list=opts.length?opts:evs.slice(0,4);
+      let sel=list[0].event_id, reason="";
+      openSheet("Чөлөө хүсэх",
+        '<label class="small" style="font-weight:600;color:var(--muted)">Аль арга хэмжээ</label>'+
+        '<div class="chips" style="margin:8px 0 18px" id="evChips">'+list.map(function(e,i){
+          return '<button class="chip sm" data-act="pickEv" data-id="'+esc(e.event_id)+'" aria-pressed="'+(i===0)+'">'+esc(e.date)+" "+esc(e.name.split(" ")[0])+"</button>";
+        }).join("")+"</div>"+
+        '<div class="field"><label for="rsn">Шалтгаан</label><input class="input" id="rsn" placeholder="Жишээ: харилцагчтай уулзалт"></div>',
+        '<button class="btn" data-act="sendLeave">Илгээх</button>',
+        {
+          pickEv:function(el){sel=el.getAttribute("data-id");
+            $$("#evChips .chip").forEach(c=>c.setAttribute("aria-pressed",c===el));},
+          sendLeave:async function(el){
+            reason=$("#rsn").value.trim();
+            if(!reason){toast("Шалтгаанаа бичнэ үү","err");return;}
+            el.disabled=true;el.textContent="Илгээж байна…";
+            try{await api.requestLeave(sel,reason);closeSheet();toast("Менежерт илгээгдлээ");}
+            catch(e){el.disabled=false;el.textContent="Илгээх";toast("Илгээж чадсангүй. Сүлжээгээ шалгана уу.","err");}
+          }
+        });
+    }
+  };
+}
+/* ---------- Гүйлгээ ---------- */
+async function viewTx(){
+  const rid=newRid(); renderNav("tx"); screenEl.innerHTML=topbar("Гүйлгээ")+skeleton(5);
+  const txs=await api.getTransactions(S.session); if(rvStale(rid)) return;
+  const pend=txs.filter(t=>!t.source_filled), done=txs.filter(t=>t.source_filled);
+  function row(t,locked){
+    return '<button class="item" data-act="open" data-id="'+esc(t.trr_id)+'">'+
+      '<div class="item-main"><div class="item-title">'+esc(t.trr_id)+
+      (t.manual?' <span class="badge warn">Тулгалт хүлээгдэж байна</span>':"")+"</div>"+
+      '<div class="item-sub">'+esc(t.listing_address.split(" · ")[0])+" · "+
+      (t.deal_type==="SALE"?"Худалдаа":"Түрээс")+" · "+esc(t.sold_date)+"</div>"+
+      '<div class="item-sub">Шимтгэл '+fmtMNT(t.agent_commission)+
+      (t.source_filled?" · "+esc(sourceLabel(t.source_code)):"")+"</div></div>"+
+      (locked?'<span class="badge neutral">Цоожтой</span>':'<span class="chev">›</span>')+"</button>";
+  }
+  screenEl.innerHTML=topbar("Гүйлгээ")+'<div class="body-pad">'+
+    '<div class="section-label">Эх сурвалж хүлээж буй ('+pend.length+")</div>"+
+    (pend.length?'<div class="list">'+pend.map(t=>row(t,false)).join("")+"</div>"
+      :'<div class="notice info">Бүх гүйлгээ бөглөгдсөн. Шинэ гүйлгээ хаагдахад энд гарч ирнэ.</div>')+
+    '<div class="section-label">Бүртгэсэн ('+done.length+")</div>"+
+    (done.length?'<div class="list">'+done.map(t=>row(t,!txEditable(t))).join("")+"</div>"
+      :'<div class="notice info">Одоогоор бүртгэсэн гүйлгээ алга.</div>')+
+    '<button class="btn ghost" style="margin-top:20px" data-act="manual">iList-д ороогүй гүйлгээ нэмэх</button>'+
+    "</div>";
+  ACTIONS={
+    open:function(el){openTxSheet(el.getAttribute("data-id"))},
+    manual:function(){
+      openSheet("Гүйлгээ нэмэх",
+        '<p class="small muted" style="margin:0 0 12px">iList дээр хараахан ороогүй гүйлгээг түр бүртгэнэ. Импорт хийгдэхэд тулгагдана.</p>'+
+        '<div class="field"><label for="trr">TRR ID</label><input class="input" id="trr" placeholder="TRR-26-000000"></div>',
+        '<button class="btn" data-act="saveManual">Нэмэх</button>',
+        {saveManual:async function(el){
+          const v=$("#trr").value.trim();
+          if(!/^TRR-\d{2}-\d{6}$/.test(v)){toast("TRR ID-г TRR-26-000123 хэлбэрээр бичнэ үү","err");return;}
+          el.disabled=true;el.textContent="Нэмж байна…";
+          try{const r=await api.addManualTx(v);
+            if(!r.ok){toast("Энэ TRR ID аль хэдийн бүртгэгдсэн байна","err");el.disabled=false;el.textContent="Нэмэх";return;}
+            closeSheet();toast("Нэмэгдлээ");viewTx();}
+          catch(e){el.disabled=false;el.textContent="Нэмэх";toast("Хадгалж чадсангүй. Сүлжээгээ шалгана уу.","err");}
+        }});
+    }
+  };
+}
+function openTxSheet(trrId){
+  const t=S.data.transactions.find(x=>x.trr_id===trrId);
+  const locked=t.source_filled&&!txEditable(t);
+  if(locked){
+    openSheet(t.trr_id,
+      '<p class="small muted" style="margin:0 0 10px">'+esc(t.listing_address)+"</p>"+
+      '<div class="list">'+
+      '<div class="item"><div class="item-main"><div class="item-sub">Дэд урсгал</div><div class="item-title">'+esc(subFlowLabel(t.sub_flow))+"</div></div></div>"+
+      '<div class="item"><div class="item-main"><div class="item-sub">Эх сурвалж</div><div class="item-title">'+esc(sourceLabel(t.source_code))+"</div></div></div>"+
+      (t.financing?'<div class="item"><div class="item-main"><div class="item-sub">Санхүүжилт</div><div class="item-title">'+esc(finLabel(t.financing))+(t.bank?" · "+esc(t.bank):"")+"</div></div></div>":"")+
+      "</div>"+
+      '<div class="notice warn" style="margin-top:14px">7 хоног өнгөрсөн тул засах боломжгүй. Засахыг менежерээс хүснэ үү.</div>',
+      '<button class="btn secondary" data-act="sheetClose">Хаах</button>');
+    return;
+  }
+  const f={sub_flow:t.sub_flow,source_code:t.source_code,financing:t.financing,bank:t.bank,note:t.note,all:false};
+  function render(){
+    const topSources=f.all?SOURCES:SOURCES.filter(s=>s.top||s.code===f.source_code);
+    const needNote=(f.source_code==="OTHER"||f.sub_flow==="OTHER");
+    const body=
+      '<p class="small muted" style="margin:0 0 4px">'+esc(t.listing_address)+"</p>"+
+      '<p class="small muted" style="margin:0 0 16px">'+(t.deal_type==="SALE"?"Худалдаа":"Түрээс")+" · "+esc(t.sold_date)+
+      " · шимтгэл "+fmtMNT(t.agent_commission)+"</p>"+
+      '<label class="small" style="font-weight:600;color:var(--muted)">Дэд урсгал</label>'+
+      '<div class="chips" style="margin:8px 0 18px">'+SUB_FLOWS.map(s=>
+        '<button class="chip sm" data-act="sub" data-v="'+s.code+'" aria-pressed="'+(f.sub_flow===s.code)+'">'+esc(s.label)+"</button>").join("")+"</div>"+
+      '<label class="small" style="font-weight:600;color:var(--muted)">Эх сурвалж</label>'+
+      '<div class="chips" style="margin:8px 0 8px">'+topSources.map(s=>
+        '<button class="chip sm" data-act="src" data-v="'+s.code+'" aria-pressed="'+(f.source_code===s.code)+'">'+esc(s.label)+"</button>").join("")+"</div>"+
+      ((f.all||SOURCES.every(function(s){return s.top}))?"":'<button class="btn ghost sm" data-act="allSrc" style="margin-bottom:16px">Бүгдийг харах</button>')+
+      (t.deal_type==="SALE"?
+        '<div style="margin-top:12px"><label class="small" style="font-weight:600;color:var(--muted)">Санхүүжилт</label>'+
+        '<div class="chips" style="margin:8px 0 18px">'+FINANCING.map(s=>
+          '<button class="chip sm" data-act="fin" data-v="'+s.code+'" aria-pressed="'+(f.financing===s.code)+'">'+esc(s.label)+"</button>").join("")+"</div></div>":"")+
+      (t.deal_type==="SALE"&&f.financing==="BANK_LOAN"?
+        '<label class="small" style="font-weight:600;color:var(--muted)">Банк</label>'+
+        '<div class="chips" style="margin:8px 0 18px">'+BANKS.map(b=>
+          '<button class="chip sm" data-act="bank" data-v="'+esc(b)+'" aria-pressed="'+(f.bank===b)+'">'+esc(b)+"</button>").join("")+"</div>":"")+
+      (needNote?'<div class="field"><label for="note">Тайлбар (заавал)</label><input class="input" id="note" value="'+esc(f.note||"")+'" placeholder="Жишээ: хуучин хамт олноороо"></div>':"");
+    openSheet(t.trr_id,body,'<button class="btn" data-act="save">Хадгалах</button>',{
+      sub:function(el){f.sub_flow=el.getAttribute("data-v");render()},
+      src:function(el){f.source_code=el.getAttribute("data-v");render()},
+      fin:function(el){f.financing=el.getAttribute("data-v");if(f.financing!=="BANK_LOAN")f.bank=null;render()},
+      bank:function(el){f.bank=el.getAttribute("data-v");render()},
+      allSrc:function(){f.all=true;render()},
+      save:async function(el){
+        const noteEl=$("#note"); if(noteEl) f.note=noteEl.value.trim();
+        if(!f.sub_flow||!f.source_code){toast("Дэд урсгал болон эх сурвалжийг сонгоно уу","err");return;}
+        if((f.source_code==="OTHER"||f.sub_flow==="OTHER")&&!f.note){toast("«Бусад» сонгосон тул тайлбар бичнэ үү","err");return;}
+        if(t.deal_type==="SALE"&&!f.financing){toast("Санхүүжилтийн хэлбэрийг сонгоно уу","err");return;}
+        el.disabled=true;el.textContent="Хадгалж байна…";
+        try{
+          await api.saveTxSource(t.trr_id,{sub_flow:f.sub_flow,source_code:f.source_code,financing:f.financing,bank:f.bank,note:f.note});
+          markTest("T3"); closeSheet(); toast("Хадгалагдлаа"); viewTx();
+        }catch(e){
+          el.disabled=false;el.textContent="Хадгалах";
+          toast("Хадгалж чадсангүй. Сүлжээгээ шалгаад дахин оролдоно уу.","err");
+        }
+      }
+    });
+    if($("#note")) $("#note").addEventListener("input",function(){f.note=this.value});
+  }
+  render();
+}
+
+/* ---------- Лид ---------- */
+const STAGE_ORDER=["NEW","CONTACTED","VIEW_SCHEDULED","VIEWED","NEGOTIATION","WON"];
+function nextStage(s){const i=STAGE_ORDER.indexOf(s);return i>-1&&i<STAGE_ORDER.length-1?STAGE_ORDER[i+1]:null}
+async function viewLeads(){
+  const rid=newRid(); renderNav("lead"); screenEl.innerHTML=topbar("Лид")+skeleton(5);
+  const leads=await api.getLeads(S.session); if(rvStale(rid)) return;
+  const recent=leads.filter(l=>daysBetween(TODAY,l.created_on)<=30);
+  const viewed=recent.filter(l=>STAGE_ORDER.indexOf(l.stage)>=3).length;
+  const won=recent.filter(l=>l.stage==="WON").length;
+  const groups=STAGES.map(function(st){
+    const items=leads.filter(l=>l.stage===st.code);
+    if(!items.length) return "";
+    return '<div class="section-label">'+esc(st.label)+" ("+items.length+")</div><div class=\"list\">"+
+      items.map(function(l){
+        const nx=nextStage(l.stage);
+        return '<div class="item"><div class="item-main"><div class="item-title">'+esc(l.label)+"</div>"+
+          '<div class="item-sub">'+esc(sideLabel(l.side))+" · "+esc(sourceLabel(l.source_code))+" · "+esc(l.created_on)+"</div>"+
+          (l.stage==="LOST"&&l.lost_reason?'<div class="item-sub">Шалтгаан: '+esc(l.lost_reason)+"</div>":"")+
+          (l.stage==="WON"&&l.ref_id?'<div class="item-sub">'+esc(l.ref_id)+"</div>":"")+"</div>"+
+          (nx?'<button class="btn sm secondary" data-act="move" data-id="'+esc(l.lead_id)+'">'+esc(stageLabel(nx))+"</button>":"")+
+          (l.stage!=="WON"&&l.stage!=="LOST"?'<button class="btn sm ghost" data-act="lost" data-id="'+esc(l.lead_id)+'" aria-label="Алдсан">✕</button>':"")+
+          "</div>";
+      }).join("")+"</div>";
+  }).join("");
+  screenEl.innerHTML=topbar("Лид",'<span class="badge neutral">Туршилтын</span>')+'<div class="body-pad">'+
+    '<div class="funnel">'+
+      '<div class="fn"><b>'+recent.length+"</b><span>Лид</span></div>"+
+      '<div class="fn"><b>'+viewed+"</b><span>Үзлэг · "+pctOf(viewed,recent.length)+"%</span></div>"+
+      '<div class="fn"><b>'+won+"</b><span>Гэрээ · "+pctOf(won,recent.length)+"%</span></div>"+
+    "</div><p class=\"small muted\" style=\"margin:8px 0 0\">Сүүлийн 30 хоног</p>"+
+    '<button class="btn" style="margin-top:16px" data-act="add">+ Лид</button>'+
+    (leads.length?groups:'<div class="notice info" style="margin-top:16px">Лид бүртгээгүй байна. «+ Лид» дарж эхлүүлнэ.</div>')+
+    "</div>";
+  ACTIONS={
+    add:addLeadSheet,
+    move:async function(el){
+      const id=el.getAttribute("data-id");
+      const l=S.data.leads.find(x=>x.lead_id===id), nx=nextStage(l.stage);
+      if(nx==="WON"){
+        let ref="";
+        openSheet("Амжилттай боллоо",
+          '<div class="field"><label for="ref">TRR ID эсвэл MLS ID</label><input class="input" id="ref" placeholder="TRR-26-000123"></div>',
+          '<button class="btn" data-act="saveWon">Хадгалах</button>',
+          {saveWon:async function(b){
+            ref=$("#ref").value.trim();
+            if(!ref){toast("ID-г бичнэ үү","err");return;}
+            b.disabled=true;b.textContent="Хадгалж байна…";
+            try{await api.moveLead(id,"WON",{ref_id:ref});closeSheet();toast("Хадгалагдлаа");viewLeads();}
+            catch(e){b.disabled=false;b.textContent="Хадгалах";toast("Хадгалж чадсангүй. Сүлжээгээ шалгана уу.","err")}
+          }});
+        return;
+      }
+      try{await api.moveLead(id,nx); if(nx==="VIEW_SCHEDULED") markTest("T5",id); toast(stageLabel(nx)); viewLeads();}
+      catch(e){toast("Хадгалж чадсангүй. Сүлжээгээ шалгана уу.","err")}
+    },
+    lost:function(el){
+      const id=el.getAttribute("data-id"); let reason=null;
+      openSheet("Алдсан шалтгаан",
+        '<div class="chips" id="lrChips">'+LOST_REASONS.map(r=>'<button class="chip sm" data-act="pickLr" data-v="'+esc(r)+'" aria-pressed="false">'+esc(r)+"</button>").join("")+"</div>",
+        '<button class="btn danger" data-act="saveLost">Алдсан болгох</button>',
+        {pickLr:function(b){reason=b.getAttribute("data-v");
+          $$("#lrChips .chip").forEach(c=>c.setAttribute("aria-pressed",c===b));},
+         saveLost:async function(b){
+           if(!reason){toast("Шалтгаанаа сонгоно уу","err");return;}
+           b.disabled=true;b.textContent="Хадгалж байна…";
+           try{await api.moveLead(id,"LOST",{lost_reason:reason});closeSheet();toast("Хадгалагдлаа");viewLeads();}
+           catch(e){b.disabled=false;b.textContent="Алдсан болгох";toast("Хадгалж чадсангүй. Сүлжээгээ шалгана уу.","err")}
+         }});
+    }
+  };
+}
+function addLeadSheet(){
+  const f={step:1,side:null,source_code:null,label:"",all:false};
+  function render(){
+    let body='<p class="small muted" style="margin:0 0 14px">Алхам '+f.step+"/3</p>";
+    let foot="";
+    if(f.step===1){
+      body+='<label class="small" style="font-weight:600;color:var(--muted)">Тал</label>'+
+        '<div class="chips" style="margin:8px 0">'+SIDES.map(s=>
+          '<button class="chip" data-act="side" data-v="'+s.code+'" aria-pressed="'+(f.side===s.code)+'">'+esc(s.label)+"</button>").join("")+"</div>";
+    } else if(f.step===2){
+      const list=f.all?SOURCES:SOURCES.filter(s=>s.top||s.code===f.source_code);
+      body+='<label class="small" style="font-weight:600;color:var(--muted)">Эх сурвалж</label>'+
+        '<div class="chips" style="margin:8px 0">'+list.map(s=>
+          '<button class="chip sm" data-act="src" data-v="'+s.code+'" aria-pressed="'+(f.source_code===s.code)+'">'+esc(s.label)+"</button>").join("")+"</div>"+
+        ((f.all||SOURCES.every(function(s){return s.top}))?"":'<button class="btn ghost sm" data-act="allSrc">Бүгдийг харах</button>');
+    } else {
+      body+='<div class="field"><label for="lb">Шошго</label>'+
+        '<input class="input" id="lb" maxlength="40" value="'+esc(f.label)+'" placeholder="Жишээ: Зайсан 3 өрөө">'+
+        '<p class="hint">Нэр, утас бүү бич. Харилцагчийн мэдээлэл iList-д хадгалагдана.</p>'+
+        '<p class="err-text" id="lbErr" style="display:none"></p></div>';
+      foot='<button class="btn" data-act="saveLead">Хадгалах</button>';
+    }
+    openSheet("Шинэ лид",body,foot,{
+      side:function(el){f.side=el.getAttribute("data-v");f.step=2;render()},
+      src:function(el){f.source_code=el.getAttribute("data-v");f.step=3;render()},
+      allSrc:function(){f.all=true;render()},
+      saveLead:async function(el){
+        const v=$("#lb").value.trim();
+        if(!v){toast("Шошго бичнэ үү","err");return;}
+        if(/\d{8}/.test(v)){
+          const e=$("#lbErr");e.style.display="block";e.textContent="Утасны дугаар бүү бич, iList-д хадгална уу.";return;}
+        el.disabled=true;el.textContent="Хадгалж байна…";
+        try{
+          const r=await api.addLead({side:f.side,source_code:f.source_code,label:v});
+          S.demo.test.leadId=r.lead.lead_id;
+          closeSheet();toast("Хадгалагдлаа");viewLeads();
+        }catch(e2){el.disabled=false;el.textContent="Хадгалах";toast("Хадгалж чадсангүй. Сүлжээгээ шалгана уу.","err")}
+      }
+    });
+    const lb=$("#lb"); if(lb){lb.addEventListener("input",function(){f.label=this.value});lb.focus()}
+  }
+  render();
+}
+
+/* ---------- Би ---------- */
+async function viewMe(){
+  const rid=newRid(); renderNav("me"); screenEl.innerHTML=topbar("Би")+skeleton(4);
+  const r=await api.getRank(S.session), a=me(); if(rvStale(rid)) return;
+  const st=r.stats, th=r.threshold;
+  const needM=Math.max(0,th.commission-st.commission), needC=Math.max(0,th.count-st.count);
+  const reached=needM===0&&needC===0;
+  const pM=Math.min(100,Math.round(st.commission/th.commission*100));
+  const pC=Math.min(100,Math.round(st.count/th.count*100));
+  const txs=st.txs.slice().sort((x,y)=>pd(y.sold_date)-pd(x.sold_date));
+  screenEl.innerHTML=topbar("Би")+'<div class="body-pad">'+
+    '<div class="rank">'+
+      '<div class="rank-top"><span class="rank-now">Одоогийн цол · '+(reached?"Silver (хүрсэн)":"Цолгүй")+"</span>"+
+      (r.confirmed?"":'<span class="badge accent">Урьдчилсан тооцоо</span>')+"</div>"+
+      '<p class="rank-gap">'+(reached?"Silver-ийн босгод хүрсэн":
+        "Silver хүртэл "+(needM?fmtShort(needM):"")+(needM&&needC?", ":"")+(needC?needC+" гүйлгээ":"")+" дутуу")+"</p>"+
+      '<div class="bar"><div class="bar-label"><span>Шимтгэл</span><span>'+fmtShort(st.commission)+" / "+fmtShort(th.commission)+"</span></div>"+
+        '<div class="bar-track"><div class="bar-fill'+(pM>=100?" done":"")+'" style="width:'+pM+'%"></div></div></div>'+
+      '<div class="bar"><div class="bar-label"><span>Гүйлгээ</span><span>'+st.count+" / "+th.count+"</span></div>"+
+        '<div class="bar-track"><div class="bar-fill'+(pC>=100?" done":"")+'" style="width:'+pC+'%"></div></div></div>'+
+      '<p class="rank-note">Албан ёсны цолыг оффис баталгаажуулна.</p>'+
+    "</div>"+
+    '<div class="section-label">Дараагийн цолууд</div>'+
+    '<div class="list">'+["Gold","Platinum","Diamond"].map(n=>
+      '<div class="item"><div class="item-main"><div class="item-title">'+n+"</div></div>"+
+      '<span class="badge neutral">Босго тохируулаагүй</span></div>').join("")+"</div>"+
+    '<div class="section-label">Тооцоонд орсон гүйлгээ ('+st.count+")</div>"+
+    (txs.length?'<div class="list">'+txs.map(t=>
+      '<div class="item"><div class="item-main"><div class="item-title">'+esc(t.trr_id)+"</div>"+
+      '<div class="item-sub">'+esc(t.sold_date)+" · "+(t.deal_type==="SALE"?"Худалдаа":"Түрээс")+"</div></div>"+
+      "<strong>"+fmtMNT(t.agent_commission)+"</strong></div>").join("")+"</div>"
+      :'<div class="notice info">Тооцоонд орсон гүйлгээ алга. Эхний гүйлгээ хаагдахад энд харагдана.</div>')+
+    '<div class="section-label">Профайл</div>'+
+    '<div class="list">'+
+      '<div class="item"><div class="item-main"><div class="item-sub">Нэр</div><div class="item-title">'+esc(a.full_name)+"</div></div></div>"+
+      '<div class="item"><div class="item-main"><div class="item-sub">Оффис</div><div class="item-title">'+esc(officeName(a.office_id))+"</div></div></div>"+
+      '<div class="item"><div class="item-main"><div class="item-sub">Утас</div><div class="item-title">+976 '+esc(a.phone)+"</div></div></div>"+
+      '<button class="item" data-act="pin"><div class="item-main"><div class="item-title">PIN солих</div></div><span class="chev">›</span></button>'+
+      '<button class="item" data-act="out"><div class="item-main"><div class="item-title" style="color:var(--danger)">Гарах</div></div></button>'+
+    "</div></div>";
+  markTest("T4");
+  ACTIONS={
+    pin:function(){S.flow={type:"login",step:"NEW_PIN",phone:a.phone,pin:"",attempts:0,locked:false,newPin:"",err:"",fromProfile:true};
+      renderNav("none");renderLogin();},
+    out:function(){S.session=null;S.flow=null;go("#/login")}
+  };
+}
+
+/* ---------- Удирдлага ---------- */
+function qrSvg(token,px){
+  const n=25, rnd=mulberry32(hashStr(token)), m=[];
+  for(let i=0;i<n;i++){m.push(new Array(n).fill(0))}
+  for(let i=0;i<n;i++)for(let j=0;j<n;j++)m[i][j]=rnd()>0.52?1:0;
+  function finder(r,c){
+    for(let i=-1;i<8;i++)for(let j=-1;j<8;j++){
+      const y=r+i,x=c+j; if(y<0||x<0||y>=n||x>=n) continue;
+      const edge=(i===0||i===6||j===0||j===6)&&i>=0&&i<=6&&j>=0&&j<=6;
+      const core=i>=2&&i<=4&&j>=2&&j<=4;
+      m[y][x]=(edge||core)?1:0;
+    }
+  }
+  finder(0,0);finder(0,n-7);finder(n-7,0);
+  const cell=px/n; let rects="";
+  for(let i=0;i<n;i++)for(let j=0;j<n;j++) if(m[i][j])
+    rects+='<rect x="'+(j*cell).toFixed(2)+'" y="'+(i*cell).toFixed(2)+'" width="'+cell.toFixed(2)+'" height="'+cell.toFixed(2)+'"/>';
+  return '<svg width="'+px+'" height="'+px+'" viewBox="0 0 '+px+" "+px+'" role="img" aria-label="QR код (демо)"><rect width="'+px+'" height="'+px+'" fill="#fff"/><g fill="#10161C">'+rects+"</g></svg>";
+}
+async function viewAdmin(){
+  const rid=newRid(); renderNav("admin"); screenEl.innerHTML=topbar("Удирдлага")+skeleton(5);
+  const sum=await api.adminSummary(); if(rvStale(rid)) return;
+  const q=await api.officeQueue(); if(rvStale(rid)) return;
+  const ev=todayEvent();
+  const pendingLeave=S.data.leaveRequests.filter(r=>r.status==="PENDING");
+  screenEl.innerHTML=topbar("Удирдлага")+'<div class="body-pad">'+
+    '<div class="funnel" style="flex-wrap:wrap">'+
+      '<div class="fn"><b>'+sum.attendance+"%</b><span>7 хоногийн ирц</span></div>"+
+      '<div class="fn"><b>'+sum.sourceFill+"%</b><span>Эх сурвалж бөглөлт</span></div>"+
+    "</div>"+
+    '<div class="funnel" style="margin-top:8px">'+
+      '<div class="fn"><b>'+sum.inactive+"</b><span>Идэвхгүй агент</span></div>"+
+      '<div class="fn"><b>'+sum.silver+"</b><span>Silver-т хүрсэн</span></div>"+
+    "</div>"+
+    '<div class="section-label">Листингийн дараалал</div>'+
+    '<div class="funnel">'+
+      '<div class="fn"><b>'+sum.auditQueue+"</b><span>Admin Audit хүлээж буй</span></div>"+
+      '<div class="fn"><b>'+sum.expiring30+"</b><span>30 хоногт дуусах</span></div>"+
+      '<div class="fn"><b>'+sum.stale90+"</b><span>90+ хоног, лид 0</span></div>"+
+    "</div>"+
+    '<p class="small muted" style="margin:8px 0 0">Audit: гэрээ дугаарлах, гарын үсэг. 30 хоног: сунгах акт. 90 хоног: эзэнтэй баталгаажуулах.</p>'+
+    '<div class="section-label">Оффисын ээлж · '+q.length+"</div>"+
+    (q.length?'<div class="list">'+q.map(function(x){
+      return '<button class="item" data-act="q:'+esc(x.id)+'"><div class="item-main">'+
+        '<div class="item-title">'+esc(x.n+". "+x.s)+" · "+esc(x.title)+"</div>"+
+        '<div class="item-sub">'+esc(x.agent+" · "+x.code)+"</div></div>"+
+        '<span class="badge '+(x.trk==="L"?"accent":"neutral")+'">'+(x.trk==="L"?"Листинг":"Борлуулалт")+"</span>"+
+        '<span class="chev">›</span></button>';
+    }).join("")+"</div>":'<div class="notice ok"><span>Оффисын ээлжинд хүлээгдэж буй алхам алга.</span></div>')+
+    '<p class="small muted" style="margin:8px 0 0">Silver босго: '+fmtShort(S.demo.silver.commission)+(silverIsReal()?"":" / "+S.demo.silver.count+" гүйлгээ")+"</p>"+(silverIsReal()
+  ?'<div class="notice info" style="margin-top:8px"><span><b>Бодит комиссын жагсаалт</b> ('+silverTotal()+" агент). "+"Зөвхөн шимтгэлийн дүнгээр тооцсон — гүйлгээний тооны шалгуур ороогүй.</span></div>"
+  :'<div class="notice warn" style="margin-top:8px"><span><b>Демо өгөгдөл.</b> Энэ тоо бодит биш. '+
+   'Демо самбараас агентуудын бодит шимтгэлийн жагсаалтыг оруулж, бодит тоог харна уу.</span></div>')+
+    '<div class="section-label">Өнөөдрийн арга хэмжээ</div>'+
+    (ev?'<div class="primary-block"><div class="spread"><div><h2>'+esc(ev.name)+"</h2>"+
+      '<p class="small muted" style="margin:2px 0 0">'+esc(ev.date)+" · "+esc(ev.time)+"</p></div>"+
+      '<span class="badge ok">'+countCheckins(ev.event_id)+" бүртгэгдсэн</span></div>"+
+      '<button class="btn" style="margin-top:14px" data-act="qr">QR харуулах</button></div>'
+      :'<div class="notice info">Өнөөдөр арга хэмжээ алга.</div>')+
+    '<div class="section-label">Бусад</div><div class="list">'+
+      '<button class="item" data-act="manual"><div class="item-main"><div class="item-title">Гараар ирц тэмдэглэх</div></div><span class="chev">›</span></button>'+
+      '<button class="item" data-act="leaves"><div class="item-main"><div class="item-title">Чөлөөний хүсэлт</div>'+
+        '<div class="item-sub">'+pendingLeave.length+" хүлээгдэж байна</div></div><span class=\"chev\">›</span></button>"+
+      '<button class="item" data-act="newEv"><div class="item-main"><div class="item-title">Зарласан event үүсгэх</div></div><span class="chev">›</span></button>'+
+      '<button class="item" data-act="imp"><div class="item-main"><div class="item-title">Импортын төлөв</div>'+
+        '<div class="item-sub">'+esc(S.demo.importDate)+" · "+S.data.importLog.rows+" мөр · "+S.data.importLog.errors+" алдаа</div></div><span class=\"chev\">›</span></button>"+
+      '<button class="item" data-act="agents"><div class="item-main"><div class="item-title">Агентууд</div>'+
+        '<div class="item-sub">'+S.data.agents.filter(a=>a.status==="ACTIVE").length+" идэвхтэй · "+sum.inactive+" идэвхгүй</div></div><span class=\"chev\">›</span></button>"+
+    "</div></div>";
+  ACTIONS={
+    qr:function(){go("#/admin/qr")},
+    manual:adminManualSheet,
+    leaves:adminLeaveSheet,
+    newEv:adminEventSheet,
+    imp:adminImportSheet,
+    agents:adminAgentsSheet
+  };
+  q.forEach(function(x){
+    ACTIONS["q:"+x.id]=function(){
+      openSheet(x.n+". "+x.s,
+        '<p style="margin:0 0 6px"><b>'+esc(x.title)+"</b></p>"+
+        '<p class="small muted" style="margin:0 0 12px">'+esc(x.agent+" · "+x.code+" · "+WHO[x.w])+"</p>"+
+        '<div class="notice info"><span>Шалгах цэг: '+esc(x.chk)+"</span></div>"+
+        (x.trk==="D"&&x.n===7?'<p class="small muted" style="margin:10px 0 0">Дүрэм: iConnect-д листинг хаагдаж TRR үүсээгүй бол бодолт эхлэхгүй.</p>':""),
+        '<button class="btn" data-act="qok">✓ Дууссан гэж тэмдэглэх</button>',
+        {qok:async function(){
+          closeSheet();
+          let res; try{ res=await api.advance(x.id,"OFFICE"); }
+          catch(e){ toast("Сүлжээ тасарлаа — дахин оролдоно уу","err"); return; }
+          if(!res.ok){toast(res.err,"err");return;}
+          toast("✓ "+x.code+" → "+res.label); viewAdmin();
+        }});
+    };
+  });
+}
+function countCheckins(eventId){
+  return Object.keys(S.data.attendance).filter(function(k){
+    return k.indexOf(eventId+"|")===0 && ["P","L"].indexOf(S.data.attendance[k].status)>-1;
+  }).length + (S.data.liveCheckins[eventId]||0);
+}
+function adminManualSheet(){
+  const ev=todayEvent(); if(!ev){toast("Өнөөдөр арга хэмжээ алга","err");return;}
+  function render(){
+    openSheet("Гараар ирц тэмдэглэх",
+      '<p class="small muted" style="margin:0 0 12px">'+esc(ev.name)+" · "+esc(ev.date)+"</p>"+
+      '<div class="list">'+S.data.agents.filter(a=>a.status==="ACTIVE").map(function(a){
+        const r=S.data.attendance[ev.event_id+"|"+a.agent_id];
+        const st=r?r.status:null;
+        return '<div class="item" style="display:block"><div class="item-title">'+esc(a.full_name)+"</div>"+
+          '<div class="chips" style="margin-top:8px">'+[["P","Ирсэн"],["L","Хоцорсон"],["E","Чөлөөтэй"],["A","Ирээгүй"]].map(function(o){
+            return '<button class="chip sm" data-act="mk" data-a="'+a.agent_id+'" data-s="'+o[0]+'" aria-pressed="'+(st===o[0])+'">'+o[1]+"</button>";
+          }).join("")+"</div></div>";
+      }).join("")+"</div>",
+      '<button class="btn secondary" data-act="sheetClose">Дууслаа</button>',
+      {mk:async function(el){
+        try{await api.markAttendance(ev.event_id,el.getAttribute("data-a"),el.getAttribute("data-s"));render();toast("Тэмдэглэгдлээ");}
+        catch(e){toast("Хадгалж чадсангүй. Сүлжээгээ шалгана уу.","err")}
+      }});
+  }
+  render();
+}
+function adminLeaveSheet(){
+  function render(){
+    const rs=S.data.leaveRequests;
+    openSheet("Чөлөөний хүсэлт",
+      rs.length?'<div class="list">'+rs.map(function(r){
+        return '<div class="item" style="display:block"><div class="item-title">'+esc(r.agent)+"</div>"+
+          '<div class="item-sub">'+esc(r.event)+"</div><div class=\"item-sub\">Шалтгаан: "+esc(r.reason)+"</div>"+
+          (r.status==="PENDING"?
+            '<div class="row-gap" style="margin-top:10px"><button class="btn sm secondary" data-act="ok" data-id="'+r.id+'">Батлах</button>'+
+            '<button class="btn sm danger" data-act="no" data-id="'+r.id+'">Татгалзах</button></div>'
+            :'<span class="badge '+(r.status==="APPROVED"?"ok":"err")+'" style="margin-top:8px;display:inline-block">'+(r.status==="APPROVED"?"Батлагдсан":"Татгалзсан")+"</span>")+
+          "</div>";
+      }).join("")+"</div>":'<div class="notice info">Хүсэлт алга.</div>',
+      '<button class="btn secondary" data-act="sheetClose">Хаах</button>',
+      {ok:async function(el){await api.resolveLeave(el.getAttribute("data-id"),true);render();toast("Батлагдлаа")},
+       no:async function(el){await api.resolveLeave(el.getAttribute("data-id"),false);render();toast("Татгалзлаа")}});
+  }
+  render();
+}
+function adminEventSheet(){
+  openSheet("Зарласан event үүсгэх",
+    '<div class="field"><label for="en">Нэр</label><input class="input" id="en" placeholder="Жишээ: Сургалт"></div>'+
+    '<div class="field"><label for="ed">Огноо</label><input class="input" id="ed" placeholder="2026.10.05"></div>'+
+    '<div class="field"><label for="et">Цаг</label><input class="input" id="et" placeholder="09:00"></div>'+
+    '<div class="chips"><button class="chip sm" id="mand" data-act="mand" aria-pressed="true">Заавал оролцох</button></div>',
+    '<button class="btn" data-act="saveEv">Үүсгэх</button>',
+    {mand:function(el){el.setAttribute("aria-pressed",el.getAttribute("aria-pressed")!=="true")},
+     saveEv:async function(el){
+       const n=$("#en").value.trim(), d=$("#ed").value.trim(), t=$("#et").value.trim();
+       if(!n||!/^\d{4}\.\d{2}\.\d{2}$/.test(d)||!/^\d{2}:\d{2}$/.test(t)){
+         toast("Нэр, огноо (2026.10.05), цаг (09:00) шаардлагатай","err");return;}
+       el.disabled=true;el.textContent="Үүсгэж байна…";
+       try{await api.createEvent({name:n,date:d,time:t,mandatory:$("#mand").getAttribute("aria-pressed")==="true"});
+         closeSheet();toast("Event үүсгэлээ");viewAdmin();}
+       catch(e){el.disabled=false;el.textContent="Үүсгэх";toast("Хадгалж чадсангүй. Сүлжээгээ шалгана уу.","err")}
+     }});
+}
+function adminImportSheet(){
+  openSheet("Импортын төлөв",
+    '<div class="list"><div class="item"><div class="item-main"><div class="item-sub">Сүүлийн импорт</div>'+
+    '<div class="item-title">'+esc(S.demo.importDate)+"</div></div></div>"+
+    '<div class="item"><div class="item-main"><div class="item-sub">Мөрийн тоо</div><div class="item-title">'+S.data.importLog.rows+"</div></div></div>"+
+    '<div class="item"><div class="item-main"><div class="item-sub">Алдаа</div><div class="item-title">'+S.data.importLog.errors+"</div></div></div></div>"+
+    (daysBetween(TODAY,S.demo.importDate)>=8?'<div class="notice warn" style="margin-top:12px">Өгөгдөл хуучирсан. Импортыг ажиллуулна уу.</div>':""),
+    '<button class="btn" data-act="run">Импорт ажиллуулах</button>',
+    {run:async function(el){
+      el.disabled=true;el.textContent="Ажиллаж байна…";
+      try{const r=await api.runImport();closeSheet();toast("Импорт дууслаа · "+r.log.rows+" мөр");viewAdmin();}
+      catch(e){el.disabled=false;el.textContent="Импорт ажиллуулах";toast("Импорт амжилтгүй. Сүлжээгээ шалгана уу.","err")}
+    }});
+}
+function adminAgentsSheet(){
+  function render(){
+    openSheet("Агентууд",
+      '<div class="list">'+S.data.agents.map(function(a){
+        const st=rankStats(a.agent_id);
+        return '<div class="item"><div class="item-main"><div class="item-title">'+esc(a.full_name)+
+          (silverReached(a.agent_id)?' <span class="badge accent">Silver</span>':"")+"</div>"+
+          '<div class="item-sub">'+esc(officeName(a.office_id))+" · "+fmtShort(st.commission)+" · "+st.count+" гүйлгээ</div></div>"+
+          '<div style="text-align:right"><span class="badge '+(a.status==="ACTIVE"?"ok":"neutral")+'">'+(a.status==="ACTIVE"?"Идэвхтэй":"Идэвхгүй")+"</span>"+
+          '<button class="btn sm ghost" style="margin-top:6px;display:block" data-act="rp" data-id="'+a.agent_id+'">PIN шинэчлэх</button></div></div>';
+      }).join("")+"</div>",
+      '<button class="btn secondary" data-act="sheetClose">Хаах</button>',
+      {rp:async function(el){
+        try{const r=await api.resetPin(el.getAttribute("data-id"));toast("Түр PIN: "+r.pin);}
+        catch(e){toast("Шинэчилж чадсангүй. Сүлжээгээ шалгана уу.","err")}
+      }});
+  }
+  render();
+}
+async function viewAdminQr(){
+  newRid();
+  const ev=todayEvent();
+  if(!ev){go("#/admin");return;}
+  renderNav("none");
+  let left=60, token="TKN-"+Date.now();
+  S.data.liveCheckins[ev.event_id]=S.data.liveCheckins[ev.event_id]||0;
+  function paint(){
+    screenEl.innerHTML='<div class="qr-full">'+
+      '<span class="demo-tag" style="position:absolute;top:14px;right:14px">Демо өгөгдөл</span>'+
+      '<p class="small muted" style="margin:0 0 4px">'+esc(ev.name)+" · "+esc(ev.date)+"</p>"+
+      '<p style="margin:0 0 18px;font-weight:600">Утсаараа уншуулна уу</p>'+
+      '<div class="qr-box">'+qrSvg(token,240)+"</div>"+
+      '<div class="qr-timer"><i style="width:'+Math.round(left/60*100)+'%"></i></div>'+
+      '<p class="small muted" style="margin:0">'+left+" сек дараа шинэчлэгдэнэ</p>"+
+      '<p class="qr-count" style="margin:22px 0 2px">'+countCheckins(ev.event_id)+"</p>"+
+      '<p class="small muted" style="margin:0">бүртгэгдсэн</p>'+
+      '<button class="btn ghost auto" style="margin-top:26px" data-act="back">Хаах</button></div>';
+  }
+  paint();
+  ACTIONS={back:function(){go("#/admin")}};
+  setTimer(function(){
+    left--; if(left<=0){left=60;token="TKN-"+Date.now()}
+    if(Math.random()<0.28) S.data.liveCheckins[ev.event_id]++;
+    paint();
+  },1000);
+}
+/* ---------- Объект: зам (листинг 10 → борлуулалт 9) ---------- */
+function segHtml(o,trk,big){
+  const L=trk==="L"?LSTAGES:DSTAGES;
+  return '<div class="seg'+(big?" big":"")+'">'+L.map(function(s){return '<i class="'+stepState(o,trk,s.n)+'"></i>'}).join("")+"</div>";
+}
+function pathBar(x){
+  const cls=x.deal>DSTAGES.length?" closed":(x.deal>0?" deal":"");
+  return '<div class="path" aria-hidden="true">'+segHtml(x,"L")+segHtml(x,"D")+"</div>"+
+    '<div class="path-now'+cls+'">'+esc(x.label)+"</div>";
+}
+/* ---------- Объект: жагсаалт ---------- */
+async function viewObjects(){
+  const rid=newRid(); renderNav("obj"); screenEl.innerHTML=topbar("Объект")+skeleton(5);
+  const list=await api.getObjects(S.session); if(rvStale(rid)) return;
+  const need=list.filter(function(x){return !!x.att});
+  function byAtt(a,b){return (b.att?1:0)-(a.att?1:0)}
+  const lst=list.filter(function(x){return !x.deal}).sort(byAtt);
+  const dl=list.filter(function(x){return x.deal>0&&x.deal<=DSTAGES.length}).sort(byAtt);
+  const cl=list.filter(function(x){return x.deal>DSTAGES.length});
+  function card(x){
+    const warn=x.att&&(x.att.k==="EXPIRY"||x.att.k==="STALE");
+    const sub=x.att?x.att.t:(x.wait?"⏳ "+x.wait+" хүлээж байна":((x.code?x.code:"Код хараахан алга")+" · "+x.days+" хоног"));
+    return '<button class="item" data-act="open:'+esc(x.id)+'"><div class="item-main">'+
+      '<div class="item-title">'+esc(x.title)+"</div>"+
+      '<div class="item-sub"'+(warn?' style="color:var(--warn);font-weight:600"':"")+">"+esc(sub)+"</div>"+
+      pathBar(x)+"</div>"+'<span class="chev">›</span></button>';
+  }
+  function group(t,arr){return arr.length?'<div class="section-label">'+t+" · "+arr.length+'</div><div class="list">'+arr.map(card).join("")+"</div>":""}
+  screenEl.innerHTML=topbar("Объект",list.length+" объект · "+need.length+" анхаарал шаардлагатай")+
+    '<div class="body-pad">'+
+    group("Листинг",lst)+group("Борлуулалт",dl)+group("Хаагдсан",cl)+
+    (list.length?"":'<div class="notice info"><span>Объект алга.</span></div>')+
+    '<div class="legend"><span><i class="done"></i>дууссан</span><span><i class="cur"></i>одоо энд</span><span><i></i>хүлээгдэж буй</span></div>'+
+    '<p class="small muted" style="margin:10px 0 0">Зураас бүр нэг алхам: эхний 10 нь листинг, дараагийн 9 нь борлуулалт. '+
+    "Гэрээ дуусахаас 30 хоногийн өмнө, зар гарснаас 90 хоногт сануулна.</p>"+
+    "</div>";
+  ACTIONS={};
+  list.forEach(function(x){ACTIONS["open:"+x.id]=function(){go("#/obj/"+x.id)}});
+}
+
+/* ---------- Файл хавсаргах (прототип: зөвхөн энэ төхөөрөмжийн санах ойд) ---------- */
+const FILE_URLS = {};
+function pickFile(cb){
+  document.querySelectorAll("input.tmp-file").forEach(function(n){n.remove()});
+  const inp=document.createElement("input");
+  inp.type="file"; inp.accept="image/*,application/pdf"; inp.className="tmp-file"; inp.style.display="none";
+  inp.addEventListener("change",function(){const f=inp.files&&inp.files[0]; inp.remove(); if(f) cb(f);});
+  document.body.appendChild(inp); inp.click();
+}
+function attachFlow(id,doc){
+  pickFile(async function(f){
+    if(f.size>15*1048576){toast("15 MB-аас их файл хавсаргах боломжгүй","err");return;}
+    const k=id+"|"+doc;
+    if(FILE_URLS[k]) URL.revokeObjectURL(FILE_URLS[k]);
+    FILE_URLS[k]=URL.createObjectURL(f);
+    try{ await api.attachDoc(id,doc,{name:f.name,size:f.size,type:f.type}); }
+    catch(e){ toast("Хадгалж чадсангүй — дахин оролдоно уу","err"); return; }
+    toast("Хавсаргалаа"); route();
+  });
+}
+function openDocSheet(id,doc,o){
+  const f=(o.files||{})[doc], url=FILE_URLS[id+"|"+doc];
+  if(doc===SIGNED&&f&&f.esign&&o.esign&&o.esign.status==="SIGNED"){
+    const e=o.esign;
+    openSheet(doc,
+      '<div class="notice ok" style="margin-bottom:12px"><span>✍️ Эзэмшигч онлайнаар зурсан · '+esc(e.signed_at)+"</span></div>"+
+      termsHtml(o)+
+      '<div class="section-label">Эзэмшигчийн гарын үсэг</div><img class="sig-img" src="'+e.png+'" alt="Гарын үсэг">'+
+      '<div class="section-label">Баримтын мөр</div>'+esignAuditHtml(e)+
+      '<p class="small muted" style="margin:10px 0 0">'+esc(f.name)+" · "+fmtSize(f.size)+
+      ". Прототипт PDF үүсгэхгүй — бодит хувилбарт Docs загвараас PDF болж Drive хавтсанд хадгалагдана.</p>",
+      '<button class="btn danger" data-act="rm">Хасах</button>',
+      {rm:async function(){closeSheet();await api.removeDoc(id,doc);toast("Хаслаа — онлайн линк хүчингүй боллоо");route();}});
+    return;
+  }
+  const prev=(url&&f&&/^image\//.test(f.type))?'<img src="'+url+'" alt="'+esc(doc)+'" style="width:100%;border-radius:10px;border:1px solid var(--line)">':"";
+  openSheet(doc,
+    prev+'<p class="small muted" style="margin:10px 0 0">'+(f?esc(f.name)+" · "+fmtSize(f.size)+" · "+esc(f.at):"Хавсаргасан (демо өгөгдөл, файлгүй)")+"</p>",
+    '<div class="row-gap"><button class="btn secondary" data-act="rep" style="flex:1">Солих</button>'+
+    '<button class="btn danger" data-act="rm" style="flex:1">Хасах</button></div>',
+    {rep:function(){closeSheet();attachFlow(id,doc)},
+     rm:async function(){closeSheet();await api.removeDoc(id,doc);
+       const k=id+"|"+doc; if(FILE_URLS[k]){URL.revokeObjectURL(FILE_URLS[k]);delete FILE_URLS[k];}
+       toast("Хаслаа");route();}});
+}
+
+/* ---------- Объект: дэлгэрэнгүй (зам + чеклист + баримт) ---------- */
+function stepHelp(o,trk,s){
+  if(trk==="L"&&s.n===6&&o.docs.indexOf(SIGNED)<0) return esignStepHtml(o);
+  if(s.doc&&o.docs.indexOf(s.doc)<0) return '<button class="btn secondary" data-act="att:'+esc(s.doc)+'">📎 '+esc(s.doc)+" хавсаргах</button>";
+  if(trk==="L"&&s.n===1) return '<button class="btn secondary" data-act="src">Эх сурвалж сонгох</button>';
+  if(trk==="L"&&s.n===3) return '<button class="btn secondary" data-act="goFields">Талбар, зураг бөглөх ↓</button>';
+  if(trk==="L"&&s.n===7) return '<button class="btn secondary" data-act="goDocs">Баримт хавсаргах ↓</button>';
+  if(trk==="L"&&s.n===9) return '<button class="btn secondary" data-act="ilist">iConnect блок нээх</button>';
+  if(trk==="D"&&s.n===1) return '<button class="btn secondary" data-act="ad">Зарын текст</button>';
+  return "";
+}
+/* 6-р алхам: онлайнаар зуруулах эсвэл цаасан гэрээний зураг */
+function esignStepHtml(o){
+  const e=o.esign;
+  const st=e?'<div class="esign-st"><span class="badge accent">Онлайн · '+esc(esignLabel(e))+"</span>"+
+    '<span class="tiny muted">'+esc(e.sent_at.slice(5,16))+" · "+esc(maskPhone(e.phone))+"</span></div>":"";
+  return st+
+    '<button class="btn" data-act="esign">✍️ '+(e?"Онлайн гэрээ · линк харах":"Онлайнаар зуруулах")+"</button>"+
+    '<button class="btn secondary" data-act="att:'+esc(SIGNED)+'">📎 Цаасан гэрээний зураг хавсаргах</button>';
+}
+function esignSheet(id,ch){
+  const o=objById(id); if(!o) return;
+  const e=o.esign;
+  ch=ch||(e?e.ch:"SMS");
+  if(!e){
+    const ph=String(o.f.ophone||"").replace(/\D/g,""), okPh=ph.length===8;
+    openSheet("Онлайнаар зуруулах",
+      '<p class="small muted" style="margin:0 0 12px">Эзэмшигчид линк очно. Тэр утасны сүүлийн 4 орон + SMS кодоор нэвтэрч, '+
+      "гэрээний нөхцөлийг шалгаад дэлгэц дээр хуруугаараа зурна. Зурмагц «"+esc(SIGNED)+"»-д автоматаар хавсрагдана.</p>"+
+      (okPh?'<div class="list"><div class="item"><div class="item-main"><div class="item-sub">Эзэмшигчийн утас</div>'+
+        '<div class="item-title">'+esc(o.owner)+" · "+esc(maskPhone(ph))+"</div></div></div></div>"
+        :'<div class="notice warn"><span>Эзэмшигчийн утас бөглөөгүй байна — «Объектын мэдээлэл»-ээс 8 оронтой дугаар оруулна уу.</span></div>')+
+      '<p class="small muted" style="margin:14px 0 6px">Линкийг юугаар илгээх вэ?</p><div class="chips">'+
+      ESIGN_CH.map(function(c){return '<button class="chip" data-act="ch:'+c.code+'" aria-pressed="'+(ch===c.code?"true":"false")+'">'+esc(c.label)+"</button>"}).join("")+"</div>"+
+      '<div class="section-label">Эзэмшигчид харагдах нөхцөл</div>'+termsHtml(o)+
+      '<p class="tiny muted" style="margin:10px 0 0">Тоон гарын үсэг (G-Sign) биш — SMS код + зурсан гарын үсэг. '+
+      "Гэрээнд «талууд цахим гарын үсгээр зурахыг зөвшөөрнө» заалт байна. Прототип: SMS илгээгдэхгүй.</p>",
+      '<button class="btn" data-act="mk"'+(okPh?"":" disabled")+">Линк үүсгэж илгээх</button>",
+      Object.assign({
+        mk:async function(el){
+          el.disabled=true; el.textContent="Илгээж байна…";
+          let r; try{ r=await api.esignCreate(id,ch); }
+          catch(err){ el.disabled=false; el.textContent="Линк үүсгэж илгээх"; toast("Сүлжээ тасарлаа — дахин дарна уу","err"); return; }
+          if(!r.ok){toast(r.err,"err");closeSheet();return;}
+          toast("Линк "+esignChLabel(ch)+"-ээр илгээгдлээ (демо)"); renderDemo(); await route(); esignSheet(id);
+        }
+      },ESIGN_CH.reduce(function(a,c){a["ch:"+c.code]=function(){esignSheet(id,c.code)};return a},{})));
+    return;
+  }
+  openSheet("Онлайн гэрээ",
+    '<div class="spread" style="margin-bottom:12px"><span class="badge accent">'+esc(esignLabel(e))+"</span>"+
+      '<span class="small muted">'+esc(esignChLabel(e.ch))+" · "+esc(maskPhone(e.phone))+"</span></div>"+
+    '<div class="field"><label for="elink">Эзэмшигчид илгээсэн линк</label>'+
+      '<input class="input" id="elink" readonly value="'+esc(e.link)+'"></div>'+
+    '<p class="small muted" style="margin:0 0 12px">Эзэмшигч зураагүй байна. Зурмагц 6-р алхмын шалгах цэг автоматаар хангагдана.</p>'+
+    '<div class="section-label">Үйл явдлын бүртгэл</div><div class="audit">'+
+      e.log.map(function(l){return "<div><span>"+esc(l[0].slice(11))+"</span><span>"+esc(l[1])+"</span></div>"}).join("")+"</div>",
+    '<div class="stack"><button class="btn" data-act="own">Эзэмшигчийн дэлгэцийг нээх (демо)</button>'+
+    '<div class="row-gap"><button class="btn secondary" data-act="cp" style="flex:1">Линк хуулах</button>'+
+    '<button class="btn danger" data-act="cx" style="flex:1">Цуцлах</button></div></div>',
+    {
+      own:function(){closeSheet();go("#/sign/"+e.token)},
+      cp:function(){if(copyText(e.link))toast("Линк хуулагдлаа");else toast("Хуулж чадсангүй","err")},
+      cx:async function(){closeSheet();await api.esignCancel(id);S.sign=null;renderDemo();toast("Линк цуцлагдлаа");route();}
+    });
+}
+function trackHtml(o,trk,open){
+  const L=trk==="L"?LSTAGES:DSTAGES, name=trk==="L"?"Листинг":"Борлуулалт";
+  const done=L.filter(function(s){return stepState(o,trk,s.n)==="done"}).length;
+  const c=curStep(o), gate=stepGate(o);
+  const status=done===L.length?"дууссан":((c&&c.trk===trk)?"одоо: "+c.st.s:(trk==="D"?"листинг батлагдсаны дараа":""));
+  const steps=L.map(function(s){
+    const st=stepState(o,trk,s.n), f=s.doc&&(o.files||{})[s.doc], has=s.doc&&o.docs.indexOf(s.doc)>=0;
+    let extra="";
+    if(st==="cur"){
+      extra+='<div class="step-chk">Шалгах цэг: '+esc(s.c)+"</div>";
+      if(isOfficeStep(s)) extra+='<div class="step-wait">⏳ '+esc(WHO[s.w])+" хүлээж байна</div>";
+      else if(gate) extra+='<div class="step-lock">🔒 '+esc(gate)+"</div>"+stepHelp(o,trk,s);
+      else extra+='<button class="btn" data-act="adv">✓ Дууссан → '+esc(nextName(o))+"</button>";
+    }
+    if(has) extra+='<div class="step-doc">'+(f&&f.esign?"✍️ Онлайнаар зурсан · ":"📎 ")+esc(f?f.name:s.doc)+"</div>";
+    return '<li class="step '+st+'"><span class="dot">'+(st==="done"?"✓":s.n)+"</span>"+
+      '<div class="step-main"><div class="step-title">'+esc(s.s)+'<span class="step-who">'+esc(WHO[s.w])+"</span></div>"+extra+"</div></li>";
+  }).join("");
+  return '<div class="track'+(open?" open":"")+'" id="trk-'+trk+'">'+
+    '<button class="track-head" data-act="trk:'+trk+'" aria-expanded="'+(open?"true":"false")+'">'+
+      '<div class="track-top"><b>'+name+'</b><span class="small muted">'+done+"/"+L.length+(status?" · "+esc(status):"")+"</span>"+
+      '<span class="chev">⌄</span></div>'+segHtml(o,trk,true)+
+    "</button>"+
+    '<ol class="steps">'+steps+"</ol></div>";
+}
+async function viewObject(id){
+  const rid=newRid(); renderNav("obj"); screenEl.innerHTML=topbar("Объект")+skeleton(6);
+  const r=await api.getObject(id); if(rvStale(rid)) return;
+  if(!r){go("#/objects");return;}
+  const o=r.o, att=attention(o), c=curStep(o), openTrk=c?c.trk:"D";
+  const fieldRows=CHK.map(function(c){
+    const v=o.f[c.k];
+    const has=v!==null&&v!==undefined&&v!=="";
+    return '<button class="item" data-act="f:'+c.k+'"><div class="item-main">'+
+      '<div class="item-sub">'+esc(c.label)+(c.ilist===false?" · тайлбарт":"")+"</div>"+
+      '<div class="item-title"'+(has?"":' style="color:var(--muted)"')+">"+esc(has?String(v):"— бөглөөгүй")+"</div>"+
+      (has||!c.hint?"":'<div class="tiny muted" style="margin-top:2px">'+esc(c.hint)+"</div>")+
+      "</div>"+(has?'<span class="badge ok">✓</span>':'<span class="badge warn">дутуу</span>')+
+      '<span class="chev">›</span></button>';
+  }).join("");
+  const photoRows=PHOTOS.map(function(p){
+    const on=o.ph.indexOf(p)>=0;
+    return '<button class="chip" data-act="p:'+esc(p)+'" aria-pressed="'+(on?"true":"false")+'">'+(on?"✓ ":"+ ")+esc(p)+"</button>";
+  }).join("");
+  const cpRow=CP_OPTS.map(function(x){
+    return '<button class="chip" data-act="cp:'+x.code+'" aria-pressed="'+(o.cp===x.code?"true":"false")+'">'+esc(x.label)+"</button>";
+  }).join("");
+  const psRow=PS_OPTS.map(function(x){
+    return '<button class="chip" data-act="ps:'+x.code+'" aria-pressed="'+(o.ps===x.code?"true":"false")+'">'+esc(x.label)+"</button>";
+  }).join("");
+  const docRows='<div class="list" style="margin-top:10px">'+r.docsNeed.map(function(d){
+      const on=o.docs.indexOf(d)>=0, f=(o.files||{})[d];
+      return '<button class="item" data-act="d:'+esc(d)+'"><div class="item-main"><div class="item-title">'+esc(d)+"</div>"+
+        '<div class="item-sub">'+(on?(f?(f.esign?"✍️ Онлайнаар зурсан · ":"📎 ")+esc(f.name)+" · "+fmtSize(f.size):"Хавсаргасан"):
+          (d===SIGNED&&o.esign?"✍️ Онлайн линк илгээсэн · эзэмшигч зураагүй":"Зураг авах эсвэл файл сонгох"))+"</div></div>"+
+        (on?'<span class="badge ok">✓</span>':'<span class="badge warn">📎 хавсаргах</span>')+"</button>";
+    }).join("")+"</div>"+
+    ((o.cp&&o.ps)?"":'<p class="small muted" style="margin:10px 0 0">Хоёр асуултад хариулбал шаардлагатай баримтын жагсаалт гарна.</p>');
+  function outBtn(act,label,note,ready,lockNote){
+    return '<button class="item" data-act="'+act+'"'+(ready?"":' disabled style="opacity:.45"')+'>'+
+      '<div class="item-main"><div class="item-title">'+(ready?"":"🔒 ")+esc(label)+"</div>"+
+      '<div class="item-sub">'+esc(ready?note:lockNote)+"</div></div>"+
+      (ready?'<span class="chev">›</span>':"")+"</button>";
+  }
+  const ex=daysToExpiry(o);
+  const docsTotal=(o.cp&&o.ps)?r.docsNeed.length:"?";
+  screenEl.innerHTML=topbar(o.title,esc(o.ilist_code||o.id)+" · "+esc(stageName(o)))+
+    '<div class="body-pad">'+
+    trackHtml(o,"L",openTrk==="L")+trackHtml(o,"D",openTrk==="D")+
+    '<div class="legend"><span><i class="done"></i>дууссан</span><span><i class="cur"></i>одоо энд</span><span><i></i>хүлээгдэж буй</span></div>'+
+    (att&&(att.k==="EXPIRY"||att.k==="STALE")?'<div class="notice warn" style="margin-top:12px"><span>'+esc(att.t)+"</span></div>":"")+
+    '<div class="primary-block" style="margin-top:14px"><div class="spread"><div>'+
+      "<h2>"+r.filled+"/"+CHK.length+" талбар · "+o.ph.length+"/"+PHOTOS.length+" зураг · "+r.docsDone+"/"+docsTotal+" баримт</h2>"+
+      '<p class="small muted" style="margin:2px 0 0">'+((r.chkOk&&r.docsOk)?"Бүрэн бөглөгдсөн":r.miss.length+" зүйл дутуу")+"</p>"+
+      "</div>"+((r.chkOk&&r.docsOk)?'<span class="badge ok">Бэлэн</span>':'<span class="badge warn">Бүрэн бус</span>')+"</div>"+
+    "</div>"+
+    '<div class="list" style="margin-top:12px">'+
+      '<button class="item" data-act="src"><div class="item-main"><div class="item-sub">Эх сурвалж</div>'+
+      '<div class="item-title">'+esc(lsourceLabel(o.source))+"</div></div>"+'<span class="chev">›</span></button>'+
+      (o.expiry?'<div class="item"><div class="item-main"><div class="item-sub">Гэрээ дуусах</div><div class="item-title">'+esc(o.expiry)+
+        (ex!==null?' <span class="small muted">('+ex+" хоног)</span>":"")+"</div></div></div>":"")+
+    "</div>"+
+    '<div class="section-label">Гаралт</div><div class="list">'+
+      outBtn("price","Үнийн харьцуулалт","Ижил дүүрэг, өрөөний м² медиан",r.chkOk,"12 талбар + 8 зураг бүрэн болмогц")+
+      outBtn("ilist","iConnect-д хуулах блок","Бүх талбар бэлэн текстээр",r.ilOk,
+        (r.chkOk&&r.docsOk)?"Admin Audit (8-р алхам) дууссаны дараа":"Гэрээний баримт бүрэн болмогц")+
+      outBtn("ad","Зарын текст · 4 суваг","unegui · FB MP · FB групп · Instagram",r.adOk,"MLS код орсны дараа (борлуулалтын 1-р алхам)")+
+    "</div>"+
+    '<div class="section-label" id="fields">Объектын мэдээлэл · '+CHK.length+" талбар</div>"+
+    '<div class="list">'+fieldRows+"</div>"+
+    '<div class="section-label">Зураг ('+o.ph.length+"/"+PHOTOS.length+")</div>"+
+    '<div class="chips">'+photoRows+"</div>"+
+    '<div class="section-label" id="docs">Гэрээний баримт</div>'+
+    '<p class="small muted" style="margin:0 0 6px">Хэнтэй гэрээ хийж байна вэ?</p><div class="chips">'+cpRow+"</div>"+
+    '<p class="small muted" style="margin:12px 0 6px">Байр ямар төлөвтэй вэ?</p><div class="chips">'+psRow+"</div>"+
+    docRows+
+    '<p class="small muted" style="margin:12px 0 0">iConnect-д энэ хэсэг байхгүй — бэлэн материалаас бүртгэл эхэлдэг. '+
+    "Прототипт файл зөвхөн энэ төхөөрөмжийн санах ойд үлдэнэ, хаашаа ч илгээгдэхгүй. "+
+    "Бодит хувилбарт объектын Google Drive хавтас руу — агент, админ, менежер л харна.</p>"+
+    "</div>";
+  markTest("T5");
+  ACTIONS={
+    price:function(){if(r.chkOk)go("#/obj/"+id+"/price")},
+    ilist:function(){if(r.ilOk)go("#/obj/"+id+"/ilist")},
+    ad:function(){if(r.adOk)go("#/obj/"+id+"/ad")},
+    goFields:function(){const el=document.getElementById("fields"); if(el) el.scrollIntoView({behavior:"smooth"})},
+    goDocs:function(){const el=document.getElementById("docs"); if(el) el.scrollIntoView({behavior:"smooth"})},
+    esign:function(){esignSheet(id)},
+    adv:async function(){
+      let res; try{ res=await api.advance(id,"AGENT"); }
+      catch(e){ toast("Сүлжээ тасарлаа — дахин дарна уу","err"); return; }
+      if(!res.ok){toast(res.err,"err");return;}
+      toast("✓ "+res.label); route();
+    },
+    src:function(){
+      openSheet("Эх сурвалж",'<div class="chips">'+LSOURCES.map(function(s){
+        return '<button class="chip" data-act="pick:'+s.code+'" aria-pressed="'+(o.source===s.code?"true":"false")+'">'+esc(s.label)+"</button>";
+      }).join("")+'</div><p class="small muted" style="margin:10px 0 0">Эзэмшигч хаанаас ирсэн бэ. iConnect-д ийм талбар байхгүй.</p>',"",{});
+      LSOURCES.forEach(function(s){ACTIONS["pick:"+s.code]=async function(){closeSheet();await api.setSource(id,s.code);toast("Хадгаллаа");route();}});
+    }
+  };
+  ["L","D"].forEach(function(t){
+    ACTIONS["trk:"+t]=function(){
+      const el=document.getElementById("trk-"+t); if(!el) return;
+      const on=!el.classList.contains("open"); el.classList.toggle("open",on);
+      const b=el.querySelector(".track-head"); if(b) b.setAttribute("aria-expanded",on?"true":"false");
+    };
+  });
+  LSTAGES.concat(DSTAGES).forEach(function(s){ if(s.doc) ACTIONS["att:"+s.doc]=function(){attachFlow(id,s.doc)}; });
+  PHOTOS.forEach(function(p){ACTIONS["p:"+p]=async function(){await api.togglePhoto(id,p);route();}});
+  CP_OPTS.forEach(function(x){ACTIONS["cp:"+x.code]=async function(){await api.setCp(id,x.code);route();}});
+  PS_OPTS.forEach(function(x){ACTIONS["ps:"+x.code]=async function(){await api.setPs(id,x.code);route();}});
+  r.docsNeed.forEach(function(d){ACTIONS["d:"+d]=function(){
+    if(o.docs.indexOf(d)>=0) openDocSheet(id,d,o);
+    else if(d===SIGNED) openSheet(SIGNED,'<div class="stack">'+esignStepHtml(o)+"</div>","",
+      {esign:function(){esignSheet(id)},["att:"+SIGNED]:function(){closeSheet();attachFlow(id,SIGNED)}});
+    else attachFlow(id,d);
+  }});
+  CHK.forEach(function(c){ACTIONS["f:"+c.k]=function(){openFieldSheet(id,c,o.f[c.k]);}});
+}
+function openFieldSheet(id,c,cur){
+  let body;
+  if(c.type==="sel"){
+    body='<div class="chips">'+c.opts.map(function(x){
+      return '<button class="chip" aria-pressed="'+(String(cur)===x?"true":"false")+'" data-act="pick:'+esc(x)+'">'+esc(x)+"</button>";
+    }).join("")+"</div>";
+  }else{
+    const t=c.type==="num"?"number":(c.type==="tel"?"tel":"text");
+    body='<div class="field"><input class="input" id="fx" type="'+t+'" inputmode="'+
+      (c.type==="num"?"numeric":(c.type==="tel"?"tel":"text"))+'" value="'+esc(cur==null?"":String(cur))+
+      '" placeholder="'+esc(c.label)+'"></div>';
+  }
+  if(c.hint) body+='<p class="small muted" style="margin:10px 0 0">'+esc(c.hint)+"</p>";
+  if(c.ilist===false) body+='<p class="tiny muted" style="margin:6px 0 0">iConnect-д ийм талбар байхгүй тул тайлбарын мөрөнд бичигдэнэ.</p>';
+  const foot=(c.type==="sel")?"":'<button class="btn" data-act="save">Хадгалах</button>';
+  openSheet(c.label,body,foot,{
+    save:async function(){
+      const el=document.getElementById("fx"); const v=el?el.value.trim():"";
+      closeSheet(); await api.setField(id,c.k,c.type==="num"?(v===""?"":Number(v)):v);
+      toast("Хадгаллаа"); route();
+    }
+  });
+  if(c.type==="sel"){
+    c.opts.forEach(function(x){
+      ACTIONS["pick:"+x]=async function(){closeSheet(); await api.setField(id,c.k,x); toast("Хадгаллаа"); route();};
+    });
+  }else{
+    const el=document.getElementById("fx"); if(el) el.focus();
+  }
+}
+
+/* ---------- Объект: үнийн харьцуулалт ---------- */
+async function viewObjPrice(id){
+  const rid=newRid(); renderNav("obj"); screenEl.innerHTML=topbar("Үнийн харьцуулалт")+skeleton(5);
+  const r=await api.getPrice(id); if(rvStale(rid)) return;
+  if(!r){go("#/objects");return;}
+  const o=r.o, m=r.m, u=r.unit;
+  const diff=(u&&m.med)?Math.round((u/m.med-1)*100):null;
+  const high=diff!==null&&diff>=20;
+  const sug=(m.med&&o.f.area)?Math.round(m.med*1e6*o.f.area):null;
+  screenEl.innerHTML=topbar("Үнийн харьцуулалт",esc(o.title))+'<div class="body-pad">'+
+    '<div class="primary-block"><div class="spread"><div>'+
+      "<h2>"+(u!==null?u.toFixed(2):"—")+" сая ₮/м²</h2>"+
+      '<p class="small muted" style="margin:2px 0 0">Эзний хүссэн үнэ '+fmtShort(o.ask)+"</p></div>"+
+      (diff===null?"":'<span class="badge '+(high?"err":(diff>0?"warn":"ok"))+'">'+(diff>0?"+":"")+diff+"%</span>")+
+    "</div></div>"+
+    '<div class="funnel" style="margin-top:12px">'+
+      '<div class="fn"><b>'+m.med.toFixed(2)+"</b><span>Медиан сая ₮/м²</span></div>"+
+      '<div class="fn"><b>'+m.n+"</b><span>Харьцуулсан объект</span></div>"+
+    "</div>"+
+    '<p class="small muted" style="margin:8px 0 0">Суурь: '+esc(m.lvl)+" · "+esc(PRICE.meta.source)+"</p>"+
+    (sug?'<div class="notice info" style="margin-top:12px"><span>Медианаар бодвол <b>'+fmtShort(sug)+
+      "</b> орчим. Эзний үнэ "+(diff>0?"үүнээс "+diff+"% өндөр":(diff<0?"үүнээс "+Math.abs(diff)+"% бага":"яг таарч байна"))+".</span></div>":"")+
+    (high?'<div class="notice warn" style="margin-top:8px"><span>Медианаас 20%+ өндөр. Менежерийн зөвшөөрөлгүй гэрээ байгуулахгүй.</span></div>':"")+
+    '<div class="section-label">Ижил төстэй объект</div>'+
+    '<div class="list">'+r.comps.map(function(c){
+      return '<div class="item"><div class="item-main">'+
+        '<div class="item-title">'+esc(c.d)+(c.h?" · "+esc(c.h):"")+"</div>"+
+        '<div class="item-sub">'+c.r+" өрөө · "+c.a+"м² · "+c.p+" сая ₮</div></div>"+
+        "<strong>"+c.u.toFixed(2)+"</strong></div>";
+    }).join("")+"</div>"+
+    '<p class="small muted" style="margin:10px 0 0">Зөвхөн худалдах зориулалттай орон сууц. '+
+    "Барилгын компанийн давхардсан нэгжүүдийг нэг гэж тооцсон.</p>"+
+    '<button class="btn secondary" style="margin-top:16px" data-act="back">Объект руу буцах</button>'+
+    "</div>";
+  ACTIONS={back:function(){go("#/obj/"+id)}};
+}
+
+/* ---------- Объект: iList-д хуулах блок ---------- */
+async function viewObjIList(id){
+  const rid=newRid(); renderNav("obj"); screenEl.innerHTML=topbar("iList-д хуулах")+skeleton(4);
+  const r=await api.getObject(id); if(rvStale(rid)) return;
+  if(!r){go("#/objects");return;}
+  if(!r.ilOk){toast((r.chkOk&&r.docsOk)?"Admin Audit дууссаны дараа нээгдэнэ":"Гэрээний баримт бүрэн болмогц нээгдэнэ","err");go("#/obj/"+id);return;}
+  const o=r.o, txt=ilistBlock(o);
+  screenEl.innerHTML=topbar("iList-д хуулах",esc(o.title))+'<div class="body-pad">'+
+    '<div class="notice info"><span>iList дээр шинэ листинг үүсгээд доорх утгуудыг буулгана. '+
+    "Сүүлийн мөр нь iList-д талбаргүй 3 зүйлийг тайлбарт оруулна.</span></div>"+
+    '<div class="field" style="margin-top:12px"><textarea class="input" id="blk" rows="14" readonly>'+
+      esc(txt)+"</textarea></div>"+
+    '<button class="btn" style="margin-top:12px" data-act="copy">Хуулах</button>'+
+    (o.ilist_code
+      ?'<div class="notice ok" style="margin-top:12px"><span>MLS код: <b>'+esc(o.ilist_code)+"</b></span></div>"
+      :'<button class="btn secondary" style="margin-top:8px" data-act="code">MLS код бүртгэх</button>')+
+    '<button class="btn ghost" style="margin-top:8px" data-act="back">Буцах</button>'+
+    "</div>";
+  ACTIONS={
+    back:function(){go("#/obj/"+id)},
+    copy:function(){toast(copyText(txt)?"Хуулагдлаа":"Хуулж чадсангүй — гараар сонгоно уу",copyText(txt)?null:"err")},
+    code:function(){
+      openSheet("MLS код",'<div class="field"><input class="input" id="mc" placeholder="MLS-26-…"></div>',
+        '<button class="btn" data-act="sv">Хадгалах</button>',{
+        sv:async function(){
+          const el=document.getElementById("mc"); const v=el?el.value.trim():"";
+          if(!v){toast("Код оруулна уу","err");return;}
+          closeSheet(); await api.setIList(id,v); toast("Бүртгэлээ"); route();
+        }});
+    }
+  };
+}
+
+/* ---------- Объект: зарын текст ---------- */
+let AD_TAB="UNEGUI";
+async function viewObjAd(id){
+  const rid=newRid(); renderNav("obj"); screenEl.innerHTML=topbar("Зарын текст")+skeleton(4);
+  const r=await api.getObject(id); if(rvStale(rid)) return;
+  if(!r){go("#/objects");return;}
+  if(!r.adOk){toast("MLS код орсны дараа нээгдэнэ","err");go("#/obj/"+id);return;}
+  const o=r.o;
+  function paint(){
+    const txt=adText(o,AD_TAB), posted=!!o.ads[AD_TAB];
+    screenEl.innerHTML=topbar("Зарын текст",esc(o.title))+'<div class="body-pad">'+
+      '<div class="chips">'+AD_CH.map(function(c){
+        return '<button class="chip" aria-pressed="'+(c.k===AD_TAB?"true":"false")+'" data-act="t:'+c.k+'">'+
+          (o.ads[c.k]?"✓ ":"")+esc(c.t)+"</button>";
+      }).join("")+"</div>"+
+      '<div class="field" style="margin-top:12px"><textarea class="input" id="adt" rows="12" readonly>'+
+        esc(txt)+"</textarea></div>"+
+      '<button class="btn" style="margin-top:12px" data-act="copy">Хуулах</button>'+
+      (posted?'<div class="notice ok" style="margin-top:8px"><span>Энэ суваг дээр тавигдсан гэж тэмдэглэгдсэн.</span></div>'
+             :'<button class="btn secondary" style="margin-top:8px" data-act="mark">Тавьсан гэж тэмдэглэх</button>')+
+      '<p class="small muted" style="margin:12px 0 0">'+
+        Object.keys(o.ads).length+"/"+AD_CH.length+" суваг дээр тавигдсан. SOP-оор дор хаяж 3 суваг шаардлагатай.</p>"+
+      '<button class="btn ghost" style="margin-top:12px" data-act="back">Буцах</button>'+
+      "</div>";
+    ACTIONS={
+      back:function(){go("#/obj/"+id)},
+      copy:function(){const ok=copyText(txt);toast(ok?"Хуулагдлаа":"Хуулж чадсангүй — гараар сонгоно уу",ok?null:"err")},
+      mark:async function(){await api.markAd(id,AD_TAB);toast("Тэмдэглэлээ");const rr=await api.getObject(id);if(rr){o.ads=rr.o.ads;}paint();}
+    };
+    AD_CH.forEach(function(c){ACTIONS["t:"+c.k]=function(){AD_TAB=c.k;paint();}});
+  }
+  paint();
+}
+
+/* ==========================================================================
+   ДАВХАРГА 4 — router
+   ========================================================================== */
+function parseHash(){
+  const raw=(location.hash||"#/login").replace(/^#/,"");
+  const parts=raw.split("?"), path=parts[0]||"/login", q={};
+  if(parts[1]) parts[1].split("&").forEach(function(p){
+    const kv=p.split("="); q[decodeURIComponent(kv[0])]=decodeURIComponent(kv[1]||"");
+  });
+  return {path:path,q:q};
+}
+function route(){
+  clearTimers(); closeSheet(); ACTIONS={};
+  const r=parseHash(), path=r.path;
+  const open=(path==="/login"||path.indexOf("/checkin")===0||path.indexOf("/sign/")===0);
+  if(!S.session&&!open){go("#/login");return;}
+  screenEl.scrollTop=0;
+  if(path==="/login") return viewLogin();
+  if(path==="/checkin") return viewCheckin(r.q);
+  if(path.indexOf("/sign/")===0) return viewSign(path.slice(6));
+  if(path==="/home") return viewHome();
+  if(path==="/attendance") return viewAttendance();
+  if(path==="/tx") return viewTx();
+  if(path.indexOf("/tx/")===0){ viewTx().then(function(){openTxSheet(path.slice(4))}); return; }
+  if(path==="/leads") return S.demo.leadsTab?viewLeads():go("#/home");
+  if(path==="/objects") return viewObjects();
+  if(path.indexOf("/obj/")===0){
+    const rest=path.slice(5), seg=rest.split("/"), oid=seg[0];
+    if(seg[1]==="price") return viewObjPrice(oid);
+    if(seg[1]==="ilist") return viewObjIList(oid);
+    if(seg[1]==="ad")    return viewObjAd(oid);
+    return viewObject(oid);
+  }
+  if(path==="/me") return viewMe();
+  if(path==="/admin") return isManager()?viewAdmin():go("#/home");
+  if(path==="/admin/qr") return isManager()?viewAdminQr():go("#/home");
+  go("#/home");
+}
+window.addEventListener("hashchange",route);
+
+/* ==========================================================================
+   ДЕМО САМБАР (аппын хэсэг биш)
+   ========================================================================== */
+const TESTS=[
+  {k:"T1",t:"1. Нэвтэрч, PIN солих",sec:30,taps:null},
+  {k:"T2",t:"2. Хуралд бүртгүүлэх",sec:10,taps:2},
+  {k:"T3",t:"3. Худалдан авагчийн суваг бөглөх",sec:30,taps:5},
+  {k:"T4",t:"4. Silver хүртэл хэр дутуу",sec:10,taps:null},
+  {k:"T5",t:"5. Объектын чеклист бөглөх",sec:40,taps:null}
+];
+function opt(act,val,label,on){
+  return '<button class="demo-opt" data-d="'+act+'" data-v="'+esc(val)+'" aria-pressed="'+(on?"true":"false")+'">'+esc(label)+"</button>";
+}
+function renderDemo(){
+  const d=S.demo, t=d.test;
+  const testBlock=(function(){
+    if(t.result){
+      const spec=TESTS.find(x=>x.k===t.task)||{};
+      const okS=t.result.sec<=spec.sec, okT=spec.taps==null||t.result.taps<=spec.taps;
+      return '<div class="test-live"><b>'+esc(spec.t)+"</b><br>"+
+        "Хугацаа: <b>"+t.result.sec+" сек</b> (зорилт "+spec.sec+") "+(okS?"✓":"✕")+"<br>"+
+        "Товшилт: <b>"+t.result.taps+"</b>"+(spec.taps?" (зорилт "+spec.taps+") "+(okT?"✓":"✕"):"")+"</div>";
+    }
+    if(t.running){
+      const spec=TESTS.find(x=>x.k===t.task)||{};
+      return '<div class="test-live"><b>'+esc(spec.t)+"</b><br>Явж байна… товшилт: <b>"+t.taps+"</b></div>";
+    }
+    return "";
+  })();
+  $("#demoBody").innerHTML=
+    '<div class="demo-group"><label>Хэрэглэгч</label><div class="demo-opts">'+
+      opt("persona","NEW","Шинэ агент",d.persona==="NEW")+
+      opt("persona","ACTIVE","Идэвхтэй",d.persona==="ACTIVE")+
+      opt("persona","NEAR","Silver-т ойрхон",d.persona==="NEAR")+
+      opt("persona","MANAGER","Менежер",d.persona==="MANAGER")+
+    '</div><p class="demo-note">Шинэ агент — түр PIN 482910, анхны нэвтрэлтийн урсгал.</p></div>'+
+    '<div class="demo-group"><label>Silver босго</label><div class="demo-opts">'+
+      opt("silver","15","15 сая",d.silver.commission===15000000)+
+      opt("silver","20","20 сая",d.silver.commission===20000000)+
+      opt("silver","25","25 сая",d.silver.commission===25000000)+
+      opt("silver","30","30 сая",d.silver.commission===30000000)+
+    '</div><p class="demo-note">«Би» дэлгэцийн явц ба «Удирдлага»-ын «Silver-т хүрсэн» тоо өөрчлөгдөнө.</p></div>'+
+    '<div class="demo-group"><label>Агентуудын бодит шимтгэл (сая ₮)</label>'+
+      '<textarea class="input" id="rdist" rows="3" placeholder="23.1, 24.2, 31.5, 35.4 …">'+
+        esc(d.realDist?d.realDist.join(", "):"")+'</textarea>'+
+      '<div class="demo-opts" style="margin-top:8px">'+
+        '<button class="demo-opt" data-d="rdist" data-v="apply">Тооцоолох</button>'+
+        '<button class="demo-opt" data-d="rdist" data-v="clear">Цэвэрлэх</button>'+
+      '</div>'+
+      '<p class="demo-note">'+(d.realDist?('<b>'+silverCount()+' / '+silverTotal()+' агент</b> одоогийн босгыг давна.'):
+        'Хоосон бол демо өгөгдөл ашиглана. iList-ээс агентуудын шимтгэлийн дүнг таслалаар буулгавал босго бүр хэдэн хүнийг хамрахыг шууд харна.')+'</p>'+
+    '</div>'+
+    '<div class="demo-group"><label>Босго баталгаажсан</label><div class="demo-opts">'+
+      opt("conf","1","Тийм",d.confirmed)+opt("conf","0","Үгүй",!d.confirmed)+"</div></div>"+
+    '<div class="demo-group"><label>Импортын огноо</label><div class="demo-opts">'+
+      opt("imp","2026.09.19","Шинэ",d.importDate==="2026.09.19")+
+      opt("imp","2026.09.12","9 хоногийн өмнө",d.importDate==="2026.09.12")+"</div></div>"+
+    '<div class="demo-group"><label>Нээлттэй ирц</label><div class="demo-opts">'+
+      opt("open","1","Байгаа",d.openCheckin)+opt("open","0","Байхгүй",!d.openCheckin)+"</div></div>"+
+    '<div class="demo-group"><label>Лид таб</label><div class="demo-opts">'+
+      opt("leads","1","Харуулах",d.leadsTab)+opt("leads","0","Нуух",!d.leadsTab)+"</div></div>"+
+    '<div class="demo-group"><label>Листингийн дарааллын карт</label><div class="demo-opts">'+
+      opt("queue","1","Асаах",d.queueCard)+opt("queue","0","Унтраах",!d.queueCard)+"</div></div>"+
+    '<div class="demo-group"><label>Цахим гарын үсэг · листингийн 6-р алхам</label><div class="demo-opts">'+
+      '<button class="demo-opt" data-d="esign" data-v="agent">Агентын тал · 6-р алхам</button>'+
+      '<button class="demo-opt" data-d="esign" data-v="owner">Эзэмшигчийн линк нээх</button>'+
+      '<button class="demo-opt" data-d="esign" data-v="clear">Цэвэрлэх</button>'+
+    '</div><p class="demo-note">«Идэвхтэй» агентын «Баянзүрх · 13-р хороолол» объект. '+
+      (function(){const o=S.data&&objById(ESIGN_DEMO_OBJ);return o?"Төлөв: <b>"+esc(o.docs.indexOf(SIGNED)>=0&&!o.esign?"цаасан гэрээ хавсаргасан":esignLabel(o.esign))+"</b>. ":""})()+
+      'Линк байхгүй бол «Эзэмшигчийн линк нээх» шинээр үүсгэнэ. SMS код эзэмшигчийн дэлгэц дээр харагдана.</p></div>'+
+    '<div class="demo-group"><label>Сүлжээний алдаа</label><div class="demo-opts">'+
+      opt("net","1","Дараагийн хадгалалт алдаа өгнө",d.netError)+"</div></div>"+
+    '<div class="demo-group"><label>QR уншуулсан гэж үзэх</label><div class="demo-opts">'+
+      '<button class="demo-opt" data-d="scan" data-v="08:57">08:57 · цагтаа</button>'+
+      '<button class="demo-opt" data-d="scan" data-v="09:06">09:06 · хоцорсон</button>'+
+      '<button class="demo-opt" data-d="scan" data-v="09:20">09:20 · хаагдсан</button>'+
+    '</div><p class="demo-note">Прототипт камер байхгүй тул QR уншуулсныг дуурайна.</p></div>'+
+    '<div class="demo-group"><label>Туршилтын горим</label><div class="demo-opts">'+
+      TESTS.map(x=>'<button class="demo-opt" data-d="test" data-v="'+x.k+'" aria-pressed="'+(t.running&&t.task===x.k)+'">'+esc(x.t)+"</button>").join("")+
+      (t.running||t.result?'<button class="demo-opt" data-d="testStop" data-v="1">Зогсоох</button>':"")+
+    "</div>"+testBlock+"</div>"+
+    '<div class="demo-group"><button class="demo-btn" data-d="reset" data-v="1">Демо дахин эхлүүлэх</button></div>';
+}
+function renderTestLive(){ if(S.demo.test.running) renderDemo(); }
+function markTest(key,leadId){
+  const t=S.demo.test;
+  if(!t.running||t.task!==key) return;
+  if(key==="T5"&&t.leadId&&leadId!==t.leadId) return;
+  t.running=false;
+  t.result={sec:Math.max(1,Math.round((Date.now()-t.start)/1000)),taps:t.taps};
+  renderDemo();
+}
+const DEMO_ACT={
+  persona:function(v){
+    S.demo.persona=v;
+    S.flow=null;
+    const id=PERSONA_AGENT[v];
+    if(v==="NEW"){S.session=null;go("#/login");}
+    else {S.session=id;go("#/home");}
+    renderDemo(); route();
+  },
+  silver:function(v){S.demo.silver={commission:Number(v)*1000000,count:10};renderDemo();route()},
+  rdist:function(v){
+    if(v==="clear"){S.demo.realDist=null;renderDemo();route();return;}
+    const el=document.getElementById("rdist");
+    const nums=(el?el.value:"").split(/[^0-9.]+/).map(Number).filter(function(x){return x>0});
+    S.demo.realDist=nums.length?nums:null;
+    renderDemo(); route();
+    toast(nums.length?(nums.length+" агентын дүн уншлаа"):"Тоо олдсонгүй",nums.length?null:"err");
+  },
+  conf:function(v){S.demo.confirmed=v==="1";renderDemo();route()},
+  imp:function(v){S.demo.importDate=v;renderDemo();route()},
+  open:function(v){S.demo.openCheckin=v==="1";renderDemo();route()},
+  leads:function(v){S.demo.leadsTab=v==="1";renderDemo();route()},
+  queue:function(v){S.demo.queueCard=v==="1";renderDemo();route()},
+  net:function(){S.demo.netError=!S.demo.netError;renderDemo()},
+  scan:function(v){
+    DEMO_CLOCK.t=v;
+    const ev=todayEvent();
+    if(!ev){toast("Өнөөдөр арга хэмжээ алга","err");return;}
+    $("#demoPanel").classList.remove("open");
+    go("#/checkin?e="+ev.event_id+"&t=TKN-DEMO");
+    route();
+  },
+  test:function(v){
+    S.demo.test={task:v,running:true,taps:0,start:Date.now(),result:null,leadId:null};
+    $("#demoPanel").classList.remove("open");
+    renderDemo();
+  },
+  esign:function(v){
+    const o=objById(ESIGN_DEMO_OBJ); if(!o) return;
+    function show(h){$("#demoPanel").classList.remove("open"); if(location.hash===h) route(); else go(h);}
+    if(v==="clear"){
+      o.esign=null; S.sign=null;
+      const i=o.docs.indexOf(SIGNED); if(i>=0) o.docs.splice(i,1);
+      if(o.files) delete o.files[SIGNED];
+      o.stage=6; o.deal=0;
+      renderDemo(); route(); toast("Цахим гэрээний төлөв цэвэрлэгдлээ"); return;
+    }
+    if(v==="agent"){
+      S.demo.persona="ACTIVE"; S.session=PERSONA_AGENT.ACTIVE; S.flow=null;
+      renderDemo(); show("#/obj/"+ESIGN_DEMO_OBJ); return;
+    }
+    if(!o.esign){
+      const r=esignMake(o,"SMS");
+      if(!r.ok){toast(r.err+" — «Цэвэрлэх»-ийг дарна уу","err");return;}
+    }
+    renderDemo(); show("#/sign/"+o.esign.token);
+  },
+  testStop:function(){S.demo.test={task:null,running:false,taps:0,start:0,result:null,leadId:null};renderDemo()},
+  reset:function(){
+    S.data=buildData();
+    S.demo=JSON.parse(JSON.stringify(DEFAULT_DEMO));
+    S.session=null; S.flow=null; S.sign=null; DEMO_CLOCK.t="08:57";
+    renderDemo();
+    if(location.hash==="#/login") route(); else go("#/login");
+    toast("Демо дахин эхэллээ");
+  }
+};
+$("#demoPanel").addEventListener("click",function(e){
+  const t=e.target.closest("[data-d]"); if(!t) return;
+  const fn=DEMO_ACT[t.getAttribute("data-d")];
+  if(fn){e.preventDefault();fn(t.getAttribute("data-v"));}
+});
+$("#demoFab").addEventListener("click",function(){$("#demoPanel").classList.toggle("open")});
+$("#demoClose").addEventListener("click",function(){$("#demoPanel").classList.remove("open")});
+
+/* ==========================================================================
+   ЭХЛЭЛ
+   ========================================================================== */
+S.data=buildData();
+renderDemo();
+if(!location.hash) location.hash="#/login"; else route();
+</script>
+</body>
+</html>
