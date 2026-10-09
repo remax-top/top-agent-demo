@@ -331,6 +331,169 @@ textarea.input{resize:vertical;line-height:1.5;font-size:15px}
 .audit span:last-child{overflow-wrap:anywhere}
 .check-row{display:flex;gap:10px;align-items:flex-start;font-size:15px;margin:14px 0;cursor:pointer}
 .check-row input{width:20px;height:20px;margin-top:1px;flex:none}
+/* ---------- Онбординг «REMAX TOP хот» (v6) ---------- */
+:root{--road:#E9E2D2;--ground:#CFE4C2;--road-locked:#D5DCE1;--gold:#F2C14E}
+.oic{display:block;flex:none}
+.ok-t{color:var(--ok)}
+.warn-t{color:var(--warn)}
+.h-sm{margin:0;font-size:16px;font-weight:700}
+.coin{display:inline-flex;align-items:center;justify-content:center;flex:none;width:32px;height:32px;border-radius:50%;
+  background:var(--brand-accent);color:#fff;font-weight:800;font-size:14px;line-height:1}
+.coin.sm{width:18px;height:18px;font-size:10px}
+.coin.lg{width:56px;height:56px;font-size:22px;box-shadow:0 5px 0 #A85A12}
+.onb-tag{color:#B9D3DA;border-color:rgba(255,255,255,.35)}
+.onb-head{background:var(--brand-primary);color:#fff;padding:16px 18px 14px;display:flex;flex-direction:column;gap:12px;position:relative}
+.onb-head .onb-tag{position:absolute;right:18px;top:-2px;transform:translateY(-50%);display:none}
+.onb-head-row{display:flex;align-items:center;gap:12px}
+.onb-ava{width:48px;height:48px;border-radius:50%;background:#4C93A3;overflow:hidden;flex:none;display:flex;justify-content:center}
+.onb-ava svg{margin-top:2px}
+.onb-who{display:flex;flex-direction:column;gap:2px;flex:1;min-width:0}
+.onb-name{font-size:17px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.onb-role{font-size:12px;color:#B9D3DA}
+.coin-pill{display:flex;align-items:center;gap:8px;background:#fff;color:var(--ink);text-decoration:none;border-radius:999px;
+  padding:6px 14px 6px 6px;min-height:44px;box-sizing:border-box;flex:none}
+.coin-pill b{font-size:17px}
+.onb-prog{display:flex;flex-direction:column;gap:6px}
+.onb-prog span{color:#B9D3DA}
+.onb-bar{height:8px;border-radius:999px;background:rgba(255,255,255,.18);overflow:hidden}
+.onb-bar i{display:block;height:100%;border-radius:999px;background:#F2A65A}
+/* Хот: SVG ба overlay ижил масштабтай (% байрлал) — 360px-д хэвтээ гүйлтгүй */
+.city{position:relative;width:100%;aspect-ratio:390/800;overflow:hidden;background:var(--ground)}
+.city>svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.city-pin{position:absolute;width:44px;height:44px;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;padding:0;border-radius:50%}
+.city-dot{width:32px;height:32px;border-radius:50%;border:3px solid #fff;display:flex;align-items:center;justify-content:center;color:#fff;box-sizing:border-box}
+.city-pin.done .city-dot{background:var(--ok);box-shadow:0 3px 0 #0E5A3C}
+.city-pin.locked .city-dot{background:#B8C2C9}
+.city-pin.zone.locked .city-dot{background:var(--canvas);border:2px dashed #8A96A0;color:#8A96A0}
+.city-pin[data-onb-loc="8"].done .city-dot{background:var(--gold);box-shadow:0 3px 0 #C9952A;color:#6B4A08}
+.city-lbl{position:absolute;transform:translate(-50%,0);white-space:nowrap;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:600;
+  background:rgba(255,255,255,.88);color:var(--muted);pointer-events:none}
+.city-lbl.done{background:#fff;border:1px solid #CFE0C6;color:var(--ok)}
+.city-lbl.grad{background:#FFF6DE;border:1px solid var(--gold);color:#8A6212;font-weight:700}
+.city-lbl.cur{background:var(--brand-accent);color:#fff;font-size:12px;font-weight:700;box-shadow:0 3px 0 #A85A12;padding:4px 12px}
+.city-char{position:absolute;width:48px;height:64px;transform:translate(-50%,-94%);display:block;z-index:2;
+  transition:left .7s ease-in-out,top .7s ease-in-out;min-width:44px;min-height:44px}
+.city-char svg{display:block}
+.city-bub{position:absolute;display:flex;align-items:center;gap:4px;padding:3px 8px 3px 3px;border-radius:999px;background:#fff;
+  box-shadow:0 2px 6px rgba(16,22,28,.15);font-size:12px;font-weight:700;color:var(--warn);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.city-char{transition:none}}
+.onb-now{margin:-40px 14px 0;position:relative;z-index:3;background:#fff;border-radius:20px;box-shadow:0 8px 24px rgba(16,22,28,.12);
+  padding:16px;display:flex;flex-direction:column;gap:12px}
+.onb-now h2{margin:2px 0 0;font-size:18px}
+.onb-now-k{font-size:12px;font-weight:700;color:var(--warn)}
+.onb-seg{display:flex;gap:6px}
+.onb-seg i{flex:1;height:6px;border-radius:999px;background:var(--road-locked)}
+.onb-seg i.done{background:var(--ok)}
+.onb-seg i.wait{background:var(--gold)}
+.onb-seg i.cur{background:var(--brand-accent)}
+.onb-seg i.ret{background:var(--danger)}
+.grad-medal{display:inline-flex;width:64px;height:64px;border-radius:50%;align-items:center;justify-content:center;background:#E6EAEC;color:#8A96A0}
+.grad-medal.on{background:#FFF6DE;color:#8A6212;border:2px solid var(--gold)}
+/* Дүр сонгох */
+.onb-select{background:var(--brand-primary);min-height:100%;display:flex;flex-direction:column}
+.onb-sel-head{padding:22px 18px 6px;color:#fff;display:flex;flex-direction:column;gap:6px}
+.onb-sel-head h1{margin:0;font-size:24px}
+.onb-sel-head p{margin:0;font-size:14px;line-height:1.5;color:#D5E5EA}
+.onb-sel-head .onb-tag{align-self:flex-start}
+.onb-sel-hero{display:flex;flex-direction:column;align-items:center;gap:6px;padding:6px 18px 20px;color:#fff;text-align:center}
+.onb-plinth{position:relative;width:220px;height:230px}
+.onb-plinth>svg{position:absolute;left:0;bottom:0}
+.onb-plinth-char{position:absolute;left:44px;top:0}
+.onb-sel-name{font-size:20px}
+.onb-sel-tag{font-size:14px;color:#D5E5EA;max-width:300px}
+.onb-sel-main{flex:1;background:var(--canvas);border-radius:26px 26px 0 0;padding:20px 18px 26px;display:flex;flex-direction:column;gap:16px}
+.onb-chars{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.onb-char-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 4px 10px;border-radius:16px;border:2px solid var(--line);background:#fff;min-height:44px}
+.onb-char-btn span{font-size:13px;font-weight:600}
+.onb-char-btn[aria-pressed="true"]{border-color:var(--brand-accent);background:#FCEFD9}
+.onb-note{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.5;color:var(--muted)}
+.onb-note .oic{color:var(--brand-primary)}
+.btn.onb-cta{background:var(--brand-accent);border-color:var(--brand-accent);min-height:56px;border-radius:16px;font-size:17px;font-weight:700;box-shadow:0 5px 0 #A85A12}
+/* Байршлын даалгавар */
+.onb-loc-head{background:#fff;border-bottom:1px solid var(--line);padding:10px 18px 16px;display:flex;flex-direction:column;gap:8px}
+.onb-loc-head h1{margin:0;font-size:22px}
+.back-link{display:inline-flex;align-items:center;gap:6px;min-height:44px;text-decoration:none;color:var(--brand-primary);font-size:15px;font-weight:600}
+.loc-scene{position:relative;height:150px;border-radius:20px;background:var(--ground);overflow:hidden;margin:4px 0 6px}
+.loc-scene>svg{position:absolute;inset:0;width:100%;height:100%}
+.loc-scene-char{position:absolute;left:28.3%;top:54%}
+.loc-scene-k{position:absolute;left:12px;top:12px;padding:4px 10px;border-radius:999px;background:var(--brand-accent);color:#fff;font-size:12px;font-weight:700}
+.st-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.st-card.now{border:2px solid var(--brand-accent)}
+.st-card[data-st="LOCKED"]{opacity:.7}
+.st-row{display:flex;gap:14px}
+.st-main{display:flex;flex-direction:column;gap:4px;flex:1;min-width:0}
+.st-main h2{margin:0;font-size:16px}
+.st-k{font-size:12px;font-weight:700;color:var(--warn)}
+.st-ic{width:32px;height:32px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;box-sizing:border-box}
+.st-ic.done{background:var(--ok);color:#fff}
+.st-ic.wait{background:#FCEFD9;color:var(--warn)}
+.st-ic.ret{background:var(--danger-bg);color:var(--danger)}
+.st-ic.lock{background:#EEF1F3;color:#8A96A0}
+.st-ic.open{border:2px solid var(--brand-accent)}
+.st-foot{font-size:13px}
+.pill-wait{font-size:12px;font-weight:700;color:var(--warn);background:#FCEFD9;border-radius:999px;padding:4px 10px}
+.onb-form .field{margin-bottom:10px}
+.sop-list{margin:0 0 12px;padding:10px 14px 10px 30px;background:var(--canvas);border-radius:12px;font-size:13px;color:var(--muted);columns:2;column-gap:18px}
+.onb-file{display:flex;align-items:center;gap:8px;font-size:14px;background:var(--canvas);border-radius:10px;padding:10px 12px;margin-bottom:8px;overflow-wrap:anywhere}
+.onb-file .oic{color:var(--brand-primary)}
+.nda-text{background:var(--canvas);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--muted);margin-bottom:10px}
+.quiz{background:var(--canvas);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
+.quiz-q{font-size:15px;line-height:1.4}
+.quiz-opt{min-height:44px;text-align:left;padding:10px 14px;border-radius:12px;border:1px solid var(--line);background:#fff;font-size:14px}
+.quiz-opt[aria-pressed="true"]{border:2px solid var(--brand-primary);background:#E6EFF1;color:var(--brand-primary);font-weight:600}
+.vocab{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.vocab-card{min-height:56px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:12px;font-weight:600;padding:6px 4px;overflow-wrap:anywhere}
+.vocab-card[aria-pressed="true"]{background:#E6EFF1;border-color:#B9D3DA}
+.vocab-card[aria-pressed="true"] span{font-size:10px;font-weight:500}
+/* Шагнал */
+.rew-head{background:var(--brand-primary);color:#fff;padding:18px 18px 22px;display:flex;flex-direction:column;gap:14px;border-radius:0 0 26px 26px}
+.rew-head h1{margin:0;font-size:20px}
+.rew-bal{display:flex;align-items:center;gap:14px}
+.rew-bal>div{display:flex;flex-direction:column;gap:2px}
+.rew-num{font-size:34px;line-height:1}
+.rew-next{background:rgba(255,255,255,.10);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.rew-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 12px 12px 14px;display:flex;align-items:center;gap:12px}
+.rew-card.can{border:2px solid var(--ok)}
+.rew-ic{width:48px;height:48px;border-radius:12px;background:#F0F3F5;color:var(--muted);display:flex;align-items:center;justify-content:center;flex:none}
+.rew-card.can .rew-ic{background:var(--ok-bg);color:var(--ok)}
+.rew-main{display:flex;flex-direction:column;gap:3px;flex:1;min-width:0}
+.rew-main b{font-size:15px;font-weight:600}
+.rew-main .badge{align-self:flex-start;margin-top:2px}
+.rew-track{height:6px;border-radius:999px;background:var(--line);overflow:hidden;margin-top:4px}
+.rew-track i{display:block;height:100%;background:var(--brand-accent);border-radius:999px}
+.btn.rew-buy{min-height:44px;min-width:64px;flex:none;background:var(--ok);border-color:var(--ok)}
+.btn.rew-buy:disabled{background:#EEF1F3;border-color:#EEF1F3;color:#8A96A0;opacity:1}
+/* Ментор / админ батлах */
+.mentor-head{background:#fff;border-bottom:1px solid var(--line);padding:16px 18px 14px;display:flex;flex-direction:column;gap:12px}
+.mentor-head h1{margin:2px 0 0;font-size:20px}
+.mentor-head .demo-tag{align-self:flex-start}
+.count-pill{min-width:44px;height:44px;padding:0 12px;border-radius:999px;background:var(--brand-accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;box-sizing:border-box}
+.mentor-bonus{background:#FCEFD9;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:12px;font-size:13px;line-height:1.45;color:#6B3D08}
+.rv-card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.rv-top{display:flex;align-items:center;gap:12px}
+.rv-ava{width:40px;height:40px;border-radius:50%;background:#E6EFF1;color:var(--brand-primary);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex:none}
+.rv-main{display:flex;flex-direction:column;gap:2px;min-width:0}
+.rv-acts{display:flex;gap:10px}
+.rv-acts .btn{flex:1;min-height:48px}
+.btn.ok{background:var(--ok);border-color:var(--ok)}
+.onb-ans{background:var(--canvas);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;font-size:14px;line-height:1.45}
+.onb-ans div{display:flex;gap:10px}
+.onb-ans b{color:var(--brand-primary);flex:none;max-width:45%}
+.onb-ans span{overflow-wrap:anywhere}
+.swot{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;font-size:12px}
+.swot div{border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:4px;overflow-wrap:anywhere}
+.swot span{color:var(--muted)}
+.swot-ok{background:var(--ok-bg)}.swot-ok b{color:var(--ok)}
+.swot-err{background:var(--danger-bg)}.swot-err b{color:var(--danger)}
+.swot-info{background:#E6EFF1}.swot-info b{color:var(--brand-primary)}
+.swot-warn{background:#FCEFD9}.swot-warn b{color:var(--warn)}
+.tr-list{background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.tr-row{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.tr-row:last-child{border-bottom:0}
+.tr-seg{display:flex;gap:6px}
+.tr-seg i{flex:1;height:8px;border-radius:999px;background:var(--road-locked)}
+.tr-seg i.done{background:var(--ok)}
+.tr-seg i.cur{background:var(--brand-accent)}
 /* ---------- Нийтийн демо тууз ---------- */
 .demo-ribbon{height:24px;line-height:24px;text-align:center;font-size:12px;font-weight:700;letter-spacing:.04em;background:var(--brand-accent);color:#fff}
 @media (max-width:1040px){.phone{height:calc(100vh - 24px);height:calc(100dvh - 24px)}}
@@ -418,7 +581,9 @@ const AGENTS = [
   {agent_id:"119038209",office_id:"OFFICE_3",full_name:"Х.Эрдэнэбат",phone:"99128899",role:"AGENT",  status:"ACTIVE",  joined_on:"2025.07.07",pin:"111111",must_change_pin:false,ytd_commission:6200000,ytd_count:5},
   {agent_id:"119038210",office_id:"119038",full_name:"О.Наранцэцэг", phone:"99130011",role:"AGENT",  status:"ACTIVE",  joined_on:"2024.01.15",pin:"111111",must_change_pin:false,ytd_commission:18100000,ytd_count:9},
   {agent_id:"119038211",office_id:"OFFICE_2",full_name:"Л.Бат-Эрдэнэ",phone:"99132233",role:"AGENT", status:"INACTIVE",joined_on:"2025.03.02",pin:"111111",must_change_pin:false,ytd_commission:4900000,ytd_count:3},
-  {agent_id:"119038212",office_id:"119038",full_name:"Т.Золжаргал",  phone:"99134455",role:"AGENT",  status:"ACTIVE",  joined_on:"2026.09.07",pin:"482910",must_change_pin:true}
+  {agent_id:"119038212",office_id:"119038",full_name:"Т.Золжаргал",  phone:"99134455",role:"AGENT",  status:"ACTIVE",  joined_on:"2026.09.07",pin:"482910",must_change_pin:true},
+  {agent_id:"119038213",office_id:"119038",full_name:"Э.Тэмүүлэн",  phone:"99136677",role:"AGENT",  status:"ACTIVE",  joined_on:"2026.09.16",pin:"111111",must_change_pin:false},
+  {agent_id:"119038214",office_id:"119038",full_name:"Д.Нандин",    phone:"99138899",role:"AGENT",  status:"ACTIVE",  joined_on:"2026.09.18",pin:"111111",must_change_pin:false}
 ];
 
 /* Гүйлгээ — [trr, agent, deal, trr_type, хаяг, огноо, үнэ, шимтгэл, бөглөсөн эсэх] */
@@ -607,11 +772,106 @@ const OBJECTS = [
    ads:{UNEGUI:"тавигдсан",FB_MARKETPLACE:"тавигдсан",FB_GROUP:"тавигдсан",INSTAGRAM:"тавигдсан"},
    cp:"CITIZEN", ps:"CERT", docs:[SIGNED,"Иргэний үнэмлэх","Гэрчилгээ","Борлуулалтын гэрээ","Нотариатын гэрчлэлтэй гэрээ","Төлбөрийн баримт"],
    f:{district:"Чингэлтэй",khotkhon:"Цэцэг төв",area:71,floor:6,floors:12,rooms:3,built:2015,ptype:"Орон сууц",ophone:"99XXXXXX",cert:"эх хувь",encum:"байхгүй",loan:"ХХБ"},
-   ph:PHOTOS.slice(), days:142, views:880, leads:11}
+   ph:PHOTOS.slice(), days:142, views:880, leads:11},
+  /* Онбординг: дадлагажигч Э.Тэмүүлэнгийн эхний объект («Эхний 30 хоног»-ийн M30_CONTACT, M30_LISTING эндээс) */
+  {id:"TMP-260921-07", agent_id:"119038213", stage:1, deal:0, created:"2026.09.21", source:null,
+   title:"Сонгинохайрхан · 21-р хороо", owner:"Г.Ану", ask:180000000, contract:null, expiry:null, ilist_code:null, ads:{},
+   cp:null, ps:null, docs:[],
+   f:{district:"Сонгинохайрхан",khotkhon:null,area:48,floor:null,floors:null,rooms:2,built:null,ptype:"Орон сууц",ophone:null,cert:null,encum:null,loan:null},
+   ph:[], days:0, views:0, leads:0}
 ];
 const LEAVE_REQUESTS = [
   {id:"LV-01",agent:"Г.Мөнхзул",event:"2026.09.17 · Пүрэв гарагийн хурал",reason:"Харилцагчтай гэрээ",status:"PENDING"},
   {id:"LV-02",agent:"Х.Эрдэнэбат",event:"2026.09.21 · Даваа гарагийн хурал",reason:"Эмнэлэг",status:"PENDING"}
+];
+/* ---------- ОНБОРДИНГ «REMAX TOP хот» (v6) — 7 өдрийн чиглүүлэх хөтөлбөр ----------
+   approver: AUTO (систем шууд шалгана) | MENTOR | ADMIN (менежер). Coin зөвхөн DONE болох агшинд бичигдэнэ.
+   kind: confirm | form | quiz | file | sign | auto (объектын замаас автоматаар).
+   Асуулт, нууцлалын хуудасны текст — placeholder: агуулгыг сургалт хариуцагч батална. */
+const ONB_Q = "[Асуулт — сургалт хариуцагч батлах]";
+const ONB_LOCS = [
+  {n:1,name:"Оффис",day:"1-р өдөр · Танилцах",desc:"Оффис, ментортойгоо танилцаж, нууцлалын хуудсанд гарын үсэг зурна.",steps:[
+    {code:"D1_NDA",title:"Нууцлалын хуудас",desc:"Нууцлалын хуудсыг уншаад дэлгэц дээр гарын үсэг зурна.",approver:"ADMIN",coin:1,kind:"sign"},
+    {code:"D1_MENTOR",title:"Ментортойгоо танилцах",desc:"Ментортойгоо уулзаж, 7 хоногийн төлөвлөгөөгөө ярилцана.",approver:"MENTOR",coin:1,kind:"confirm",btn:"Танилцсан гэж илгээх"},
+    {code:"D1_RESEARCH",title:"RE/MAX, оффисын судалгаа",desc:"RE/MAX сүлжээ, REMAX TOP оффисын тухай судалгаагаа файлаар хавсаргана.",approver:"MENTOR",coin:1,kind:"file"}]},
+  {n:2,name:"Кофе шоп",day:"2-р өдөр · Зорилго",desc:"Яагаад агент болсноо бичиж, өөрийгөө шинжилж, зорилгоо тавина.",steps:[
+    {code:"D2_WHY",title:"Агент болсон шалтгаан",desc:"Яагаад энэ ажлыг сонгосноо өөрийн үгээр бичнэ.",approver:"MENTOR",coin:1,kind:"form",
+     fields:[{k:"why",label:"Яагаад агент болохоор шийдсэн бэ?",type:"textarea"}]},
+    {code:"D2_SWOT",title:"SWOT шинжилгээ",desc:"Өөрийн давуу, сул тал, боломж, аюулыг 4 талбарт бичнэ.",approver:"MENTOR",coin:1,kind:"form",
+     fields:[{k:"s",label:"Давуу тал",type:"textarea"},{k:"w",label:"Сул тал",type:"textarea"},{k:"o",label:"Боломж",type:"textarea"},{k:"t",label:"Аюул",type:"textarea"}]},
+    {code:"D2_SMART",title:"SMART зорилго",desc:"Тодорхой, хэмжигдэх, хүрэх боломжтой, бодит, хугацаатай зорилго.",approver:"MENTOR",coin:1,kind:"form",
+     fields:[{k:"m1",label:"1 сарын зорилго",type:"textarea"},{k:"m3",label:"3 сарын зорилго",type:"textarea"}]}]},
+  {n:3,name:"iConnect өрөө",day:"3-р өдөр · Хэрэгсэл",desc:"iConnect-д нэвтэрч, гэрээний төрлүүд болон листингийн 10 алхамтай танилцана.",steps:[
+    {code:"D3_ACCESS",title:"iConnect, Webmail нэвтрэх эрх",desc:"Эрх хүссэнээ илгээнэ — эрх олгогдмогц админ батална.",approver:"ADMIN",coin:1,kind:"confirm",btn:"Эрх хүссэн гэж илгээх"},
+    {code:"D3_CONTRACT",title:"Гэрээнүүдтэй танилцах",desc:"Онцгой эрхийн ба энгийн гэрээ, үйлчилгээний хөлс, хугацаа. Уншаад 5 асуулттай шалгалт өгнө.",approver:"AUTO",coin:1,bonus:2,kind:"quiz"},
+    {code:"D3_SOP",title:"Листингийн 10 алхам",desc:"Листингийн SOP-ийг үзэж, 3 асуултад хариулна.",approver:"MENTOR",coin:1,kind:"form",
+     fields:[{k:"q1",label:"[Асуулт 1 — сургалт хариуцагч батлах]",type:"textarea"},{k:"q2",label:"[Асуулт 2 — сургалт хариуцагч батлах]",type:"textarea"},{k:"q3",label:"[Асуулт 3 — сургалт хариуцагч батлах]",type:"textarea"}]}]},
+  {n:4,name:"Хотхонууд",day:"4-р өдөр · Зах зээл",desc:"Хотхон, дүүргүүдийн үнэтэй танилцаж, нэр томьёогоо цээжилнэ.",steps:[
+    {code:"D4_PRICE",title:"Дүүргийн м² медиан",desc:"Нэг дүүрэг сонгож, iList-ийн үнийн сангаас м² медиан үнийг олж бичнэ.",approver:"MENTOR",coin:1,kind:"form",
+     fields:[{k:"district",label:"Дүүрэг",type:"select"},{k:"med",label:"м² медиан (сая ₮)",type:"num"}]},
+    {code:"D4_VOCAB",title:"Үгсийн сан · 18 нэр томьёо",desc:"18 картыг бүгдийг нь эргүүлж үзвэл дуусна.",approver:"AUTO",coin:1,kind:"quiz"}]},
+  {n:5,name:"Үзүүлэх байр",day:"5-р өдөр · Ажиглалт",desc:"Туршлагатай агенттай нэг өдөр хамт ажиллаж, ажигласнаа бичнэ.",steps:[
+    {code:"D5_SHADOW",title:"Туршлагатай агенттай 1 өдөр",desc:"Ажиглалтын 5 асуултад хариулна.",approver:"MENTOR",coin:1,kind:"form",
+     fields:[1,2,3,4,5].map(function(i){return {k:"q"+i,label:"[Ажиглалтын асуулт "+i+" — сургалт хариуцагч батлах]",type:"textarea"}})}]},
+  {n:6,name:"Ментор",day:"6-р өдөр · Ярилцлага",desc:"Ментортойгоо 7 хоногоо дүгнэж ярилцана.",steps:[
+    {code:"D6_REVIEW",title:"Менторын ярилцлага",desc:"Ментор «Тэнцсэн» эсвэл «Давтах» гэж шийднэ.",approver:"MENTOR",coin:1,kind:"confirm",btn:"Ярилцлагад орсон гэж илгээх"}]},
+  {n:7,name:"Студи",day:"7-р өдөр · Профайл",desc:"Мэргэжлийн профайл зургаа авахуулж хавсаргана.",steps:[
+    {code:"D7_PHOTO",title:"Мэргэжлийн профайл зураг",desc:"Студид авахуулсан зургаа хавсаргана.",approver:"MENTOR",coin:1,kind:"file"}]}
+];
+/* Төгсөлтийн дараа нээгдэх «Эхний 30 хоног» бүс. auto — объектын замаас тэмдэглэгдэнэ. */
+const ONB_M30 = {n:30,name:"Эхний 30 хоног",day:"30 хоног · Банк, нотариат",desc:"Бие даасан агентын эхний алхмууд. Объектын явцаас зарим нь автоматаар тэмдэглэгдэнэ.",steps:[
+  {code:"M30_CONTACT",title:"Эхний эзэмшигчтэй холбогдох",desc:"Таны объект листингийн 1-р алхмыг дуусгахад автоматаар тэмдэглэгдэнэ.",approver:"AUTO",coin:2,kind:"auto"},
+  {code:"M30_LISTING",title:"Эхний листинг Admin Approve",desc:"Таны объект листингийн 10-р алхмаар батлагдахад автоматаар тэмдэглэгдэнэ. Ментор +5 coin авна.",approver:"ADMIN",coin:10,kind:"auto"},
+  {code:"M30_VIEWING",title:"Эхний үзлэг",desc:"Худалдан авагчид объект үзүүлснээ илгээнэ.",approver:"MENTOR",coin:3,kind:"confirm",btn:"Үзлэг хийсэн гэж илгээх"},
+  {code:"M30_DEAL",title:"Эхний гүйлгээ (акт)",desc:"Эхний гүйлгээний актаа хийснээ илгээнэ.",approver:"ADMIN",coin:15,kind:"confirm",btn:"Акт хийсэн гэж илгээх"}]};
+const ONB_GRAD = {coin:5,badge:"Дадлагажигч агент"};
+const ONB_VALID_DAYS = 90;
+const ONB_MENTOR_BONUS = 5;
+/* D3_CONTRACT — зөвхөн 1-р асуулт бодит. Бусад нь placeholder; зөв хариултыг агуулга батлагдахад тохируулна. */
+const ONB_QUIZ = [
+  {q:"Листингийн гэрээ ямар хоёр төрөлтэй вэ?",opts:["Захиалгын ба гэрчилгээт","Онцгой эрхийн ба энгийн","Solo ба Referral"],a:1},
+  {q:"[Асуулт 2 — сургалт хариуцагч батлах]",opts:["[Хариулт А]","[Хариулт Б]","[Хариулт В]"],a:0},
+  {q:"[Асуулт 3 — сургалт хариуцагч батлах]",opts:["[Хариулт А]","[Хариулт Б]","[Хариулт В]"],a:0},
+  {q:"[Асуулт 4 — сургалт хариуцагч батлах]",opts:["[Хариулт А]","[Хариулт Б]","[Хариулт В]"],a:0},
+  {q:"[Асуулт 5 — сургалт хариуцагч батлах]",opts:["[Хариулт А]","[Хариулт Б]","[Хариулт В]"],a:0}
+];
+const ONB_VOCAB = ["MLS код","iConnect","iList","TRR","Solo","Referral-in","Referral-out","Co-broke","Онцгой эрхийн гэрээ",
+  "Энгийн гэрээ","Admin Audit","Approve","Үйлчилгээний хөлс","Дардас","м² медиан","YardSign","Fire-Up","E-Barimt"];
+const REWARDS = [
+  {code:"CARDS",name:"Нэрийн хуудас · 100 ш",coin:5,giver:"Оффис",ic:"card"},
+  {code:"SHADOW_DAY",name:"Сонгосон агенттайгаа нэг өдөр",coin:10,giver:"Хамт олон",ic:"people"},
+  {code:"FB_FEATURE",name:"Объектоо оффисын FB хуудсанд онцлох",coin:15,giver:"Маркетинг",ic:"mega"},
+  {code:"PHOTOGRAPHER",name:"Мэргэжлийн зурагчин нэг объектод",coin:20,giver:"Оффис",ic:"camera"},
+  {code:"CEO_LUNCH",name:"Захиралтай нэг цаг үдийн хоол",coin:25,giver:"Захирал",ic:"cup"},
+  {code:"YARDSIGN",name:"YardSign · гадна самбар",coin:30,giver:"Оффис",ic:"sign"},
+  {code:"FIREUP_PRIORITY",name:"Fire-Up сургалт тэргүүн ээлжинд",coin:40,giver:"Оффис / REAM",ic:"cap"}
+];
+/* Дүр — зөвхөн харагдах байдал (coin, шагналд нөлөөлөхгүй). SVG viewBox 0 0 48 64 */
+const CHAR_HAIR = {
+  SHORT:"M14 17 Q13 6 24 6 Q35 6 34 17 Q30 11 24 11 Q18 11 14 17 Z",
+  LONG:"M13 19 Q12 5 24 5 Q36 5 35 19 L35 31 Q33 32 31 30 L31 16 Q24 11 17 16 L17 30 Q15 32 13 31 Z",
+  CAP:"M13 16 Q13 4 24 4 Q35 4 35 16 Z"
+};
+const CHAR_EXTRA = {bun:"M20 5 A4 4 0 1 1 28 5 A4 4 0 1 1 20 5 Z",brim:"M24 12 L38 12 Q38 15 35 15 L24 15 Z"};
+const CHARS = [
+  {name:"Стратегич", tag:"Үнийн маргаанд баримтаар ярьдаг",        skin:"#F1C9A5",hair:"SHORT",extra:null,  hairColor:"#2A1E18",jacket:"#0F4A5A"},
+  {name:"Харилцагч", tag:"Эзэмшигчтэй хамгийн хурдан холбогддог",  skin:"#E0AC83",hair:"LONG", extra:null,  hairColor:"#151515",jacket:"#D97A1E"},
+  {name:"Судлаач",   tag:"Зах зээлийн тоог хамгийн түрүүнд хардаг",skin:"#C68A62",hair:"SHORT",extra:null,  hairColor:"#151515",jacket:"#26415C"},
+  {name:"Хурдан",    tag:"Чеклистээ эхэлж дуусгадаг",              skin:"#F5D3B5",hair:"SHORT",extra:"bun", hairColor:"#5A3A24",jacket:"#157A52"},
+  {name:"Найдвартай",tag:"Баримт бүрдүүлэлтэд алдаа гаргадаггүй",  skin:"#D9A07A",hair:"CAP",  extra:"brim",hairColor:"#0F4A5A",jacket:"#5E6B76"},
+  {name:"Бүтээлч",   tag:"Зарын текст, зургаараа ялгардаг",        skin:"#EBBE98",hair:"LONG", extra:null,  hairColor:"#5A3A24",jacket:"#8A3B2E"}
+];
+/* Демо дадлагажигчид — бүх нэр, өгөгдөл хиймэл. done: алхам → [батласан, огноо] */
+const ONB_SEED = [
+  {agent_id:"119038213",mentor:"119038201",start:"2026.09.16",char:{idx:2,name:"Тэмүүлэн"},
+   done:{D1_NDA:["119038207","2026.09.16"],D1_MENTOR:["119038201","2026.09.16"],D1_RESEARCH:["119038201","2026.09.17"],
+         D2_WHY:["119038201","2026.09.17"],D2_SWOT:["119038201","2026.09.18"],D2_SMART:["119038201","2026.09.18"],
+         D3_SOP:["119038201","2026.09.19"]},
+   sub:{D3_ACCESS:["2026.09.19",{}]}},
+  {agent_id:"119038214",mentor:"119038201",start:"2026.09.18",char:null,
+   done:{D1_NDA:["119038207","2026.09.18"],D1_MENTOR:["119038201","2026.09.18"],D1_RESEARCH:["119038201","2026.09.19"]},
+   sub:{D2_SWOT:["2026.09.21 06:40",{s:"[Дадлагажигчийн бичсэн — 3 мөр]",w:"[Дадлагажигчийн бичсэн — 2 мөр]",o:"[Дадлагажигчийн бичсэн — 3 мөр]",t:"[Дадлагажигчийн бичсэн — 2 мөр]"}],
+        D2_SMART:["2026.09.21 07:10",{m1:"[Дадлагажигчийн бичсэн зорилго]",m3:"[Дадлагажигчийн бичсэн зорилго]"}]}}
 ];
 /* ==========================================================================
    ТӨЛӨВ + ТУСЛАХ ФУНКЦ
@@ -630,7 +890,7 @@ const DEFAULT_DEMO = {
 };
 const S = {session:null, flow:null, data:null, demo:JSON.parse(JSON.stringify(DEFAULT_DEMO))};
 
-const PERSONA_AGENT = {NEW:"119038212", ACTIVE:"119038201", NEAR:"119038203", MANAGER:"119038207"};
+const PERSONA_AGENT = {NEW:"119038212", ACTIVE:"119038201", NEAR:"119038203", MANAGER:"119038207", TRAINEE:"119038213"};
 
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function hashStr(s){let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
@@ -718,7 +978,8 @@ function buildData(){
     leads:leads, listingQueue:JSON.parse(JSON.stringify(LISTING_QUEUE)),
     leaveRequests:JSON.parse(JSON.stringify(LEAVE_REQUESTS)),
     objects:JSON.parse(JSON.stringify(OBJECTS)),
-    liveCheckins:{}, importLog:{rows:1284,errors:2}
+    liveCheckins:{}, importLog:{rows:1284,errors:2},
+    onb:onbSeed()
   };
 }
 
@@ -980,6 +1241,139 @@ function esignMake(o,ch){
   return {ok:true,esign:o.esign};
 }
 
+/* ---------- Онбординг: туслах ---------- */
+function onbSeed(){
+  const trainees={}, ledger=[];
+  ONB_SEED.forEach(function(s){
+    const t={agent_id:s.agent_id,mentor:s.mentor,start:s.start,char:s.char?Object.assign({},s.char):null,
+             steps:{},graduated:false,badge:null,fireup:false};
+    Object.keys(s.done).forEach(function(code){
+      const d=onbDef(code), by=s.done[code][0], at=s.done[code][1];
+      t.steps[code]={st:"DONE",payload:null,reason:null,at:at,by:by};
+      ledger.push({agent_id:s.agent_id,amount:d.coin,reason:d.title,step_code:code,approved_by:by,at:at});
+    });
+    Object.keys(s.sub).forEach(function(code){
+      t.steps[code]={st:"SUBMITTED",payload:s.sub[code][1],reason:null,at:s.sub[code][0],by:null};
+    });
+    trainees[s.agent_id]=t;
+  });
+  return {trainees:trainees,ledger:ledger,requests:[]};
+}
+function onbAllLocs(){return ONB_LOCS.concat([ONB_M30])}
+function onbLocDef(n){return onbAllLocs().find(function(l){return l.n===n})||null}
+function onbDef(code){
+  let r=null;
+  onbAllLocs().forEach(function(l){l.steps.forEach(function(s){if(s.code===code) r=Object.assign({loc:l.n},s)})});
+  return r;
+}
+function onbT(id){return (S.data&&S.data.onb.trainees[id])||null}
+function isTrainee(id){return !!onbT(id===undefined?S.session:id)}
+function onbTraineesOf(mentorId){
+  return Object.keys(S.data.onb.trainees).map(function(k){return S.data.onb.trainees[k]}).filter(function(t){return t.mentor===mentorId});
+}
+function isMentor(id){return onbTraineesOf(id===undefined?S.session:id).length>0}
+function onbRaw(t,code){const r=t.steps[code];return r?r.st:"OPEN"}
+function onbLocDone(t,n){return onbLocDef(n).steps.every(function(s){return onbRaw(t,s.code)==="DONE"})}
+function onbLocOpen(t,n){
+  if(n===30) return t.graduated;
+  return n===1 || onbLocDone(t,n-1);
+}
+/* Алхмын төлөв: LOCKED → OPEN → SUBMITTED → DONE | RETURNED */
+function onbState(t,code){const d=onbDef(code); return onbLocOpen(t,d.loc)?onbRaw(t,code):"LOCKED"}
+/* Одоогийн байршил: 1–7-оос эхний дуусаагүй нь, төгссөн бол 30 хоногийн бүс */
+function onbCur(t){for(let n=1;n<=ONB_LOCS.length;n++) if(!onbLocDone(t,n)) return n; return 30}
+function onbEarned(id){return S.data.onb.ledger.filter(function(e){return e.agent_id===id}).reduce(function(a,e){return a+e.amount},0)}
+function onbSpent(id){
+  return S.data.onb.requests.filter(function(r){return r.agent_id===id}).reduce(function(a,r){
+    const w=REWARDS.find(function(x){return x.code===r.code});return a+(w?w.coin:0)},0);
+}
+function onbDaysLeft(t){return ONB_VALID_DAYS-daysBetween(TODAY,t.start)}
+function onbBalance(id){
+  const t=onbT(id); if(t&&onbDaysLeft(t)<0) return 0;   // 90 хоног өнгөрвөл coin хүчингүй
+  return onbEarned(id)-onbSpent(id);
+}
+function onbStepsDone(t){return ONB_LOCS.reduce(function(a,l){return a+l.steps.filter(function(s){return onbRaw(t,s.code)==="DONE"}).length},0)}
+function onbStepsTotal(){return ONB_LOCS.reduce(function(a,l){return a+l.steps.length},0)}
+function onbLocsDone(t){return ONB_LOCS.filter(function(l){return onbLocDone(t,l.n)}).length}
+function onbWho(id){if(id==="AUTO") return "Автомат"; if(id==="SYSTEM") return "Систем"; const a=agentById(id); return a?a.full_name:"—"}
+function onbCoinAdd(agentId,amount,reason,code,by){
+  S.data.onb.ledger.push({agent_id:agentId,amount:amount,reason:reason,step_code:code,approved_by:by,at:stampNow()});
+}
+/* Алхмыг DONE болгох цорын ганц цэг: coin, төгсөлт, менторын coin энд бичигдэнэ */
+function onbFinish(t,code,by,extra){
+  const d=onbDef(code); let added=d.coin;
+  t.steps[code]=Object.assign({},t.steps[code]||{},{st:"DONE",reason:null,at:stampNow(),by:by},extra||{});
+  onbCoinAdd(t.agent_id,d.coin,d.title,code,by);
+  if(extra&&extra.bonus){onbCoinAdd(t.agent_id,extra.bonus,d.title+" · 5/5 бонус",code,by);added+=extra.bonus;}
+  if(code==="M30_LISTING") onbCoinAdd(t.mentor,ONB_MENTOR_BONUS,"Дадлагажигч "+onbWho(t.agent_id)+" — эхний листинг",code,by);
+  if(!t.graduated && ONB_LOCS.every(function(l){return onbLocDone(t,l.n)})){
+    t.graduated=true; t.badge=ONB_GRAD.badge; t.fireup=true;
+    onbCoinAdd(t.agent_id,ONB_GRAD.coin,"Төгсөлт · «"+ONB_GRAD.badge+"» тэмдэг","GRAD","SYSTEM");
+    added+=ONB_GRAD.coin;
+    onbSyncObjects(t.agent_id,"AUTO");
+  }
+  return added;
+}
+/* «Эхний 30 хоног»: дадлагажигчийн объектын замаас автоматаар тэмдэглэнэ */
+function onbSyncObj(o,by){
+  const t=onbT(o.agent_id); if(!t||!t.graduated) return;
+  if((o.stage>=2||o.deal>0) && onbRaw(t,"M30_CONTACT")!=="DONE") onbFinish(t,"M30_CONTACT","AUTO");
+  if(o.deal>0 && onbRaw(t,"M30_LISTING")!=="DONE") onbFinish(t,"M30_LISTING",by||"AUTO");
+}
+function onbSyncObjects(agentId,by){myObjects(agentId).forEach(function(o){onbSyncObj(o,by)})}
+/* Хэн батлах эрхтэй вэ — api дотор шалгана */
+function onbCanReview(actorId,t,d){
+  if(!actorId||actorId===t.agent_id) return "Өөрийн алхмыг батлах боломжгүй";
+  const a=agentById(actorId); if(!a) return "Хэрэглэгч олдсонгүй";
+  if(d.approver==="AUTO") return "Энэ алхмыг систем автоматаар шалгана";
+  if(d.approver==="MENTOR" && t.mentor!==actorId) return "Зөвхөн энэ дадлагажигчийн ментор батална";
+  if(d.approver==="ADMIN" && a.role!=="MANAGER") return "Зөвхөн админ / менежер батална";
+  return null;
+}
+function onbValidate(d,p){
+  p=p||{};
+  if(d.kind==="form"){
+    const empty=d.fields.filter(function(f){return p[f.k]===undefined||p[f.k]===null||String(p[f.k]).trim()===""});
+    if(empty.length) return "«"+empty[0].label+"» хоосон байна";
+    if(d.code==="D4_PRICE"){ if(!PRICE.d[p.district]) return "Дүүрэг сонгоно уу"; if(!(Number(p.med)>0)) return "Медиан үнийг тоогоор бичнэ үү"; }
+  }
+  if(d.kind==="file" && !(p.file&&p.file.name)) return "Файл сонгоогүй";
+  if(d.kind==="sign" && !(p.png&&/^data:image\/png/.test(p.png))) return "Гарын үсэг зураагүй";
+  if(d.code==="D3_CONTRACT" && !(p.answers&&p.answers.length===ONB_QUIZ.length)) return "5 асуултад бүгдэд нь хариулна уу";
+  if(d.code==="D4_VOCAB" && !(p.seen>=ONB_VOCAB.length)) return ONB_VOCAB.length+" картыг бүгдийг нь үзнэ үү";
+  return null;
+}
+function onbStepView(t,s){
+  const r=t.steps[s.code]||{};
+  return Object.assign({},s,{st:onbState(t,s.code),reason:r.reason||null,at:r.at||null,by:r.by||null,
+    byName:r.by?onbWho(r.by):null,payload:r.payload||null,score:r.score==null?null:r.score});
+}
+function onbLocView(t,l){
+  const cur=onbCur(t), open=onbLocOpen(t,l.n), done=onbLocDone(t,l.n);
+  return {n:l.n,name:l.name,day:l.day,desc:l.desc,open:open,done:done,cur:open&&!done&&l.n===cur,
+          state:done?"DONE":(open?"CUR":"LOCKED"),steps:l.steps.map(function(s){return onbStepView(t,s)})};
+}
+function onbPendingFor(actorId){
+  const a=agentById(actorId); if(!a) return [];
+  const out=[];
+  Object.keys(S.data.onb.trainees).forEach(function(k){
+    const t=S.data.onb.trainees[k];
+    Object.keys(t.steps).forEach(function(code){
+      const r=t.steps[code], d=onbDef(code);
+      if(r.st!=="SUBMITTED") return;
+      const mine=(d.approver==="MENTOR"&&t.mentor===actorId)||(d.approver==="ADMIN"&&a.role==="MANAGER");
+      if(mine) out.push({trainee:t.agent_id,name:onbWho(t.agent_id),code:code,def:d,payload:r.payload,at:r.at});
+    });
+  });
+  return out.sort(function(x,y){return String(y.at).localeCompare(String(x.at))});
+}
+function onbTraineeSummary(t){
+  const cur=onbCur(t), pend=Object.keys(t.steps).filter(function(c){return t.steps[c].st==="SUBMITTED"}).map(onbDef);
+  return {id:t.agent_id,name:onbWho(t.agent_id),cur:cur,coin:onbBalance(t.agent_id),graduated:t.graduated,
+          locs:ONB_LOCS.map(function(l){return onbLocDone(t,l.n)?"done":(l.n===cur?"cur":"todo")}),
+          waitMentor:pend.filter(function(d){return d.approver==="MENTOR"}).length,
+          waitAdmin:pend.filter(function(d){return d.approver==="ADMIN"}).length};
+}
 /* ==========================================================================
    ДАВХАРГА 2 — api. Бодит хувилбарт мөр болгон google.script.run болно.
    Жишээ:  return new Promise((ok,err)=>google.script.run
@@ -1211,6 +1605,7 @@ const api = {
     const g=stepGate(o); if(g) return {ok:false,err:g};
     if(c.trk==="L"){ if(o.stage<LSTAGES.length) o.stage++; else o.deal=1; }
     else o.deal++;
+    onbSyncObj(o,S.session);   // онбординг: дадлагажигчийн «Эхний 30 хоног» (M30_CONTACT, M30_LISTING)
     return {ok:true,label:stageName(o)};
   },{write:true}),
   officeQueue:()=>call(function(){
@@ -1243,6 +1638,101 @@ const api = {
   },{write:true}),
   getAgents:()=>call(function(){return S.data.agents})
 };
+/* ---- Онбординг (v6). Бодит: мөр бүр google.script.run.onb*(…) — Sheets «Онбординг», «CoinLedger», «Шагнал» хуудас.
+   Эрхийг энд (сервер талд) шалгана: дадлагажигч өөрийн MENTOR/ADMIN алхмыг API-аар ч батлахгүй. ---- */
+Object.assign(api,{
+  onbGet:()=>call(function(){
+    const t=onbT(S.session); if(!t) return {ok:false,err:"Дадлагажигч биш"};
+    onbSyncObjects(t.agent_id,"AUTO");
+    return {ok:true,t:t,name:onbWho(t.agent_id),mentor:onbWho(t.mentor),cur:onbCur(t),
+            coin:onbBalance(t.agent_id),daysLeft:onbDaysLeft(t),stepsDone:onbStepsDone(t),stepsTotal:onbStepsTotal(),
+            locsDone:onbLocsDone(t),locs:onbAllLocs().map(function(l){return onbLocView(t,l)})};
+  }),
+  onbSelectChar:(idx,name)=>call(function(){
+    const t=onbT(S.session); if(!t) return {ok:false,err:"Дадлагажигч биш"};
+    idx=Number(idx); if(!(idx>=0&&idx<CHARS.length)) return {ok:false,err:"Дүр сонгоно уу"};
+    t.char={idx:idx,name:String(name||"").trim().slice(0,20)||null};
+    return {ok:true,char:t.char};
+  },{write:true}),
+  onbSubmit:(stepCode,payload)=>call(function(){
+    const t=onbT(S.session); if(!t) return {ok:false,err:"Дадлагажигч биш"};
+    const d=onbDef(stepCode); if(!d) return {ok:false,err:"Алхам олдсонгүй"};
+    const st=onbState(t,stepCode);
+    if(st==="LOCKED") return {ok:false,err:"Байршил цоожтой"};
+    if(st==="DONE"||st==="SUBMITTED") return {ok:false,err:st==="DONE"?"Аль хэдийн батлагдсан":"Батлагч хүлээж байна"};
+    if(d.kind==="auto") return {ok:false,err:"Объектын замаас автоматаар тэмдэглэгдэнэ"};
+    const err=onbValidate(d,payload); if(err) return {ok:false,err:err};
+    if(d.approver==="AUTO"){
+      let extra={payload:payload};
+      if(stepCode==="D3_CONTRACT"){
+        const score=ONB_QUIZ.filter(function(q,i){return payload.answers[i]===q.a}).length;
+        extra.score=score; if(score===ONB_QUIZ.length) extra.bonus=d.bonus;
+      }
+      const added=onbFinish(t,stepCode,"AUTO",extra);
+      return {ok:true,state:"DONE",coin:added,score:extra.score==null?null:extra.score,graduated:t.graduated};
+    }
+    t.steps[stepCode]={st:"SUBMITTED",payload:payload||{},reason:null,at:stampNow(),by:null};
+    return {ok:true,state:"SUBMITTED",coin:0};
+  },{write:true}),
+  onbReview:(traineeId,stepCode,decision,reason)=>call(function(){
+    const t=onbT(traineeId); if(!t) return {ok:false,err:"Дадлагажигч олдсонгүй"};
+    const d=onbDef(stepCode); if(!d) return {ok:false,err:"Алхам олдсонгүй"};
+    const deny=onbCanReview(S.session,t,d); if(deny) return {ok:false,err:deny};
+    if(onbRaw(t,stepCode)!=="SUBMITTED") return {ok:false,err:"Батлах хүлээгдэж буй алхам биш"};
+    if(decision==="RETURN"){
+      reason=String(reason||"").trim(); if(!reason) return {ok:false,err:"Буцаах шалтгаанаа бичнэ үү"};
+      Object.assign(t.steps[stepCode],{st:"RETURNED",reason:reason,at:stampNow(),by:S.session});
+      return {ok:true,state:"RETURNED"};
+    }
+    if(decision!=="APPROVE") return {ok:false,err:"Шийдвэр буруу"};
+    const added=onbFinish(t,stepCode,S.session);
+    return {ok:true,state:"DONE",coin:added,graduated:t.graduated};
+  },{write:true}),
+  onbRewards:()=>call(function(){
+    const t=onbT(S.session); if(!t) return {ok:false,err:"Дадлагажигч биш"};
+    const bal=onbBalance(t.agent_id), left=onbDaysLeft(t);
+    const reqs=S.data.onb.requests.filter(function(r){return r.agent_id===t.agent_id});
+    const hist=S.data.onb.ledger.filter(function(e){return e.agent_id===t.agent_id}).map(function(e){
+      return {at:e.at,t:e.reason+" · "+onbWho(e.approved_by),amount:e.amount}}).concat(reqs.map(function(r){
+      const w=REWARDS.find(function(x){return x.code===r.code});
+      return {at:r.at,t:"Шагнал: "+w.name+(r.status==="GIVEN"?" · олгосон":" · хүсэлт"),amount:-w.coin}}))
+      .sort(function(a,b){return String(b.at).localeCompare(String(a.at))});
+    return {ok:true,balance:bal,daysLeft:left,expired:left<0,history:hist,
+      rewards:REWARDS.map(function(w){
+        const r=reqs.filter(function(x){return x.code===w.code}).slice(-1)[0]||null;
+        return Object.assign({},w,{can:left>=0&&bal>=w.coin,req:r?r.status:null});
+      })};
+  }),
+  onbRequestReward:(code)=>call(function(){
+    const t=onbT(S.session); if(!t) return {ok:false,err:"Зөвхөн дадлагажигч шагнал авна"};
+    const w=REWARDS.find(function(x){return x.code===code}); if(!w) return {ok:false,err:"Шагнал олдсонгүй"};
+    if(onbDaysLeft(t)<0) return {ok:false,err:"Coin-ий хүчинтэй хугацаа дууссан"};
+    if(onbBalance(t.agent_id)<w.coin) return {ok:false,err:"Coin хүрэлцэхгүй"};
+    const r={id:"RW-"+String(S.data.onb.requests.length+1).padStart(3,"0"),agent_id:t.agent_id,code:code,
+             status:"REQUESTED",given_by:null,at:stampNow()};
+    S.data.onb.requests.push(r);
+    return {ok:true,id:r.id,balance:onbBalance(t.agent_id)};
+  },{write:true}),
+  onbRewardQueue:()=>call(function(){
+    if(!isManager()) return {ok:false,err:"Зөвхөн менежер"};
+    return {ok:true,list:S.data.onb.requests.filter(function(r){return r.status==="REQUESTED"}).map(function(r){
+      return Object.assign({},r,{name:onbWho(r.agent_id),reward:REWARDS.find(function(x){return x.code===r.code})})})};
+  }),
+  onbGiveReward:(requestId)=>call(function(){
+    if(!isManager()) return {ok:false,err:"Шагнал олгохыг зөвхөн менежер"};
+    const r=S.data.onb.requests.find(function(x){return x.id===requestId}); if(!r) return {ok:false,err:"Хүсэлт олдсонгүй"};
+    if(r.status!=="REQUESTED") return {ok:false,err:"Аль хэдийн олгосон"};
+    r.status="GIVEN"; r.given_by=S.session; r.given_at=stampNow();
+    return {ok:true};
+  },{write:true}),
+  /* Ментор: өөрийн дадлагажигчдын MENTOR алхам. Менежер: бүх дадлагажигчийн ADMIN алхам. */
+  mentorQueue:()=>call(function(){
+    const a=me(); if(!a) return {ok:false,err:"Нэвтрээгүй"};
+    const all=Object.keys(S.data.onb.trainees).map(function(k){return S.data.onb.trainees[k]});
+    const mine=a.role==="MANAGER"?all:onbTraineesOf(a.agent_id);
+    return {ok:true,pending:onbPendingFor(a.agent_id),trainees:mine.map(onbTraineeSummary),coin:onbEarned(a.agent_id)};
+  })
+});
 /* ==========================================================================
    UI ТУСЛАХ
    ========================================================================== */
@@ -1289,7 +1779,7 @@ const ICONS={
   obj:'<path d="M4 9.5 12 4l8 5.5V20H4z"/><path d="M9.5 20v-6h5v6"/>',
   admin:'<path d="M4 7h16M4 12h16M4 17h16"/><circle cx="9" cy="7" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="8" cy="17" r="2"/>'
 };
-function icon(k){return '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+ICONS[k]+"</svg>"}
+function icon(k){return '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ICONS[k]||OIC[k])+"</svg>"}
 
 function topbar(title,sub){
   return '<div class="topbar"><div class="topbar-row"><h1>'+esc(title)+'</h1>'+
@@ -1300,14 +1790,18 @@ function renderNav(active){
   const nav=$("#nav");
   if(!S.session||active==="none"){nav.style.display="none";nav.innerHTML="";return;}
   nav.style.display="flex";
-  const items=[["home","Нүүр","#/home"],["obj","Объект","#/objects"],["att","Ирц","#/attendance"],["tx","Гүйлгээ","#/tx"]];
+  let items=[["home","Нүүр","#/home"],["obj","Объект","#/objects"],["att","Ирц","#/attendance"],["tx","Гүйлгээ","#/tx"]];
   if(S.demo.leadsTab) items.push(["lead","Лид","#/leads"]);
   items.push(["me","Би","#/me"]);
+  if(isMentor()) items.push(["mentor","Ментор","#/mentor"]);
   if(isManager()) items.push(["admin","Удирдлага","#/admin"]);
+  /* Дадлагажигчийн доод цэс: Хот · Даалгавар · Шагнал · Дүр */
+  if(isTrainee()) items=[["map","Хот","#/onb"],["task","Даалгавар","#/onb/loc/"+onbCur(onbT(S.session))],["gift","Шагнал","#/onb/rewards"],["hero","Дүр","#/onb/select"]];
+  const mpend=isMentor()?onbPendingFor(S.session).length:0;
   const pend=pendingTx(S.session).length;
   nav.innerHTML=items.map(function(it){
     const cur=it[0]===active?' aria-current="page"':"";
-    const dot=(it[0]==="tx"&&pend)?'<i class="dot"></i>':"";
+    const dot=((it[0]==="tx"&&pend)||(it[0]==="mentor"&&mpend))?'<i class="dot"></i>':"";
     return '<button'+cur+' data-act="nav:'+it[2]+'">'+dot+icon(it[0])+"<span>"+it[1]+"</span></button>";
   }).join("");
 }
@@ -1418,7 +1912,7 @@ function finishLogin(){
   const after=S.flow&&S.flow.afterHash;
   S.flow=null;
   toast("Тавтай морилно уу");
-  go(after||"#/home");
+  go(after||(isTrainee()?"#/onb":"#/home"));
 }
 
 /* ---------- QR бүртгэл ---------- */
@@ -2068,6 +2562,8 @@ async function viewAdmin(){
   const rid=newRid(); renderNav("admin"); screenEl.innerHTML=topbar("Удирдлага")+skeleton(5);
   const sum=await api.adminSummary(); if(rvStale(rid)) return;
   const q=await api.officeQueue(); if(rvStale(rid)) return;
+  const oq=await api.mentorQueue(); if(rvStale(rid)) return;
+  const orq=await api.onbRewardQueue(); if(rvStale(rid)) return;
   const ev=todayEvent();
   const pendingLeave=S.data.leaveRequests.filter(r=>r.status==="PENDING");
   screenEl.innerHTML=topbar("Удирдлага")+'<div class="body-pad">'+
@@ -2094,6 +2590,7 @@ async function viewAdmin(){
         '<span class="badge '+(x.trk==="L"?"accent":"neutral")+'">'+(x.trk==="L"?"Листинг":"Борлуулалт")+"</span>"+
         '<span class="chev">›</span></button>';
     }).join("")+"</div>":'<div class="notice ok"><span>Оффисын ээлжинд хүлээгдэж буй алхам алга.</span></div>')+
+    adminOnbHtml(oq,orq)+
     '<p class="small muted" style="margin:8px 0 0">Silver босго: '+fmtShort(S.demo.silver.commission)+(silverIsReal()?"":" / "+S.demo.silver.count+" гүйлгээ")+"</p>"+(silverIsReal()
   ?'<div class="notice info" style="margin-top:8px"><span><b>Бодит комиссын жагсаалт</b> ('+silverTotal()+" агент). "+"Зөвхөн шимтгэлийн дүнгээр тооцсон — гүйлгээний тооны шалгуур ороогүй.</span></div>"
   :'<div class="notice warn" style="margin-top:8px"><span><b>Демо өгөгдөл.</b> Энэ тоо бодит биш. '+
@@ -2122,6 +2619,7 @@ async function viewAdmin(){
     imp:adminImportSheet,
     agents:adminAgentsSheet
   };
+  Object.assign(ACTIONS,adminOnbActions(oq,orq));
   q.forEach(function(x){
     ACTIONS["q:"+x.id]=function(){
       openSheet(x.n+". "+x.s,
@@ -2691,6 +3189,578 @@ async function viewObjAd(id){
 }
 
 /* ==========================================================================
+   ОНБОРДИНГ «REMAX TOP хот» (v6) — дүр, изометр хот, байршлын даалгавар, шагнал, ментор
+   ========================================================================== */
+/* ---------- Дүр (SVG 48×64) ---------- */
+function charSvg(c,w,h,shadow){
+  c=c||CHARS[0];
+  return '<svg width="'+w+'" height="'+h+'" viewBox="0 0 48 64" aria-hidden="true">'+
+    (shadow===false?"":'<ellipse cx="24" cy="61" rx="12" ry="3" fill="rgba(16,22,28,0.25)"/>')+
+    '<rect x="17" y="44" width="5" height="15" rx="2" fill="#2B3640"/><rect x="26" y="44" width="5" height="15" rx="2" fill="#2B3640"/>'+
+    '<rect x="13" y="26" width="22" height="22" rx="8" fill="'+c.jacket+'"/>'+
+    '<polygon points="20,26 24,33 28,26" fill="#FFFFFF"/>'+
+    '<circle cx="24" cy="17" r="10" fill="'+c.skin+'"/>'+
+    '<path d="'+CHAR_HAIR[c.hair]+'" fill="'+c.hairColor+'"/>'+
+    (c.extra?'<path d="'+CHAR_EXTRA[c.extra]+'" fill="'+c.hairColor+'"/>':"")+
+    '<circle cx="20.5" cy="18" r="1.4" fill="#10161C"/><circle cx="27.5" cy="18" r="1.4" fill="#10161C"/>'+
+    '<path d="M21 22 Q24 24.5 27 22" fill="none" stroke="#10161C" stroke-width="1.3" stroke-linecap="round"/></svg>';
+}
+function onbChar(t){return CHARS[(t&&t.char)?t.char.idx:0]}
+function onbHeroName(t){return (t.char&&t.char.name)||onbWho(t.agent_id)}
+function coinDot(cls){return '<span class="coin'+(cls?" "+cls:"")+'" aria-hidden="true">T</span>'}
+const OIC={
+  map:'<path d="M3 7l6-3 6 3 6-3v13l-6 3-6-3-6 3z"/><path d="M9 4v13"/><path d="M15 7v13"/>',
+  task:'<path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/>',
+  gift:'<rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13"/><path d="M3 12h18"/><path d="M12 8c-2-4-6-4-6-1s4 1 6 1c2 0 6 2 6-1s-4-3-6 1z"/>',
+  hero:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/>',
+  mentor:'<circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2 20c0-3 3-5 6-5s6 2 6 5"/><path d="M14 15.3c.6-.2 1.3-.3 2-.3 3 0 6 2 6 5"/>',
+  check:'<polyline points="5 12.5 10 17 19 7"/>',
+  lock:'<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/>',
+  back:'<polyline points="15 18 9 12 15 6"/>',
+  arrow:'<path d="M5 12h14"/><path d="M13 6l6 6-6 6"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/>',
+  ret:'<path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>',
+  medal:'<circle cx="12" cy="9" r="6"/><path d="M8.5 14 7 22l5-3 5 3-1.5-8"/>',
+  file:'<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="14 3 14 9 20 9"/>',
+  card:'<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="9" cy="12" r="2"/><path d="M14 11h4"/><path d="M14 14h3"/>',
+  people:'<circle cx="8" cy="8" r="3"/><circle cx="16" cy="8" r="3"/><path d="M2 20c0-3 3-5 6-5s6 2 6 5"/><path d="M14 15.3c.6-.2 1.3-.3 2-.3 3 0 6 2 6 5"/>',
+  mega:'<path d="M3 11l18-7v16L3 13z"/><path d="M7 13v5a2 2 0 0 0 4 0v-3.5"/>',
+  camera:'<path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="4"/>',
+  cup:'<path d="M17 8h1a4 4 0 0 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4z"/><path d="M7 2v3"/><path d="M11 2v3"/>',
+  sign:'<rect x="4" y="3" width="16" height="11" rx="1"/><path d="M8 14v7"/><path d="M16 14v7"/>',
+  cap:'<path d="M22 10 12 5 2 10l10 5z"/><path d="M6 12v5c3 2 9 2 12 0v-5"/>'
+};
+function oic(k,sz,sw){return '<svg class="oic" width="'+(sz||20)+'" height="'+(sz||20)+'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="'+(sw||2)+'" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+OIC[k]+"</svg>"}
+
+/* ---------- Изометр хот: P(i,j) = (ox+(i−j)·a, oy+(i+j)·b) ---------- */
+const CITY_W=390, CITY_H=800, CITY_PROJ={a:24,b:12,ox:243,oy:90};
+const CITY_ROADS=[["i",3,2,8],["j",8,3,9],["i",9,8,14],["j",14,9,15],["i",15,14,20],["j",20,15,21],["i",21,20,26]];
+const CITY_ROAD_LOCKED=["j",26,22,27];
+/* Байршлын төв (хавтангийн төв) — 8 = төгсөлтийн тайз, 30 = эхний 30 хоног */
+const CITY_PT={1:[267,162],2:[123,234],3:[267,306],4:[123,378],5:[267,450],6:[123,522],7:[267,594],8:[123,666],30:[267,738]};
+const CITY_TILE={1:[3,2],2:[3,8],3:[9,8],4:[9,14],5:[15,14],6:[15,20],7:[21,20],8:[21,26],30:[27,26]};
+/* Барилга: footprint (i,j) w×d, өндөр h, өнгө [зүүн, баруун, дээд] — artboard Main.dc.html-аас */
+const CITY_BLD=[
+  {loc:1,i:0,j:-1,w:2,d:2,h:74,c:["#0F4A5A","#16606F","#3C8A9B"],x:
+    '<polygon points="219,38 267,62 267,70 219,46" fill="#D97A1E"/><polygon points="267,62 315,38 315,46 267,70" fill="#E89A4E"/>'+
+    '<polygon points="227,74 235,78 235,90 227,86" fill="#7FB2BE"/><polygon points="243,82 251,86 251,98 243,94" fill="#7FB2BE"/>'+
+    '<polygon points="277,94 285,90 285,102 277,106" fill="#9CC5CF"/><polygon points="295,85 303,81 303,93 295,97" fill="#9CC5CF"/>'+
+    '<polygon points="285,118 297,112 297,100 285,106" fill="#0A3540"/>'+
+    '<rect x="231" y="10" width="72" height="15" rx="4" fill="#FFFFFF"/><text x="267" y="21" text-anchor="middle" font-size="9.5" font-weight="800" letter-spacing="0.6" fill="#0F4A5A">REMAX TOP</text>'},
+  {loc:2,i:0,j:5,w:2,d:2,h:30,c:["#D7B48A","#E8CBA4","#F6E7D2"],x:
+    '<polygon points="123,168 171,144 171,153 123,177" fill="#D97A1E"/><polygon points="135,162 147,156 147,165 135,171" fill="#FFFFFF" fill-opacity="0.55"/>'+
+    '<polygon points="159,150 171,144 171,153 159,159" fill="#FFFFFF" fill-opacity="0.55"/><polygon points="141,186 153,180 153,166 141,172" fill="#8A5A2E"/>'},
+  {loc:3,i:6,j:5,w:2,d:2,h:40,c:["#93A9B3","#B8CAD2","#E3ECEF"],x:
+    '<polygon points="277,250 305,236 305,222 277,236" fill="#0F4A5A"/><polygon points="280,246 302,235 302,226 280,237" fill="#4C93A3"/>'+
+    '<polygon points="229,226 241,232 241,244 229,238" fill="#E3ECEF" fill-opacity="0.6"/>'},
+  {loc:4,i:5,j:12,w:1,d:1,h:92,c:["#6F8893","#90A7B1","#C9D8DE"],x:
+    '<polygon points="80,240 94,233 94,239 80,246" fill="#E7EEF1" fill-opacity="0.7"/><polygon points="80,256 94,249 94,255 80,262" fill="#E7EEF1" fill-opacity="0.7"/>'+
+    '<polygon points="80,272 94,265 94,271 80,278" fill="#E7EEF1" fill-opacity="0.7"/><polygon points="80,288 94,281 94,287 80,294" fill="#E7EEF1" fill-opacity="0.7"/>'},
+  {loc:4,i:5,j:13,w:1,d:1,h:60,c:["#8EA4AE","#AFC2CA","#E7EEF1"],x:
+    '<polygon points="56,282 70,275 70,281 56,288" fill="#E7EEF1" fill-opacity="0.7"/><polygon points="56,298 70,291 70,297 56,304" fill="#E7EEF1" fill-opacity="0.7"/>'},
+  {loc:5,i:12,j:11,w:2,d:2,h:28,c:["#E8DCCB","#F3EADF","#D9733A"],x:
+    '<polygon points="267,338 291,350 267,362 243,350" fill="#E8894F"/><polygon points="281,404 293,398 293,384 281,390" fill="#8A5A2E"/>'+
+    '<polygon points="229,378 241,384 241,394 229,388" fill="#9CC5CF"/>'},
+  {loc:6,i:12,j:17,w:2,d:2,h:22,c:["#9CB797","#BCD2B7","#DDEAD9"],x:
+    '<rect x="111" y="426" width="24" height="18" rx="9" fill="#D97A1E"/><rect x="121" y="444" width="4" height="10" fill="#8A5A2E"/>'},
+  {loc:7,i:18,j:17,w:2,d:2,h:40,c:["#C9A27A","#DDBD98","#F1E1CE"],x:
+    '<polygon points="279,530 303,518 303,504 279,516" fill="#FFFFFF" fill-opacity="0.7"/><circle cx="291" cy="517" r="4" fill="#0F4A5A"/>'},
+  {loc:8,i:18,j:23,w:2,d:2,h:12,c:["#C9952A","#DEAB3B","#F2C14E"],x:""},
+  {loc:30,i:24,j:23,w:2,d:2,h:56,c:["#B3BCC2","#C9D0D5","#E4E8EB"],x:
+    '<polygon points="227,640 231,642 231,672 227,670" fill="#E4E8EB"/><polygon points="243,648 247,650 247,680 243,678" fill="#E4E8EB"/>'+
+    '<polygon points="283,650 287,648 287,678 283,680" fill="#DCE1E4"/><polygon points="299,642 303,640 303,670 299,672" fill="#DCE1E4"/>'}
+];
+const CITY_TREES=[[363,150],[363,174],[27,198],[267,342],[363,354],[27,402],[123,414],[3,426],[363,498],[75,558],[363,630],[27,678]];
+function cityP(i,j,o){o=o||CITY_PROJ;return [o.ox+(i-j)*o.a, o.oy+(i+j)*o.b]}
+function cityPts(a){return a.map(function(p){return p[0]+","+p[1]}).join(" ")}
+function cityTile(i,j,fill,stroke,dash,o){
+  return '<polygon points="'+cityPts([cityP(i,j,o),cityP(i+1,j,o),cityP(i+1,j+1,o),cityP(i,j+1,o)])+'" fill="'+fill+'"'+
+    (stroke?' stroke="'+stroke+'" stroke-width="1"':"")+(dash?' stroke-dasharray="3 3"':"")+"/>";
+}
+/* Хайрцаг: зүүн, баруун, дээд тал. Зурах дараалал i+j-ээр (painter's algorithm) */
+function cityBox(b,o){
+  const A=cityP(b.i,b.j,o),B=cityP(b.i+b.w,b.j,o),C=cityP(b.i+b.w,b.j+b.d,o),D=cityP(b.i,b.j+b.d,o);
+  const up=function(p){return [p[0],p[1]-b.h]};
+  return '<polygon points="'+cityPts([D,C,up(C),up(D)])+'" fill="'+b.c[0]+'"/>'+
+    '<polygon points="'+cityPts([C,B,up(B),up(C)])+'" fill="'+b.c[1]+'"/>'+
+    '<polygon points="'+cityPts([up(A),up(B),up(C),up(D)])+'" fill="'+b.c[2]+'"/>';
+}
+function cityTree(x,y){return '<rect x="'+(x-2)+'" y="'+y+'" width="4" height="12" rx="1" fill="#7A5A3A"/><circle cx="'+x+'" cy="'+(y-8)+'" r="11" fill="#3E8F5A"/><circle cx="'+(x-3)+'" cy="'+(y-12)+'" r="7" fill="#5DAA74"/>'}
+function citySvg(states,cur){
+  let s='<svg viewBox="0 0 '+CITY_W+" "+CITY_H+'" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">'+
+    '<rect width="'+CITY_W+'" height="'+CITY_H+'" fill="#CFE4C2"/>'+
+    [[60,120,70,30],[330,290,60,26],[50,470,80,32],[340,560,70,28],[200,770,140,40]].map(function(e){
+      return '<ellipse cx="'+e[0]+'" cy="'+e[1]+'" rx="'+e[2]+'" ry="'+e[3]+'" fill="#DAEBCF"/>'}).join("");
+  CITY_ROADS.forEach(function(r){
+    for(let k=r[2];k<=r[3];k++) s+=r[0]==="i"?cityTile(r[1],k,"#E9E2D2","#D6CCB6"):cityTile(k,r[1],"#E9E2D2","#D6CCB6");
+  });
+  for(let k=CITY_ROAD_LOCKED[2];k<=CITY_ROAD_LOCKED[3];k++)
+    s+=cityTile(k,CITY_ROAD_LOCKED[1],states[30]==="locked"?"#DCE1E4":"#E9E2D2",states[30]==="locked"?"#C9D1D6":"#D6CCB6",states[30]==="locked");
+  Object.keys(CITY_TILE).forEach(function(n){
+    const tl=CITY_TILE[n];
+    if(states[n]==="done") s+=cityTile(tl[0],tl[1],"rgba(21,122,82,0.18)");
+  });
+  if(cur&&CITY_PT[cur]){const p=CITY_PT[cur]; s+='<ellipse cx="'+p[0]+'" cy="'+p[1]+'" rx="26" ry="13" fill="#D97A1E" fill-opacity="0.22" stroke="#D97A1E" stroke-width="2"/>';}
+  CITY_BLD.slice().sort(function(a,b){return (a.i+a.j)-(b.i+b.j)}).forEach(function(b){s+=cityBox(b)+b.x});
+  CITY_TREES.forEach(function(t){s+=cityTree(t[0],t[1])});
+  return s+"</svg>";
+}
+function pctX(x){return (x/CITY_W*100).toFixed(3)+"%"}
+function pctY(y){return (y/CITY_H*100).toFixed(3)+"%"}
+/* Байршлын жижиг дүрслэл (даалгаврын дэлгэцийн толгойд) */
+function locSceneSvg(n){
+  const blds=CITY_BLD.filter(function(b){return b.loc===n});
+  /* Барилгын суурийн төвийг (199,104)-д, дүрийн цагирагийг (120,134)-д — artboard Day.dc.html-ийн байрлал */
+  const b0=blds[0], ref=cityP(b0.i+b0.w/2,b0.j+b0.d/2);
+  const o={a:24,b:12,ox:CITY_PROJ.ox+(199-ref[0]),oy:CITY_PROJ.oy+(104-ref[1])};
+  let s='<svg viewBox="0 0 350 150" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><ellipse cx="175" cy="150" rx="190" ry="40" fill="#DAEBCF"/>';
+  s+='<polygon points="127,142 175,118 223,142 175,166" fill="#E9E2D2" stroke="#D6CCB6" stroke-width="1"/>';
+  blds.forEach(function(b){s+=cityBox(b,o)});
+  s+='<ellipse cx="120" cy="134" rx="20" ry="9" fill="#D97A1E" fill-opacity="0.22" stroke="#D97A1E" stroke-width="2"/>';
+  s+=cityTree(292,96)+cityTree(42,70);
+  return s+"</svg>";
+}
+
+/* ---------- Дадлагажигчийн толгой ---------- */
+function onbHead(d,title){
+  const t=d.t, c=onbChar(t);
+  return '<header class="onb-head">'+
+    '<div class="onb-head-row">'+
+      '<div class="onb-ava">'+charSvg(c,48,64,false)+"</div>"+
+      '<div class="onb-who"><span class="onb-name">'+esc(onbHeroName(t))+"</span>"+
+        '<span class="onb-role">'+esc(c.name)+" · "+(t.graduated?esc(t.badge):"Дадлагажигч агент")+"</span></div>"+
+      '<a class="coin-pill" href="#/onb/rewards" aria-label="Coin: '+d.coin+', шагнал харах">'+coinDot()+'<b data-coin>'+d.coin+"</b></a>"+
+    "</div>"+
+    (title?"":'<div class="onb-prog"><div class="spread tiny"><b>'+d.locsDone+" / "+ONB_LOCS.length+' байршил</b><span>'+d.stepsDone+" / "+d.stepsTotal+" алхам</span></div>"+
+      '<div class="onb-bar"><i style="width:'+pctOf(d.stepsDone,d.stepsTotal)+'%"></i></div></div>')+
+    '<span class="demo-tag onb-tag">Демо өгөгдөл</span>'+
+  "</header>";
+}
+async function onbLoad(rid){
+  const d=await api.onbGet(); if(rvStale(rid)) return null;
+  if(!d.ok){go("#/home");return null;}
+  return d;
+}
+
+/* ---------- #/onb/select — дүр сонгох ---------- */
+async function viewOnbSelect(){
+  const rid=newRid(); renderNav("hero"); screenEl.innerHTML=topbar("Дүрээ сонго")+skeleton(4);
+  const d=await onbLoad(rid); if(!d) return;
+  if(!S.onbPick) S.onbPick={idx:d.t.char?d.t.char.idx:2,name:(d.t.char&&d.t.char.name)||""};
+  renderOnbSelect(d);
+}
+function renderOnbSelect(d){
+  const p=S.onbPick, c=CHARS[p.idx];
+  screenEl.innerHTML='<div class="onb-select">'+
+    '<header class="onb-sel-head"><span class="tiny" style="color:#B9D3DA">REMAX TOP · Дадлагажигч агент</span>'+
+      '<h1>Дүрээ сонго</h1><p>Энэ дүрээр «REMAX TOP хот»-оор аялж, даалгавар биелүүлэн coin цуглуулна.</p>'+
+      '<span class="demo-tag onb-tag">Демо өгөгдөл</span></header>'+
+    '<section class="onb-sel-hero" aria-label="Сонгосон дүр">'+
+      '<div class="onb-plinth"><svg width="220" height="120" viewBox="0 0 160 96" aria-hidden="true">'+
+        '<polygon points="0,40 80,80 80,96 0,56" fill="#2F6C79"/><polygon points="80,80 160,40 160,56 80,96" fill="#23596A"/>'+
+        '<polygon points="80,0 160,40 80,80 0,40" fill="#4C93A3"/><polygon points="80,16 128,40 80,64 32,40" fill="none" stroke="#D97A1E" stroke-width="2" stroke-dasharray="4 4"/></svg>'+
+        '<div class="onb-plinth-char" data-hero="'+p.idx+'">'+charSvg(c,132,176)+"</div></div>"+
+      '<b class="onb-sel-name">'+esc(c.name)+'</b><span class="onb-sel-tag">'+esc(c.tag)+"</span></section>"+
+    '<main class="onb-sel-main">'+
+      '<div class="onb-chars" role="group" aria-label="6 дүр">'+CHARS.map(function(x,i){
+        return '<button type="button" class="onb-char-btn" data-act="pick:'+i+'" aria-pressed="'+(i===p.idx)+'" aria-label="'+esc(x.name)+'">'+
+          charSvg(x,52,70)+"<span>"+esc(x.name)+"</span></button>";
+      }).join("")+"</div>"+
+      '<div class="field" style="margin:0"><label for="heroName">Дүрийн нэр (сонголттой)</label>'+
+        '<input class="input" id="heroName" maxlength="20" placeholder="Жишээ: Тэмүүлэн" value="'+esc(p.name)+'"></div>'+
+      '<div class="onb-note">'+oic("info",20)+"<span>Дүр зөвхөн харагдах байдал. Coin, шагналд нөлөөлөхгүй, дараа нь солих боломжтой.</span></div>"+
+      '<button class="btn onb-cta" data-act="enter">Хот руу орох '+oic("arrow",20,2.4)+"</button>"+
+    "</main></div>";
+  ACTIONS={
+    enter:async function(el){
+      el.disabled=true;
+      let r; try{ r=await api.onbSelectChar(p.idx,p.name); }catch(e){ el.disabled=false; toast("Сүлжээ тасарлаа — дахин оролдоно уу","err"); return; }
+      if(!r.ok){el.disabled=false;toast(r.err,"err");return;}
+      S.onbPick=null; toast("«"+CHARS[r.char.idx].name+"» дүрээр хот руу орлоо"); go("#/onb");
+    }
+  };
+  CHARS.forEach(function(x,i){ACTIONS["pick:"+i]=function(){p.idx=i;renderOnbSelect(d);const b=$('[data-act="pick:'+i+'"]');if(b)b.focus()}});
+  const nm=$("#heroName"); if(nm) nm.addEventListener("input",function(){p.name=nm.value});
+}
+
+/* ---------- #/onb — изометр хот ---------- */
+async function viewOnbCity(){
+  const rid=newRid(); renderNav("map"); screenEl.innerHTML=topbar("REMAX TOP хот")+skeleton(5);
+  const d=await onbLoad(rid); if(!d) return;
+  if(!d.t.char){go("#/onb/select");return;}
+  const t=d.t, cur=d.cur, states={};
+  d.locs.forEach(function(l){states[l.n]=l.done?"done":(l.cur?"cur":(l.open?"open":"locked"))});
+  states[8]=t.graduated?"done":"locked";
+  if(t.graduated) states[30]=states[30]==="done"?"done":"cur";
+  const curLoc=d.locs.find(function(l){return l.n===cur});
+  const pend=curLoc?curLoc.steps.filter(function(s){return s.st==="SUBMITTED"}).reduce(function(a,s){return a+s.coin},0):0;
+  function pin(n,name){
+    const st=states[n], p=CITY_PT[n], lbl=n===8?"Төгсөлт · Fire-Up":(n===30?"30 хоног · Банк, нотариат":n+" · "+name);
+    const what=n===8?"Төгсөлт, «"+ONB_GRAD.badge+"» тэмдэг ба Fire-Up эрх":(n===30?"Эхний 30 хоног":n+"-р байршил, "+name);
+    if(st==="cur") return '<span class="city-lbl cur" style="left:'+pctX(p[0])+";top:"+pctY(p[1]+30)+'">'+esc(lbl)+"</span>";
+    const ic=st==="done"?(n===8?"medal":"check"):(n===8?"medal":"lock");
+    return '<button type="button" class="city-pin '+st+(n===30?" zone":"")+'" data-onb-loc="'+n+'" data-state="'+st+'" data-act="loc:'+n+'" '+
+      'style="left:'+pctX(p[0])+";top:"+pctY(p[1]-16)+'" aria-label="'+esc(what)+", "+(st==="done"?"дууссан":"цоожтой")+'">'+
+      '<span class="city-dot">'+oic(ic,16,st==="done"?3.4:2.8)+"</span></button>"+
+      '<span class="city-lbl '+st+(n===8?" grad":"")+'" style="left:'+pctX(p[0])+";top:"+pctY(p[1]+22)+'">'+esc(lbl)+"</span>";
+  }
+  const from=CITY_PT[S.onbLastLoc&&S.onbLastLoc!==cur?S.onbLastLoc:cur], to=CITY_PT[cur];
+  const curName=cur===30?ONB_M30.name:onbLocDef(cur).name;
+  screenEl.innerHTML=onbHead(d)+
+    '<section class="city" aria-label="REMAX TOP хот — 7 байршлын газрын зураг">'+citySvg(states,cur)+
+      ONB_LOCS.map(function(l){return pin(l.n,l.name)}).join("")+pin(8)+pin(30)+
+      '<a class="city-char" href="#/onb/loc/'+cur+'" data-onb-char="'+cur+'" data-char-idx="'+(t.char?t.char.idx:0)+'" '+
+        'style="left:'+pctX(from[0])+";top:"+pctY(from[1])+'" aria-label="'+esc(onbChar(t).name)+" — "+(cur===30?"Эхний 30 хоног":cur+"-р байршил, "+curName)+', одоо энд, даалгавар нээх">'+
+        charSvg(onbChar(t),48,64)+"</a>"+
+      (pend?'<span class="city-bub" style="left:'+pctX(to[0]+30)+";top:"+pctY(to[1]-54)+'" title="Батлагдвал орох coin">'+coinDot("sm")+"+"+pend+"</span>":"")+
+    "</section>"+
+    onbCurCard(d,cur)+
+    '<div class="body-pad" style="padding-top:12px"><div class="legend"><span><i class="done"></i>дууссан</span><span><i class="cur"></i>одоо энд</span><span><i></i>цоожтой</span></div>'+
+    '<p class="tiny muted" style="margin:8px 0 0">Coin зөвхөн ментор / админ баталсан алхамд орно. '+d.daysLeft+" хоног хүчинтэй.</p></div>";
+  /* Дүр дараагийн цэг рүү алхана (prefers-reduced-motion үед шууд үсэрнэ) */
+  if(from!==to){
+    const ch=$(".city-char");
+    requestAnimationFrame(function(){requestAnimationFrame(function(){if(ch){ch.style.left=pctX(to[0]);ch.style.top=pctY(to[1]);}})});
+  }
+  S.onbLastLoc=cur;
+  ACTIONS={open:function(){go("#/onb/loc/"+cur)}};
+  [1,2,3,4,5,6,7,8,30].forEach(function(n){
+    ACTIONS["loc:"+n]=function(){
+      if(n===8){
+        openSheet("Төгсөлт",'<div class="center" style="padding:6px 0 10px"><span class="grad-medal'+(t.graduated?" on":"")+'">'+oic("medal",34,2)+"</span></div>"+
+          '<p style="margin:0 0 8px"><b>«'+esc(ONB_GRAD.badge)+"»</b> тэмдэг, +"+ONB_GRAD.coin+" coin, Fire-Up сургалтын эрх.</p>"+
+          '<p class="small muted" style="margin:0">'+(t.graduated?"Та төгссөн. Эхний 30 хоногийн бүс нээгдлээ.":"1–7 байршлын бүх алхам батлагдахад автоматаар олгоно.")+"</p>","",{});
+        return;
+      }
+      if(states[n]==="locked"){toast((n===30?"Эхний 30 хоног":n+"-р байршил")+" цоожтой — өмнөх байршлаа дуусгана уу","err");return;}
+      go("#/onb/loc/"+n);
+    };
+  });
+}
+function onbCurCard(d,cur){
+  const l=d.locs.find(function(x){return x.n===cur}); if(!l) return "";
+  const doneN=l.steps.filter(function(s){return s.st==="DONE"}).length;
+  const seg=l.steps.map(function(s){return '<i class="'+(s.st==="DONE"?"done":(s.st==="SUBMITTED"?"wait":(s.st==="RETURNED"?"ret":"cur")))+'"></i>'}).join("");
+  const sub=l.steps.map(function(s){
+    return s.st==="DONE"?s.title+" батлагдсан":(s.st==="SUBMITTED"?s.title+" — "+(s.approver==="ADMIN"?"админ":"ментор")+" хүлээж байна":
+      (s.st==="RETURNED"?s.title+" буцаагдсан":s.title+" таныг хүлээж байна"));
+  }).join(". ")+".";
+  return '<section class="onb-now"><div class="spread"><div><span class="onb-now-k">ОДОО ЭНД · '+esc(l.day)+"</span>"+
+    "<h2>"+esc(l.name)+"</h2></div><span class=\"small muted\">"+doneN+" / "+l.steps.length+"</span></div>"+
+    '<div class="onb-seg" aria-hidden="true">'+seg+"</div>"+
+    '<p class="small muted" style="margin:0">'+esc(sub)+"</p>"+
+    '<button class="btn" data-act="open">Даалгавар нээх</button></section>';
+}
+
+/* ---------- #/onb/loc/{n} — байршлын даалгавар ---------- */
+async function viewOnbLoc(n){
+  const rid=newRid(); renderNav("task"); screenEl.innerHTML=topbar("Даалгавар")+skeleton(5);
+  const d=await onbLoad(rid); if(!d) return;
+  if(!d.t.char){go("#/onb/select");return;}
+  const l=d.locs.find(function(x){return x.n===n});
+  if(!l){go("#/onb");return;}
+  if(!l.open){toast((n===30?"Эхний 30 хоног":n+"-р байршил")+" цоожтой — өмнөх байршлаа дуусгана уу","err");go("#/onb");return;}
+  S.onbDraft=S.onbDraft||{};
+  renderOnbLoc(d,l);
+}
+function onbStIcon(s){
+  if(s.st==="DONE") return '<span class="st-ic done">'+oic("check",18,3)+"</span>";
+  if(s.st==="SUBMITTED") return '<span class="st-ic wait">'+oic("clock",18,2.2)+"</span>";
+  if(s.st==="RETURNED") return '<span class="st-ic ret">'+oic("ret",18,2.2)+"</span>";
+  if(s.st==="LOCKED") return '<span class="st-ic lock">'+oic("lock",16,2.2)+"</span>";
+  return '<span class="st-ic open"></span>';
+}
+function onbCoinTxt(s){return "+"+s.coin+(s.bonus?" · +"+s.bonus+" бонус":"")}
+function onbStepFoot(s){
+  const who=s.approver==="ADMIN"?"Админ":(s.approver==="MENTOR"?"Ментор":"Автомат");
+  if(s.st==="DONE") return '<div class="spread st-foot"><span class="tiny ok-t">'+(s.approver==="AUTO"?"Автоматаар шалгасан":who+" баталсан · "+esc(s.byName||""))+
+    (s.score!=null?" · "+s.score+"/"+ONB_QUIZ.length:"")+'</span><b class="ok-t">+'+onbStepCoin(s)+"</b></div>";
+  if(s.st==="SUBMITTED") return '<div class="spread st-foot"><span class="pill-wait">'+who+' хүлээж байна</span><span class="tiny muted"><b>'+onbCoinTxt(s)+"</b></span></div>";
+  return '<div class="spread st-foot"><span class="tiny muted">'+(s.approver==="AUTO"?(s.kind==="auto"?"Объектын замаас автоматаар":"Автоматаар шалгана"+(s.bonus?" · 5/5 бол":"")):who+" батална")+
+    '</span><b class="warn-t">'+onbCoinTxt(s)+"</b></div>";
+}
+function onbStepCoin(s){
+  return S.data.onb.ledger.filter(function(e){return e.agent_id===S.session&&e.step_code===s.code}).reduce(function(a,e){return a+e.amount},0)||s.coin;
+}
+function onbFieldHtml(s,f,v){
+  const id="f_"+s.code+"_"+f.k;
+  if(f.type==="select") return '<div class="field"><label for="'+id+'">'+esc(f.label)+'</label><select class="input" id="'+id+'" data-fk="'+f.k+'">'+
+    '<option value="">— сонгох —</option>'+Object.keys(PRICE.d).map(function(k){return '<option'+(v===k?" selected":"")+">"+esc(k)+"</option>"}).join("")+"</select></div>";
+  if(f.type==="num") return '<div class="field"><label for="'+id+'">'+esc(f.label)+'</label><input class="input" id="'+id+'" data-fk="'+f.k+'" inputmode="decimal" value="'+esc(v||"")+'"></div>';
+  return '<div class="field"><label for="'+id+'">'+esc(f.label)+'</label><textarea class="input" rows="2" id="'+id+'" data-fk="'+f.k+'">'+esc(v||"")+"</textarea></div>";
+}
+function onbWorkHtml(s){
+  const dr=S.onbDraft[s.code]||{};
+  if(s.kind==="confirm") return '<button class="btn" data-act="sub:'+s.code+'">'+esc(s.btn||"Илгээх")+"</button>";
+  if(s.kind==="form"){
+    return '<div class="onb-form" data-form="'+s.code+'">'+
+      (s.code==="D3_SOP"?'<ol class="sop-list">'+LSTAGES.map(function(x){return "<li>"+esc(x.s)+"</li>"}).join("")+"</ol>":"")+
+      (s.code==="D4_PRICE"?'<p class="tiny muted" style="margin:0 0 10px">Эх сурвалж: '+esc(PRICE.meta.source)+". Объект → Үнэлгээ дэлгэцийн медиан.</p>":"")+
+      s.fields.map(function(f){return onbFieldHtml(s,f,dr[f.k])}).join("")+
+      '<button class="btn" data-act="sub:'+s.code+'">'+(s.st==="RETURNED"?"Засаад дахин илгээх":"Илгээх")+"</button></div>";
+  }
+  if(s.kind==="file") return (dr.file?'<div class="onb-file">'+oic("file",18)+"<span>"+esc(dr.file.name)+" · "+fmtSize(dr.file.size)+"</span></div>":"")+
+    '<div class="row-gap"><button class="btn ghost" style="flex:1" data-act="pick:'+s.code+'">'+(dr.file?"Өөр файл":"Файл сонгох")+"</button>"+
+    '<button class="btn" style="flex:1" data-act="sub:'+s.code+'"'+(dr.file?"":" disabled")+">Илгээх</button></div>";
+  if(s.kind==="sign") return '<div class="nda-text">[Нууцлалын хуудасны текст — хуулийн зөвлөх батлах]</div>'+
+    '<canvas class="sig-pad" id="sig_'+s.code+'" aria-label="Гарын үсэг зурах талбар"></canvas>'+
+    '<div class="spread" style="margin:8px 0 10px"><span class="tiny muted">Хуруугаараа гарын үсгээ зурна уу</span><button class="btn ghost sm" data-act="clr:'+s.code+'">Арилгах</button></div>'+
+    '<button class="btn" id="sigBtn_'+s.code+'" data-act="sub:'+s.code+'" disabled>Гарын үсэг зурж илгээх</button>';
+  if(s.code==="D3_CONTRACT"){
+    const q=S.onbQuiz||(S.onbQuiz={i:0,ans:[]}), Q=ONB_QUIZ[q.i], last=q.i===ONB_QUIZ.length-1;
+    return '<div class="quiz"><span class="tiny muted">Асуулт '+(q.i+1)+" / "+ONB_QUIZ.length+'</span><b class="quiz-q">'+esc(Q.q)+"</b>"+
+      '<div class="stack" style="gap:8px" role="group" aria-label="Хариулт">'+Q.opts.map(function(o,k){
+        return '<button type="button" class="quiz-opt" data-act="ans:'+k+'" aria-pressed="'+(q.ans[q.i]===k)+'">'+esc(o)+"</button>"}).join("")+"</div></div>"+
+      '<button class="btn" data-act="qnext"'+(q.ans[q.i]==null?" disabled":"")+">"+(last?"Шалгалт дуусгах":"Дараагийн асуулт")+"</button>";
+  }
+  if(s.code==="D4_VOCAB"){
+    const seen=S.onbVocab||(S.onbVocab={});
+    const n=Object.keys(seen).length;
+    return '<div class="spread" style="margin-bottom:8px"><span class="tiny muted">Карт дээр дарж эргүүлнэ</span><b class="tiny">'+n+" / "+ONB_VOCAB.length+"</b></div>"+
+      '<div class="vocab">'+ONB_VOCAB.map(function(w,i){
+        return '<button type="button" class="vocab-card" data-act="voc:'+i+'" aria-pressed="'+(!!seen[i])+'">'+
+          (seen[i]?'<span class="tiny muted">[Тайлбар — сургалт хариуцагч батлах]</span>':esc(w))+"</button>"}).join("")+"</div>"+
+      '<button class="btn" style="margin-top:10px" data-act="sub:D4_VOCAB"'+(n>=ONB_VOCAB.length?"":" disabled")+">Дуусгах</button>";
+  }
+  return "";
+}
+function renderOnbLoc(d,l){
+  const t=d.t, c=onbChar(t);
+  const curIdx=l.steps.findIndex(function(s){return s.st==="OPEN"||s.st==="RETURNED"});
+  const cards=l.steps.map(function(s,i){
+    const work=(s.st==="OPEN"||s.st==="RETURNED")&&s.kind!=="auto";
+    return '<article class="st-card'+(work&&i===curIdx?" now":"")+'" data-step="'+s.code+'" data-st="'+s.st+'">'+
+      '<div class="st-row">'+onbStIcon(s)+'<div class="st-main">'+
+        (work&&i===curIdx?'<span class="st-k">'+(s.st==="RETURNED"?"БУЦААГДСАН — ДАХИН ИЛГЭЭХ":"ОДОО ХИЙХ")+"</span>":"")+
+        "<h2>"+esc(s.title)+"</h2><span class=\"small muted\">"+esc(s.desc)+"</span></div></div>"+
+      (s.st==="RETURNED"?'<div class="notice err" data-reason><span><b>'+esc(s.approver==="ADMIN"?"Админ":"Ментор")+" буцаасан:</b> "+esc(s.reason)+"</span></div>":"")+
+      (work?onbWorkHtml(s):"")+onbStepFoot(s)+"</article>";
+  }).join("");
+  const next=l.n<ONB_LOCS.length?(l.n+1)+"-р өдөр нээгдэнэ":(l.n===30?"Бүгд батлагдвал бие даасан агент болно":"төгсөлтийн тэмдэг олгоно");
+  screenEl.innerHTML='<header class="onb-loc-head">'+
+      '<div class="spread"><a class="back-link" href="#/onb">'+oic("back",20,2.2)+'Хот руу</a><span class="demo-tag">Демо өгөгдөл</span></div>'+
+      '<div class="loc-scene">'+locSceneSvg(l.n)+'<span class="loc-scene-char">'+charSvg(c,42,56)+"</span>"+
+        '<span class="loc-scene-k">'+(l.n===30?"30 хоног":l.n+"-р байршил")+" · "+l.steps.filter(function(s){return s.st==="DONE"}).length+" / "+l.steps.length+"</span></div>"+
+      '<span class="small muted">'+esc(l.day)+"</span><h1>"+esc(l.name)+"</h1>"+
+      '<p class="small muted" style="margin:0">'+esc(l.desc)+"</p></header>"+
+    '<div class="body-pad stack" style="gap:14px">'+cards+
+      (l.n===30?'<button class="btn ghost" data-act="objs">Миний объект</button>':"")+
+      '<p class="tiny muted center" style="margin:0">'+l.steps.length+" алхам бүгд батлагдвал "+next+".</p></div>";
+  ACTIONS={objs:function(){go("#/objects")}};
+  l.steps.forEach(function(s){
+    ACTIONS["sub:"+s.code]=function(el){onbSubmitStep(d,l,s,el)};
+    ACTIONS["pick:"+s.code]=function(){
+      pickFile(function(f){
+        if(f.size>15*1048576){toast("15 MB-аас их файл хавсаргах боломжгүй","err");return;}
+        S.onbDraft[s.code]={file:{name:f.name,size:f.size,type:f.type}}; renderOnbLoc(d,l);
+      });
+    };
+  });
+  /* Маягтын утгыг ноорогт хадгална (дахин зурахад алга болохгүй) */
+  $$("[data-form]").forEach(function(fm){
+    const code=fm.getAttribute("data-form");
+    $$("[data-fk]",fm).forEach(function(inp){
+      inp.addEventListener("input",function(){(S.onbDraft[code]=S.onbDraft[code]||{})[inp.getAttribute("data-fk")]=inp.value});
+      inp.addEventListener("change",function(){(S.onbDraft[code]=S.onbDraft[code]||{})[inp.getAttribute("data-fk")]=inp.value});
+    });
+  });
+  /* Шалгалт (D3_CONTRACT) */
+  ONB_QUIZ[0].opts.forEach(function(o,k){ACTIONS["ans:"+k]=function(){const q=S.onbQuiz;q.ans[q.i]=k;renderOnbLoc(d,l)}});
+  ACTIONS.qnext=function(el){
+    const q=S.onbQuiz; if(q.ans[q.i]==null) return;
+    if(q.i<ONB_QUIZ.length-1){q.i++;renderOnbLoc(d,l);return;}
+    onbSubmitStep(d,l,l.steps.find(function(s){return s.code==="D3_CONTRACT"}),el,{answers:q.ans.slice()});
+  };
+  /* Үгсийн карт (D4_VOCAB) */
+  ONB_VOCAB.forEach(function(w,i){ACTIONS["voc:"+i]=function(){S.onbVocab=S.onbVocab||{};S.onbVocab[i]=1;renderOnbLoc(d,l)}});
+  /* Гарын үсэг (D1_NDA) — v5-ын sigPad */
+  l.steps.filter(function(s){return s.kind==="sign"}).forEach(function(s){
+    const cv=$("#sig_"+s.code); if(!cv) return;
+    const pad=sigPad(cv,function(ok){const b=$("#sigBtn_"+s.code);if(b)b.disabled=!ok});
+    ACTIONS["clr:"+s.code]=function(){pad.clear()};
+    S.onbPads=S.onbPads||{}; S.onbPads[s.code]=pad;
+  });
+}
+function onbPayload(s){
+  const dr=S.onbDraft[s.code]||{};
+  if(s.kind==="form"){
+    const p={}; s.fields.forEach(function(f){const el=$("#f_"+s.code+"_"+f.k);p[f.k]=el?el.value:(dr[f.k]||"")});
+    if(s.code==="D4_PRICE"){p.med=String(p.med).replace(",","."); if(PRICE.d[p.district]) p.ref=PRICE.d[p.district].med;}
+    return p;
+  }
+  if(s.kind==="file") return {file:dr.file||null};
+  if(s.kind==="sign"){const pad=S.onbPads&&S.onbPads[s.code];return {png:pad&&pad.ok()?pad.png():null};}
+  if(s.code==="D4_VOCAB") return {seen:Object.keys(S.onbVocab||{}).length};
+  return {};
+}
+async function onbSubmitStep(d,l,s,el,payload){
+  payload=payload||onbPayload(s);
+  if(el){el.disabled=true;}
+  let r; try{ r=await api.onbSubmit(s.code,payload); }
+  catch(e){ if(el) el.disabled=false; toast("Сүлжээ тасарлаа — дахин оролдоно уу","err"); return; }
+  if(!r.ok){ if(el) el.disabled=false; toast(r.err,"err"); return; }
+  delete S.onbDraft[s.code];
+  if(s.code==="D3_CONTRACT") S.onbQuiz=null;
+  if(s.code==="D4_VOCAB") S.onbVocab=null;
+  if(r.state==="DONE") toast(s.title+" · "+(r.score!=null?r.score+"/"+ONB_QUIZ.length+" · ":"")+"+"+r.coin+" coin");
+  else toast("Илгээлээ — "+(s.approver==="ADMIN"?"админ":"ментор")+" батлахыг хүлээнэ. Coin батлагдсаны дараа орно.");
+  renderDemo();
+  const nd=await api.onbGet(); const nl=nd.locs.find(function(x){return x.n===l.n});
+  if(nl.done&&l.n!==30){toast(l.n+"-р байршил дууслаа — дараагийн байршил нээгдлээ");go("#/onb");return;}
+  renderOnbLoc(nd,nl);
+}
+
+/* ---------- #/onb/rewards — coin, шагнал ---------- */
+async function viewOnbRewards(){
+  const rid=newRid(); renderNav("gift"); screenEl.innerHTML=topbar("Шагнал")+skeleton(5);
+  const r=await api.onbRewards(); if(rvStale(rid)) return;
+  if(!r.ok){go("#/home");return;}
+  const next=r.rewards.find(function(w){return !w.can&&!w.req});
+  screenEl.innerHTML='<header class="rew-head"><div class="spread"><h1>Шагнал</h1><span class="demo-tag onb-tag">Демо өгөгдөл</span></div>'+
+    '<div class="rew-bal">'+coinDot("lg")+'<div><b class="rew-num" data-balance>'+r.balance+"</b>"+
+      '<span class="tiny" style="color:#B9D3DA">coin · '+(r.expired?"хүчинтэй хугацаа дууссан":r.daysLeft+" хоног хүчинтэй")+"</span></div></div>"+
+    (next?'<div class="rew-next"><div class="spread tiny"><span>Дараагийн: '+esc(next.name)+'</span><b style="color:#F2A65A">'+(next.coin-r.balance)+" дутуу</b></div>"+
+      '<div class="onb-bar"><i style="width:'+Math.min(100,pctOf(r.balance,next.coin))+'%"></i></div></div>':"")+
+    "</header>"+
+    '<div class="body-pad stack" style="gap:10px"><div class="spread"><h2 class="h-sm">REMAX TOP хамт олноос</h2><span class="tiny muted">'+r.rewards.length+" шагнал</span></div>"+
+    r.rewards.map(function(w){
+      const st=w.req==="REQUESTED"?'<span class="badge warn">Хүсэлт илгээсэн</span>':(w.req==="GIVEN"?'<span class="badge ok">Олгосон</span>':"");
+      return '<article class="rew-card'+(w.can?" can":"")+'" data-reward="'+w.code+'">'+
+        '<span class="rew-ic">'+oic(w.ic,24)+"</span>"+
+        '<div class="rew-main"><b>'+esc(w.name)+'</b><span class="tiny muted">'+esc(w.giver)+" · "+w.coin+" coin</span>"+
+          (w.can?"":'<div class="rew-track" aria-hidden="true"><i style="width:'+Math.min(100,pctOf(r.balance,w.coin))+'%"></i></div>')+st+"</div>"+
+        '<button class="btn sm rew-buy" data-act="buy:'+w.code+'"'+(w.can?"":" disabled")+' aria-label="'+esc(w.name)+" авах, "+w.coin+' coin">'+
+          (w.can?"Авах":oic("lock",16,2.2)+'<span class="vh">Авах</span>')+"</button></article>";
+    }).join("")+
+    '<div class="section-label">Coin-ий түүх</div>'+
+    (r.history.length?'<div class="list">'+r.history.map(function(h){
+      return '<div class="item"><div class="item-main"><div class="small">'+esc(h.t)+'</div><div class="tiny muted">'+esc(h.at)+"</div></div>"+
+        '<b class="'+(h.amount>0?"ok-t":"warn-t")+'">'+(h.amount>0?"+":"")+h.amount+"</b></div>"}).join("")+"</div>":'<div class="notice info"><span>Coin хараахан алга.</span></div>')+
+    '<p class="tiny muted" style="margin:4px 0 0">Coin мөнгө болж солигдохгүй, бусдад шилжихгүй, дадлагажигч болсноос хойш '+ONB_VALID_DAYS+" хоног хүчинтэй. «Авах» дарвал менежерт хүсэлт очиж, coin суутгагдана.</p>"+
+    "</div>";
+  ACTIONS={};
+  r.rewards.forEach(function(w){
+    ACTIONS["buy:"+w.code]=function(){
+      if(!w.can) return;
+      openSheet("Шагнал авах",'<p style="margin:0 0 8px"><b>'+esc(w.name)+"</b></p>"+
+        '<p class="small muted" style="margin:0">'+w.coin+" coin суутгагдаж, хүсэлт менежерийн ээлжинд орно. Олгогч: "+esc(w.giver)+".</p>",
+        '<button class="btn" data-act="buyOk">'+w.coin+" coin-оор авах</button>",
+        {buyOk:async function(el){
+          el.disabled=true;
+          let res; try{ res=await api.onbRequestReward(w.code); }catch(e){ el.disabled=false; toast("Сүлжээ тасарлаа — дахин оролдоно уу","err"); return; }
+          closeSheet();
+          if(!res.ok){toast(res.err,"err");return;}
+          toast("Хүсэлт илгээлээ · үлдэгдэл "+res.balance+" coin"); renderDemo(); viewOnbRewards();
+        }});
+    };
+  });
+}
+
+/* ---------- Батлагчид харагдах илгээлт ---------- */
+function onbPayloadHtml(x){
+  const d=x.def, p=x.payload||{};
+  if(d.kind==="form"){
+    if(d.code==="D2_SWOT") return '<div class="swot">'+[["s","Давуу","ok"],["w","Сул","err"],["o","Боломж","info"],["t","Аюул","warn"]].map(function(k){
+      return '<div class="swot-'+k[2]+'"><b>'+k[1]+"</b><span>"+esc(p[k[0]]||"—")+"</span></div>"}).join("")+"</div>";
+    if(d.code==="D4_PRICE") return '<div class="onb-ans"><div><b>Дүүрэг</b><span>'+esc(p.district||"—")+"</span></div>"+
+      "<div><b>Бичсэн</b><span>"+esc(p.med||"—")+" сая ₮/м²</span></div><div><b>Үнийн сан</b><span>"+esc(p.ref==null?"—":p.ref)+" сая ₮/м²</span></div></div>";
+    return '<div class="onb-ans">'+d.fields.map(function(f){return "<div><b>"+esc(f.label.replace(/ — сургалт хариуцагч батлах\]$/,"]"))+"</b><span>"+esc(p[f.k]||"—")+"</span></div>"}).join("")+"</div>";
+  }
+  if(d.kind==="file") return p.file?'<div class="onb-file">'+oic("file",18)+"<span>"+esc(p.file.name)+" · "+fmtSize(p.file.size)+"</span></div>":"";
+  if(d.kind==="sign") return p.png?'<img class="sig-img" src="'+p.png+'" alt="Дадлагажигчийн гарын үсэг">':"";
+  return "";
+}
+function onbReviewCard(x,approve,ret){
+  const ini=x.name.replace(/[^А-ЯӨҮЁA-Z]/g,"").slice(0,2)||"Д";
+  return '<article class="rv-card" data-review="'+x.trainee+"|"+x.code+'">'+
+    '<div class="rv-top"><span class="rv-ava">'+esc(ini)+'</span><div class="rv-main"><b>'+esc(x.name)+"</b>"+
+      '<span class="tiny muted">'+x.def.loc+"-р байршил · "+esc(x.def.title)+" · "+esc(x.at||"")+"</span></div></div>"+
+    onbPayloadHtml(x)+
+    '<div class="rv-acts"><button class="btn ghost" data-act="'+ret+'">'+(x.code==="D6_REVIEW"?"Давтах":"Буцаах")+"</button>"+
+    '<button class="btn ok" data-act="'+approve+'">'+(x.code==="D6_REVIEW"?"Тэнцсэн":"Батлах")+" · +"+x.def.coin+"</button></div></article>";
+}
+function onbReviewActions(list,after){
+  const acts={};
+  list.forEach(function(x,i){
+    acts["rvOk:"+i]=async function(el){
+      el.disabled=true;
+      let r; try{ r=await api.onbReview(x.trainee,x.code,"APPROVE"); }catch(e){ el.disabled=false; toast("Сүлжээ тасарлаа — дахин оролдоно уу","err"); return; }
+      if(!r.ok){el.disabled=false;toast(r.err,"err");return;}
+      toast("✓ "+x.name+" · "+x.def.title+" · +"+r.coin+" coin"+(r.graduated&&x.def.loc===7?" · төгслөө":"")); renderDemo(); after();
+    };
+    acts["rvNo:"+i]=function(){
+      openSheet((x.code==="D6_REVIEW"?"Давтах":"Буцаах")+" · "+x.def.title,
+        '<p class="small muted" style="margin:0 0 10px">'+esc(x.name)+"-д юу дутууг бичнэ үү. Тэр засаад дахин илгээнэ.</p>"+
+        '<div class="field"><label for="rvWhy">Шалтгаан</label><textarea class="input" id="rvWhy" rows="3"></textarea></div>',
+        '<button class="btn" data-act="rvSend">Буцаах</button>',
+        {rvSend:async function(el){
+          const why=($("#rvWhy").value||"").trim();
+          if(!why){toast("Шалтгаанаа бичнэ үү","err");return;}
+          el.disabled=true;
+          let r; try{ r=await api.onbReview(x.trainee,x.code,"RETURN",why); }catch(e){ el.disabled=false; toast("Сүлжээ тасарлаа — дахин оролдоно уу","err"); return; }
+          closeSheet();
+          if(!r.ok){toast(r.err,"err");return;}
+          toast("Буцаалаа · "+x.name); renderDemo(); after();
+        }});
+    };
+  });
+  return acts;
+}
+function onbProgHtml(tr){
+  return '<div class="tr-row" data-trainee="'+tr.id+'"><div class="spread"><b>'+esc(tr.name)+'</b><span class="tiny muted">'+
+    (tr.graduated?"Төгссөн":(tr.cur+"-р өдөр"))+" · "+tr.coin+" coin</span></div>"+
+    '<div class="tr-seg" aria-label="7 өдрөөс '+tr.locs.filter(function(x){return x==="done"}).length+' дууссан">'+
+      tr.locs.map(function(s){return '<i class="'+s+'"></i>'}).join("")+"</div>"+
+    (tr.waitAdmin?'<span class="tiny warn-t" style="font-weight:600">Админ хүлээж байна · '+tr.waitAdmin+" алхам</span>":"")+
+    (tr.waitMentor?'<span class="tiny muted">Ментор хүлээж байна · '+tr.waitMentor+" алхам</span>":"")+"</div>";
+}
+
+/* ---------- #/mentor — менторын батлах ээлж ---------- */
+async function viewMentor(){
+  const rid=newRid(); renderNav("mentor"); screenEl.innerHTML=topbar("Батлах ээлж")+skeleton(5);
+  const q=await api.mentorQueue(); if(rvStale(rid)) return;
+  if(!q.ok){go("#/home");return;}
+  const a=me();
+  screenEl.innerHTML='<header class="mentor-head"><div class="spread"><div><span class="small muted">Ментор · '+esc(a.full_name)+"</span>"+
+      '<h1>Батлах ээлж</h1></div><span class="count-pill" aria-label="'+q.pending.length+' хүлээгдэж буй">'+q.pending.length+"</span></div>"+
+    '<div class="mentor-bonus">'+coinDot()+'<span>Таны дадлагажигчийн эхний листинг батлагдвал танд <b>+'+ONB_MENTOR_BONUS+' coin</b>. Таны coin: <b data-mentor-coin>'+q.coin+"</b></span></div>"+
+    '<span class="demo-tag">Демо өгөгдөл</span></header>'+
+    '<div class="body-pad stack" style="gap:14px"><h2 class="h-sm muted">Батлах хүлээж буй</h2>'+
+    (q.pending.length?q.pending.map(function(x,i){return onbReviewCard(x,"rvOk:"+i,"rvNo:"+i)}).join(""):'<div class="notice ok"><span>Батлах алхам алга.</span></div>')+
+    '<h2 class="h-sm muted" style="margin-top:6px">Миний дадлагажигчид</h2>'+
+    '<div class="tr-list">'+q.trainees.map(onbProgHtml).join("")+"</div>"+
+    '<p class="tiny muted" style="margin:0">«Буцаах» дарвал юу дутууг бичнэ. Дадлагажигч засаад дахин илгээнэ, coin батлагдсаны дараа л орно.</p></div>';
+  ACTIONS=onbReviewActions(q.pending,viewMentor);
+}
+/* ---------- #/admin дээрх «Онбординг» хэсэг ---------- */
+function adminOnbHtml(q,rq){
+  const rl=(rq&&rq.ok)?rq.list:[];
+  return '<div class="section-label">Онбординг · админ батлах · '+q.pending.length+"</div>"+
+    (q.pending.length?'<div class="stack" style="gap:12px">'+q.pending.map(function(x,i){return onbReviewCard(x,"rvOk:"+i,"rvNo:"+i)}).join("")+"</div>"
+      :'<div class="notice ok"><span>Админ батлах онбордингийн алхам алга.</span></div>')+
+    '<div class="section-label">Шагналын хүсэлт · '+rl.length+"</div>"+
+    (rl.length?'<div class="list">'+rl.map(function(r){
+      return '<div class="item" data-req="'+r.id+'"><div class="item-main"><div class="item-title">'+esc(r.reward.name)+"</div>"+
+        '<div class="item-sub">'+esc(r.name+" · "+r.reward.coin+" coin · "+r.reward.giver+" · "+r.at)+"</div></div>"+
+        '<button class="btn sm" data-act="give:'+r.id+'">Олгосон</button></div>'}).join("")+"</div>"
+      :'<div class="notice info"><span>Хүлээгдэж буй шагналын хүсэлт алга.</span></div>')+
+    '<div class="section-label">Дадлагажигчид</div><div class="tr-list">'+q.trainees.map(onbProgHtml).join("")+"</div>";
+}
+function adminOnbActions(q,rq){
+  const acts=onbReviewActions(q.pending,viewAdmin);
+  ((rq&&rq.ok)?rq.list:[]).forEach(function(r){
+    acts["give:"+r.id]=async function(el){
+      el.disabled=true;
+      let res; try{ res=await api.onbGiveReward(r.id); }catch(e){ el.disabled=false; toast("Сүлжээ тасарлаа — дахин оролдоно уу","err"); return; }
+      if(!res.ok){el.disabled=false;toast(res.err,"err");return;}
+      toast("Олгосон · "+r.name+" · "+r.reward.name); viewAdmin();
+    };
+  });
+  return acts;
+}
+
+/* ==========================================================================
    ДАВХАРГА 4 — router
    ========================================================================== */
 function parseHash(){
@@ -2710,7 +3780,13 @@ function route(){
   if(path==="/login") return viewLogin();
   if(path==="/checkin") return viewCheckin(r.q);
   if(path.indexOf("/sign/")===0) return viewSign(path.slice(6));
-  if(path==="/home") return viewHome();
+  const trn=isTrainee();
+  if(path==="/home") return trn?go("#/onb"):viewHome();
+  if(path==="/onb") return trn?viewOnbCity():go("#/home");
+  if(path==="/onb/select") return trn?viewOnbSelect():go("#/home");
+  if(path==="/onb/rewards") return trn?viewOnbRewards():go("#/home");
+  if(path.indexOf("/onb/loc/")===0) return trn?viewOnbLoc(Number(path.slice(9))):go("#/home");
+  if(path==="/mentor") return isMentor()?viewMentor():go("#/home");
   if(path==="/attendance") return viewAttendance();
   if(path==="/tx") return viewTx();
   if(path.indexOf("/tx/")===0){ viewTx().then(function(){openTxSheet(path.slice(4))}); return; }
@@ -2765,6 +3841,7 @@ function renderDemo(){
       opt("persona","ACTIVE","Идэвхтэй",d.persona==="ACTIVE")+
       opt("persona","NEAR","Silver-т ойрхон",d.persona==="NEAR")+
       opt("persona","MANAGER","Менежер",d.persona==="MANAGER")+
+      opt("persona","TRAINEE","Дадлагажигч (Э.Тэмүүлэн)",d.persona==="TRAINEE")+
     '</div><p class="demo-note">Шинэ агент — түр PIN 482910, анхны нэвтрэлтийн урсгал.</p></div>'+
     '<div class="demo-group"><label>Silver босго</label><div class="demo-opts">'+
       opt("silver","15","15 сая",d.silver.commission===15000000)+
@@ -2800,6 +3877,13 @@ function renderDemo(){
     '</div><p class="demo-note">«Идэвхтэй» агентын «Баянзүрх · 13-р хороолол» объект. '+
       (function(){const o=S.data&&objById(ESIGN_DEMO_OBJ);return o?"Төлөв: <b>"+esc(o.docs.indexOf(SIGNED)>=0&&!o.esign?"цаасан гэрээ хавсаргасан":esignLabel(o.esign))+"</b>. ":""})()+
       'Линк байхгүй бол «Эзэмшигчийн линк нээх» шинээр үүсгэнэ. SMS код эзэмшигчийн дэлгэц дээр харагдана.</p></div>'+
+    '<div class="demo-group"><label>Онбординг · REMAX TOP хот (v6)</label><div class="demo-opts">'+
+      '<button class="demo-opt" data-d="onb" data-v="city">Дадлагажигчийн хот</button>'+
+      '<button class="demo-opt" data-d="onb" data-v="mentor">Ментор (Б.Анужин)</button>'+
+      '<button class="demo-opt" data-d="onb" data-v="admin">Менежер · онбординг</button>'+
+      '<button class="demo-opt" data-d="onb" data-v="grad">1–7-г бүгд батлах</button>'+
+    '</div><p class="demo-note">'+(function(){const t=S.data&&onbT(PERSONA_AGENT.TRAINEE);return t?"Э.Тэмүүлэн: <b>"+onbBalance(t.agent_id)+" coin</b> · "+(t.graduated?"төгссөн":onbCur(t)+"-р байршил")+". ":""})()+
+      'Coin зөвхөн ментор / админ баталсан алхамд орно. Д.Нандин (дүр сонгоогүй) — утас 99138899, PIN 111111.</p></div>'+
     '<div class="demo-group"><label>Сүлжээний алдаа</label><div class="demo-opts">'+
       opt("net","1","Дараагийн хадгалалт алдаа өгнө",d.netError)+"</div></div>"+
     '<div class="demo-group"><label>QR уншуулсан гэж үзэх</label><div class="demo-opts">'+
@@ -2827,8 +3911,9 @@ const DEMO_ACT={
     S.demo.persona=v;
     S.flow=null;
     const id=PERSONA_AGENT[v];
+    S.onbPick=null; S.onbLastLoc=null;
     if(v==="NEW"){S.session=null;go("#/login");}
-    else {S.session=id;go("#/home");}
+    else {S.session=id;go(isTrainee(id)?"#/onb":"#/home");}
     renderDemo(); route();
   },
   silver:function(v){S.demo.silver={commission:Number(v)*1000000,count:10};renderDemo();route()},
@@ -2879,11 +3964,29 @@ const DEMO_ACT={
     }
     renderDemo(); show("#/sign/"+o.esign.token);
   },
+  onb:function(v){
+    function show(h){$("#demoPanel").classList.remove("open"); if(location.hash===h) route(); else go(h);}
+    const pmap={city:"TRAINEE",mentor:"ACTIVE",admin:"MANAGER"};
+    if(pmap[v]){
+      S.demo.persona=pmap[v]; S.session=PERSONA_AGENT[pmap[v]]; S.flow=null; S.onbLastLoc=null;
+      renderDemo(); show(v==="city"?"#/onb":(v==="mentor"?"#/mentor":"#/admin")); return;
+    }
+    if(v==="grad"){
+      /* Демо: Э.Тэмүүлэнгийн 1–7-ийн бүх алхмыг батлагчийн нэрээр DONE болгоно — төгсөлт, 30 хоногийн бүсийг харуулах */
+      const t=onbT(PERSONA_AGENT.TRAINEE); if(!t) return;
+      ONB_LOCS.forEach(function(l){l.steps.forEach(function(s){
+        if(onbRaw(t,s.code)!=="DONE") onbFinish(t,s.code,s.approver==="ADMIN"?"119038207":(s.approver==="MENTOR"?t.mentor:"AUTO"));
+      })});
+      S.demo.persona="TRAINEE"; S.session=t.agent_id; S.flow=null;
+      renderDemo(); show("#/onb"); toast("Э.Тэмүүлэн төгслөө · «"+ONB_GRAD.badge+"» тэмдэг, +"+ONB_GRAD.coin+" coin");
+    }
+  },
   testStop:function(){S.demo.test={task:null,running:false,taps:0,start:0,result:null,leadId:null};renderDemo()},
   reset:function(){
     S.data=buildData();
     S.demo=JSON.parse(JSON.stringify(DEFAULT_DEMO));
     S.session=null; S.flow=null; S.sign=null; DEMO_CLOCK.t="08:57";
+    S.onbPick=null; S.onbDraft=null; S.onbQuiz=null; S.onbVocab=null; S.onbLastLoc=null; S.onbPads=null;
     renderDemo();
     if(location.hash==="#/login") route(); else go("#/login");
     toast("Демо дахин эхэллээ");
