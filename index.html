@@ -773,6 +773,13 @@ const OBJECTS = [
    cp:"CITIZEN", ps:"CERT", docs:[SIGNED,"Иргэний үнэмлэх","Гэрчилгээ","Борлуулалтын гэрээ","Нотариатын гэрчлэлтэй гэрээ","Төлбөрийн баримт"],
    f:{district:"Чингэлтэй",khotkhon:"Цэцэг төв",area:71,floor:6,floors:12,rooms:3,built:2015,ptype:"Орон сууц",ophone:"99XXXXXX",cert:"эх хувь",encum:"байхгүй",loan:"ХХБ"},
    ph:PHOTOS.slice(), days:142, views:880, leads:11},
+  /* Хаагдсан (deal 10): борлуулалтын 9 алхам дууссан, шимтгэл олгосон. Эзэмшигч зохиомол. */
+  {id:"MLS-26-0841", agent_id:"119038201", stage:10, deal:10, created:"2026.03.12", source:"PAGE",
+   title:"Сүхбаатар · 1-р хороо", owner:"Г.Номин", ask:210000000, contract:"OPEN", expiry:null, ilist_code:"MLS-26-0841",
+   ads:{UNEGUI:"тавигдсан",FB_MARKETPLACE:"тавигдсан",FB_GROUP:"тавигдсан"},
+   cp:"CITIZEN", ps:"CERT", docs:[SIGNED,"Иргэний үнэмлэх","Гэрчилгээ","Борлуулалтын гэрээ","Нотариатын гэрчлэлтэй гэрээ","Төлбөрийн баримт","Акт","E-Barimt"],
+   f:{district:"Сүхбаатар",khotkhon:"Олимп хотхон",area:64,floor:8,floors:14,rooms:2,built:2017,ptype:"Орон сууц",ophone:"99XXXXXX",cert:"эх хувь",encum:"байхгүй",loan:"Хаан банк"},
+   ph:PHOTOS.slice(), days:64, views:530, leads:9},
   /* Онбординг: дадлагажигч Э.Тэмүүлэнгийн эхний объект («Эхний 30 хоног»-ийн M30_CONTACT, M30_LISTING эндээс) */
   {id:"TMP-260921-07", agent_id:"119038213", stage:1, deal:0, created:"2026.09.21", source:null,
    title:"Сонгинохайрхан · 21-р хороо", owner:"Г.Ану", ask:180000000, contract:null, expiry:null, ilist_code:null, ads:{},
@@ -1795,8 +1802,9 @@ function renderNav(active){
   items.push(["me","Би","#/me"]);
   if(isMentor()) items.push(["mentor","Ментор","#/mentor"]);
   if(isManager()) items.push(["admin","Удирдлага","#/admin"]);
-  /* Дадлагажигчийн доод цэс: Хот · Даалгавар · Шагнал · Дүр */
-  if(isTrainee()) items=[["map","Хот","#/onb"],["task","Даалгавар","#/onb/loc/"+onbCur(onbT(S.session))],["gift","Шагнал","#/onb/rewards"],["hero","Дүр","#/onb/select"]];
+  /* Дадлагажигчийн доод цэс: Хот · Даалгавар · Объект · Шагнал · Дүр
+     (Объект — «Эхний 30 хоног»-ийн эхний листинг, M30_CONTACT/M30_LISTING объектын замаас тэмдэглэгдэнэ) */
+  if(isTrainee()) items=[["map","Хот","#/onb"],["task","Даалгавар","#/onb/loc/"+onbCur(onbT(S.session))],["obj","Объект","#/objects"],["gift","Шагнал","#/onb/rewards"],["hero","Дүр","#/onb/select"]];
   const mpend=isMentor()?onbPendingFor(S.session).length:0;
   const pend=pendingTx(S.session).length;
   nav.innerHTML=items.map(function(it){

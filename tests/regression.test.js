@@ -18,12 +18,20 @@ module.exports = async function (browser) {
     eq(await p.evaluate(() => location.hash), "#/login");
   });
 
-  await check(G, "Дадлагажигч PIN-ээр нэвтэрвэл хот руу; доод цэс Хот · Даалгавар · Шагнал · Дүр", browser, async p => {
+  await check(G, "Дадлагажигч PIN-ээр нэвтэрвэл хот руу; доод цэс Хот · Даалгавар · Объект · Шагнал · Дүр", browser, async p => {
     await p.fill("#ph", "99136677");
     for (const n of "111111") await p.click('[data-act="key"][data-n="' + n + '"]');
     await p.waitForFunction(() => location.hash === "#/onb");
     await p.waitForSelector(".city .city-char");
-    eq((await p.$$eval("#nav button span", s => s.map(x => x.textContent))).join(" · "), "Хот · Даалгавар · Шагнал · Дүр");
+    eq((await p.$$eval("#nav button span", s => s.map(x => x.textContent))).join(" · "), "Хот · Даалгавар · Объект · Шагнал · Дүр");
+    /* Объект цэс → өөрийн объектын жагсаалт (эхний листинг), цэс дадлагажигчийнх хэвээр */
+    await p.click('#nav [data-act="nav:#/objects"]');
+    await p.waitForSelector(".item");
+    eq(await p.evaluate(() => location.hash), "#/objects");
+    eq(await p.locator(".item").count(), 1, "зөвхөн өөрийн 1 объект");
+    assert((await p.textContent(".item")).includes("Сонгинохайрхан · 21-р хороо"), "дадлагажигчийн объект");
+    eq(await p.getAttribute('#nav [data-act="nav:#/objects"]', "aria-current"), "page", "Объект идэвхтэй");
+    eq(await p.locator("#nav button").count(), 5, "5 цэс");
   });
 
   await check(G, "Объект: жагсаалт ба 6-р алхмын цахим гарын үсгийн товч", browser, async p => {
