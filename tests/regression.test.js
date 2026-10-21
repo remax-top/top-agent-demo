@@ -86,4 +86,23 @@ module.exports = async function (browser) {
     eq(await p.evaluate(() => onbBalance("119038214")), 3);
     eq(await p.evaluate(() => S.data.onb.requests.length), 0);
   });
+
+  /* Туршилтын бэлтгэлийн засвар (2026.10.21): демогийн товч, toast халхлахгүй; дутуугийн тоо ижил */
+  await check(G, "Демо товч доод цонхонд нуугдана; toast дээд талд, товшилт хаахгүй; дутуугийн тоо жагсаалт = дэлгэрэнгүй", browser, async p => {
+    await as(p, "119038201", "#/objects", ".item");
+    const li = (await p.locator(".item").filter({ hasText: "26-р хороолол" }).first().textContent()).match(/(\d+) талбар\/зураг дутуу/);
+    assert(li, "жагсаалтад «N талбар/зураг дутуу»");
+    await p.locator(".item").filter({ hasText: "26-р хороолол" }).first().click();
+    await p.waitForSelector(".track");
+    assert((await p.textContent("#screen")).includes(li[1] + " талбар/зураг дутуу"), "дэлгэрэнгүйд ижил тоо " + li[1]);
+    assert(await p.isVisible("#demoFab"), "доод цонхгүй үед Демо товч харагдана");
+    await as(p, "119038201", "#/obj/TMP-260920-05", ".track");
+    await p.locator('button:has-text("Онлайнаар зуруулах")').first().click();
+    await p.waitForSelector("#overlay .sheet");
+    eq(await p.isVisible("#demoFab"), false, "доод цонх нээлттэй үед Демо товч");
+    await p.evaluate(() => toast("Хадгалагдлаа"));
+    const t = await p.evaluate(() => { const e = document.querySelector(".toast"), cs = getComputedStyle(e), r = e.getBoundingClientRect(); return { pe: cs.pointerEvents, top: r.top, h: innerHeight }; });
+    eq(t.pe, "none", "toast pointer-events");
+    assert(t.top < t.h / 3, "toast дээд талд");
+  });
 };
