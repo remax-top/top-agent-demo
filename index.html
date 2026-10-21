@@ -62,6 +62,9 @@ a{color:var(--brand-primary)}
     display:block;position:fixed;right:14px;bottom:88px;z-index:60;background:#1B2227;color:#fff;
     border-radius:999px;padding:12px 18px;font-size:15px;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,.3);min-height:var(--tap)
   }
+  /* Доод цонх нээлттэй, эсвэл оролтод бичиж байхад «Демо» товч товч, сонголтыг халхлахгүй */
+  body:has(#overlay .sheet) .demo-fab,
+  body:has(#screen input:focus, #screen textarea:focus, #screen select:focus) .demo-fab{display:none}
 }
 
 /* ---------- Ерөнхий бүтэц ---------- */
@@ -181,10 +184,12 @@ textarea.input{resize:vertical;line-height:1.5;font-size:15px}
 @keyframes fade{from{opacity:0}to{opacity:1}}
 
 /* ---------- Toast ---------- */
+/* Дээд талд гарна, товшилтыг хаахгүй — доод цонхны оролт, «Хадгалах» товчийг халхлахгүй */
 .toast{
-  position:absolute;left:16px;right:16px;bottom:78px;z-index:70;background:#1B2227;color:#fff;
-  border-radius:10px;padding:13px 16px;font-size:15px;box-shadow:0 8px 24px rgba(0,0,0,.25);animation:up .18s ease
+  position:absolute;left:16px;right:16px;top:calc(12px + env(safe-area-inset-top));z-index:70;background:#1B2227;color:#fff;
+  border-radius:10px;padding:13px 16px;font-size:15px;box-shadow:0 8px 24px rgba(0,0,0,.25);animation:down .18s ease;pointer-events:none
 }
+@keyframes down{from{transform:translateY(-16px);opacity:.4}to{transform:none;opacity:1}}
 .toast.err{background:#8A1D17}
 
 /* ---------- Skeleton ---------- */
@@ -1055,6 +1060,8 @@ function stageName(o){
 function fmtSize(b){return b>=1048576?(b/1048576).toFixed(1)+" MB":Math.max(1,Math.round(b/1024))+" KB"}
 function lsourceLabel(c){const s=LSOURCES.find(function(x){return x.code===c});return s?s.label:"—"}
 function daysToExpiry(o){return o.expiry?daysBetween(o.expiry,TODAY):null}
+/* Чеклистийн (12 талбар + зураг) дутуу — жагсаалт ба дэлгэрэнгүйд ижил тоо */
+function chkMissCount(o){return missingList(o).filter(function(x){return x.indexOf("баримт")<0&&docsFor(o).indexOf(x)<0}).length}
 function missingList(o){
   const m=CHK.filter(function(c){const v=o.f[c.k];return v===null||v===undefined||v===""}).map(function(c){return c.label});
   const needPh=PHOTOS.length-o.ph.length;
@@ -1068,7 +1075,7 @@ function attention(o){
   const ex=daysToExpiry(o);
   if(o.stage>=10 && ex!==null && ex<=30) return {k:"EXPIRY", t:"Гэрээ "+ex+" хоногт дуусна · сунгах акт"};
   if(o.deal>0 && o.days>=90 && o.leads===0) return {k:"STALE", t:o.days+" хоног · эзэнтэй баталгаажуулах"};
-  if(!chkReady(o)) return {k:"CHK", t:missingList(o).filter(function(x){return x.indexOf("баримт")<0&&docsFor(o).indexOf(x)<0}).length+" зүйл дутуу"};
+  if(!chkReady(o)) return {k:"CHK", t:chkMissCount(o)+" талбар/зураг дутуу"};
   if(o.stage<9 && !docsReady(o)) return {k:"DOCS", t:"Гэрээний баримт дутуу · iConnect цоожтой"};
   return null;
 }
@@ -2994,7 +3001,9 @@ async function viewObject(id){
     (att&&(att.k==="EXPIRY"||att.k==="STALE")?'<div class="notice warn" style="margin-top:12px"><span>'+esc(att.t)+"</span></div>":"")+
     '<div class="primary-block" style="margin-top:14px"><div class="spread"><div>'+
       "<h2>"+r.filled+"/"+CHK.length+" талбар · "+o.ph.length+"/"+PHOTOS.length+" зураг · "+r.docsDone+"/"+docsTotal+" баримт</h2>"+
-      '<p class="small muted" style="margin:2px 0 0">'+((r.chkOk&&r.docsOk)?"Бүрэн бөглөгдсөн":r.miss.length+" зүйл дутуу")+"</p>"+
+      '<p class="small muted" style="margin:2px 0 0">'+((r.chkOk&&r.docsOk)?"Бүрэн бөглөгдсөн":
+        [r.chkOk?"Талбар, зураг бүрэн":chkMissCount(o)+" талбар/зураг дутуу",
+         r.docsOk?"":((o.cp&&o.ps)?(r.docsNeed.length-r.docsDone)+" баримт дутуу":"баримтын 2 асуулт")].filter(Boolean).join(" · "))+"</p>"+
       "</div>"+((r.chkOk&&r.docsOk)?'<span class="badge ok">Бэлэн</span>':'<span class="badge warn">Бүрэн бус</span>')+"</div>"+
     "</div>"+
     '<div class="list" style="margin-top:12px">'+
