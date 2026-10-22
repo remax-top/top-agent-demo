@@ -2288,13 +2288,15 @@ async function viewTx(){
   const rid=newRid(); renderNav("tx"); screenEl.innerHTML=topbar("Гүйлгээ")+skeleton(5);
   const txs=await api.getTransactions(S.session); if(rvStale(rid)) return;
   const pend=txs.filter(t=>!t.source_filled), done=txs.filter(t=>t.source_filled);
+  /* Агент гүйлгээг хаягаар нь таньдаг — хотхон/байрыг гарчиг, дүүрэг/хороог доор, TRR кодыг сүүлд */
   function row(t,locked){
+    const a=t.listing_address.split(" · ");
     return '<button class="item" data-act="open" data-id="'+esc(t.trr_id)+'">'+
-      '<div class="item-main"><div class="item-title">'+esc(t.trr_id)+
+      '<div class="item-main"><div class="item-title">'+esc(a[1]||a[0])+
       (t.manual?' <span class="badge warn">Тулгалт хүлээгдэж байна</span>':"")+"</div>"+
-      '<div class="item-sub">'+esc(t.listing_address.split(" · ")[0])+" · "+
+      '<div class="item-sub">'+(a[1]?esc(a[0])+" · ":"")+
       (t.deal_type==="SALE"?"Худалдаа":"Түрээс")+" · "+esc(t.sold_date)+"</div>"+
-      '<div class="item-sub">Шимтгэл '+fmtMNT(t.agent_commission)+
+      '<div class="item-sub">'+esc(t.trr_id)+' · Шимтгэл '+fmtMNT(t.agent_commission)+
       (t.source_filled?" · "+esc(sourceLabel(t.source_code)):"")+"</div></div>"+
       (locked?'<span class="badge neutral">Цоожтой</span>':'<span class="chev">›</span>')+"</button>";
   }
