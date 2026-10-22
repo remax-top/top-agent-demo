@@ -105,4 +105,12 @@ module.exports = async function (browser) {
     eq(t.pe, "none", "toast pointer-events");
     assert(t.top < t.h / 3, "toast дээд талд");
   });
+
+  /* T3 (2026.10.22): гүйлгээний жагсаалтад хотхон/байр гарчиг болж харагдана */
+  await check(G, "Гүйлгээ: жагсаалтын гарчиг хотхон/байр, доор дүүрэг/хороо, TRR код", browser, async p => {
+    await as(p, "119038201", "#/tx", ".item");
+    const it = p.locator(".item").filter({ hasText: "TRR-26-000407" }).first();
+    eq((await it.locator(".item-title").textContent()).trim(), "26-р хороолол, 12-р байр", "гарчиг");
+    assert((await it.textContent()).includes("Баянзүрх, 14-р хороо · Худалдаа"), "дүүрэг/хороо");
+  });
 };
