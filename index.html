@@ -336,6 +336,23 @@ textarea.input{resize:vertical;line-height:1.5;font-size:15px}
 .audit span:last-child{overflow-wrap:anywhere}
 .check-row{display:flex;gap:10px;align-items:flex-start;font-size:15px;margin:14px 0;cursor:pointer}
 .check-row input{width:20px;height:20px;margin-top:1px;flex:none}
+/* ---------- Өнөөдрийн төлөвлөгөө ---------- */
+.pbar{height:8px;border-radius:999px;background:#E6EBEE;overflow:hidden;margin-top:8px}
+.pbar i{display:block;height:100%;border-radius:999px;background:var(--brand-accent);transition:width .3s ease}
+.pbar i.done{background:var(--ok)}
+.plan-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 16px;min-height:var(--tap);border-bottom:1px solid var(--line);background:#fff}
+.plan-item:last-child{border-bottom:0}
+.plan-box{width:22px;height:22px;border:2px solid #AEB8BF;border-radius:6px;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700}
+.plan-item[aria-checked="true"] .plan-box{background:var(--ok);border-color:var(--ok)}
+.plan-item[aria-checked="true"] .item-title{color:var(--muted);text-decoration:line-through;font-weight:500}
+.calls{display:flex;align-items:center;gap:10px;margin-top:14px}
+.calls-n{font-size:28px;font-weight:700;line-height:1}
+.calls .btn{width:auto}
+.calls .grow{flex:1}
+.plan-edit{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}
+.plan-edit:last-child{border-bottom:0}
+.plan-edit span{flex:1;min-width:0;font-size:15px}
+.plan-edit select{width:auto;min-height:36px;padding:4px 8px;font-size:14px}
 /* ---------- Онбординг «REMAX TOP хот» (v6) ---------- */
 :root{--road:#E9E2D2;--ground:#CFE4C2;--road-locked:#D5DCE1;--gold:#F2C14E}
 .oic{display:block;flex:none}
@@ -885,6 +902,24 @@ const ONB_SEED = [
    sub:{D2_SWOT:["2026.09.21 06:40",{s:"[Дадлагажигчийн бичсэн — 3 мөр]",w:"[Дадлагажигчийн бичсэн — 2 мөр]",o:"[Дадлагажигчийн бичсэн — 3 мөр]",t:"[Дадлагажигчийн бичсэн — 2 мөр]"}],
         D2_SMART:["2026.09.21 07:10",{m1:"[Дадлагажигчийн бичсэн зорилго]",m3:"[Дадлагажигчийн бичсэн зорилго]"}]}}
 ];
+/* «Өнөөдрийн төлөвлөгөө» (docs/onoodriin-tolovlogoo-TD.md, агент Д.-ийн санал).
+   Бодит: Sheets «plan_template» (агент тус бүр), «plan_day» (агент × өдөр). */
+const PLAN_GROUPS = [["LIST","Өөрийн листинг"],["BUY","Buyer тал"],["MY","Миний нэмсэн"]];
+const PLAN_ITEMS = [
+  {id:"L1",group:"LIST",label:"Зар идэвхжүүлэх: FB · IG · unegui · comment · farming"},
+  {id:"L2",group:"LIST",label:"Бусад агентуудад мэдээлэл өгөх"},
+  {id:"L3",group:"LIST",label:"Дуудлага бүртгэх, эргэж холбогдох"},
+  {id:"L4",group:"LIST",label:"Харилцагчдад 7 хоногийн мэдээлэл, тайлан",weekly_day:1},
+  {id:"B1",group:"BUY",label:"Зар идэвхжүүлэх: FB · IG · unegui · comment · farming"},
+  {id:"B2",group:"BUY",label:"Дуудлага бүртгэх, эргэж холбогдох"},
+  {id:"B3",group:"BUY",label:"Листинг агенттай холбогдож мэдээлэл шинэчлэх"}
+];
+const WEEKDAYS = ["Ням","Даваа","Мягмар","Лхагва","Пүрэв","Баасан","Бямба"];
+/* Демо: «Идэвхтэй» агент өглөө зорилтоо тавьчихсан, 6 дуудлага хийж, 1 ажил тэмдэглэсэн */
+const PLAN_SEED = {
+  templates:{"119038201":{call_time:"10:00",call_target:20}},
+  days:{"119038201|2026.09.21":{calls_done:6,done_ids:["L1"]}}
+};
 /* ==========================================================================
    ТӨЛӨВ + ТУСЛАХ ФУНКЦ
    ========================================================================== */
@@ -991,8 +1026,40 @@ function buildData(){
     leaveRequests:JSON.parse(JSON.stringify(LEAVE_REQUESTS)),
     objects:JSON.parse(JSON.stringify(OBJECTS)),
     liveCheckins:{}, importLog:{rows:1284,errors:2},
-    onb:onbSeed()
+    onb:onbSeed(),
+    plan:JSON.parse(JSON.stringify(PLAN_SEED))
   };
+}
+
+/* ---------- Өнөөдрийн төлөвлөгөөний туслах ---------- */
+function planTpl(aid){
+  const P=S.data.plan;
+  if(!P.templates[aid]) P.templates[aid]={call_time:null,call_target:null};
+  const t=P.templates[aid];
+  if(!t.items) t.items=JSON.parse(JSON.stringify(PLAN_ITEMS));
+  return t;
+}
+function planDay(aid,date){
+  const k=aid+"|"+date, P=S.data.plan;
+  if(!P.days[k]) P.days[k]={calls_done:0,done_ids:[]};
+  return P.days[k];
+}
+/* Биелэлт: харагдах ажил бүр 1 + cold call зорилт тавьсан бол 1 (зорилтод хүрвэл биелсэн) */
+function planTotals(v){
+  const callsSet=!!v.call_target;
+  v.total=v.items.length+(callsSet?1:0);
+  v.done=v.items.filter(function(i){return i.done}).length+(callsSet&&v.calls_done>=v.call_target?1:0);
+  v.pct=pctOf(v.done,v.total);
+  return v;
+}
+function planView(aid,date){
+  const t=planTpl(aid), d=planDay(aid,date), wd=pd(date).getDay();
+  const vis=t.items.filter(function(i){return i.weekly_day==null||i.weekly_day===wd});
+  return planTotals({
+    date:date, weekday:wd, call_time:t.call_time, call_target:t.call_target, calls_done:d.calls_done,
+    items:vis.map(function(i){return Object.assign({},i,{done:d.done_ids.indexOf(i.id)>-1})}),
+    all:JSON.parse(JSON.stringify(t.items)), hidden:t.items.length-vis.length
+  });
 }
 
 /* ---------- Объектын туслах ---------- */
@@ -1420,6 +1487,7 @@ const api = {
       pending: pendingTx(agentId).length,
       rank: rankStats(agentId),
       queue: S.demo.queueCard ? S.data.listingQueue : [],
+      plan: planView(agentId,TODAY),
       importDate: S.demo.importDate
     };
   }),
@@ -1652,6 +1720,44 @@ const api = {
   },{write:true}),
   getAgents:()=>call(function(){return S.data.agents})
 };
+/* ---- Өнөөдрийн төлөвлөгөө. Бодит: google.script.run.plan*(…). Агент зөвхөн өөрийнхөө (S.session) мөрийг уншиж, бичнэ. ---- */
+Object.assign(api,{
+  planGet:(date)=>call(function(){return planView(S.session,date||TODAY)}),
+  planSetTarget:(time,target)=>call(function(){
+    const n=Number(target);
+    if(!/^([01]\d|2[0-3]):[0-5]\d$/.test(time||"")) return {ok:false,err:"Цагаа оруулна уу"};
+    if(!(Number.isInteger(n)&&n>=1&&n<=200)) return {ok:false,err:"Дуудлагын тоо 1–200 байна"};
+    const t=planTpl(S.session); t.call_time=time; t.call_target=n; return {ok:true};
+  },{write:true}),
+  planToggle:(itemId)=>call(function(){
+    if(!planTpl(S.session).items.some(function(i){return i.id===itemId})) return {ok:false,err:"Ажил олдсонгүй"};
+    const d=planDay(S.session,TODAY), i=d.done_ids.indexOf(itemId);
+    if(i>-1) d.done_ids.splice(i,1); else d.done_ids.push(itemId);
+    return {ok:true,done:i<0};
+  },{write:true}),
+  planCall:(delta)=>call(function(){
+    const d=planDay(S.session,TODAY); d.calls_done=Math.max(0,d.calls_done+(delta<0?-1:1));
+    return {ok:true,calls_done:d.calls_done};
+  },{write:true}),
+  planItemAdd:(label,group)=>call(function(){
+    const l=String(label||"").trim();
+    if(l.length<2||l.length>80) return {ok:false,err:"Ажлын нэр 2–80 тэмдэгт"};
+    const t=planTpl(S.session);
+    t.items.push({id:"U"+(t.seq=(t.seq||0)+1),group:PLAN_GROUPS.some(function(g){return g[0]===group})?group:"MY",label:l});
+    return {ok:true};
+  },{write:true}),
+  planItemDel:(itemId)=>call(function(){
+    const t=planTpl(S.session); t.items=t.items.filter(function(i){return i.id!==itemId});
+    const d=planDay(S.session,TODAY); d.done_ids=d.done_ids.filter(function(x){return x!==itemId});
+    return {ok:true};
+  },{write:true}),
+  planItemDay:(itemId,wd)=>call(function(){
+    const it=planTpl(S.session).items.find(function(i){return i.id===itemId}); if(!it) return {ok:false,err:"Ажил олдсонгүй"};
+    const n=wd===""||wd==null?null:Number(wd);
+    if(n===null) delete it.weekly_day; else if(n>=0&&n<=6) it.weekly_day=n; else return {ok:false};
+    return {ok:true};
+  },{write:true})
+});
 /* ---- Онбординг (v6). Бодит: мөр бүр google.script.run.onb*(…) — Sheets «Онбординг», «CoinLedger», «Шагнал» хуудас.
    Эрхийг энд (сервер талд) шалгана: дадлагажигч өөрийн MENTOR/ADMIN алхмыг API-аар ч батлахгүй. ---- */
 Object.assign(api,{
@@ -2174,7 +2280,12 @@ async function viewHome(){
       '<div class="item-sub">Бүртгэгдсэн · '+esc((myAttendance(d.event.event_id)||{}).time||"")+"</div></div>"+
       '<span class="badge ok">Ирсэн</span></div></div>');
   }
-  const rows=[];
+  const rows=[], pl=d.plan;
+  rows.push('<button class="item" data-act="plan"><div class="item-main"><div class="item-title">Өнөөдрийн төлөвлөгөө</div>'+
+    '<div class="item-sub">'+(pl.call_target?"Cold call "+pl.calls_done+"/"+pl.call_target:"Cold call-ын зорилт тавиагүй")+
+    " · биелэлт "+pl.done+"/"+pl.total+"</div>"+
+    '<div class="pbar" aria-hidden="true"><i'+(pl.total&&pl.done===pl.total?' class="done"':"")+' style="width:'+pl.pct+'%"></i></div></div>'+
+    '<span class="chev">›</span></button>');
   if(d.pending>0){
     rows.push('<button class="item" data-act="tx"><div class="item-main"><div class="item-title">Эх сурвалж хүлээж буй '+d.pending+" гүйлгээ</div>"+
       '<div class="item-sub">Хаанаас ирсэн лид болохыг бөглөнө</div></div><span class="btn sm secondary">Бөглөх</span></button>');
@@ -2189,7 +2300,7 @@ async function viewHome(){
       '<div class="item-sub">Хамгийн удсан нь '+worst.hours+" цаг</div></div><span class=\"chev\">›</span></button>");
   }
   const stale=daysBetween(TODAY,d.importDate)>=8;
-  const empty=!cards.length&&d.pending===0&&!d.queue.length;
+  const empty=!cards.length&&d.pending===0&&!d.queue.length&&pl.total>0&&pl.done===pl.total;
   screenEl.innerHTML=topbar("Өнөөдөр")+
     '<div class="body-pad">'+
     '<p style="margin:0 0 16px;font-size:18px">Сайн уу, <strong>'+esc(d.agent.full_name)+"</strong></p>"+
@@ -2202,6 +2313,7 @@ async function viewHome(){
     "</div>";
   ACTIONS={
     checkin:function(){go("#/checkin?e="+d.event.event_id+"&t=demo")},
+    plan:function(){go("#/plan")},
     tx:function(){go("#/tx")},
     me:function(){go("#/me")},
     queue:function(){
@@ -2213,6 +2325,127 @@ async function viewHome(){
         }).join("")+"</div>"+
         '<p class="hint">Батлах ажиллагаа iList дээр хийгдэнэ. Энд зөвхөн сануулга харагдана.</p>',
         '<button class="btn secondary" data-act="sheetClose">Ойлголоо</button>');
+    }
+  };
+}
+
+/* ---------- Өнөөдрийн төлөвлөгөө (1-р алхам: cold call тоолуур + чеклист) ---------- */
+async function viewPlan(){
+  const rid=newRid(); renderNav("home"); screenEl.innerHTML=topbar("Төлөвлөгөө")+skeleton(6);
+  let v=await api.planGet(TODAY); if(rvStale(rid)) return;
+  const NET="Хадгалж чадсангүй. Сүлжээгээ шалгаад дахин оролдоно уу.";
+  function itemHtml(i){
+    return '<button class="plan-item" role="checkbox" aria-checked="'+(i.done?"true":"false")+'" data-act="tog" data-id="'+esc(i.id)+'">'+
+      '<span class="plan-box">'+(i.done?"✓":"")+'</span><span class="item-main"><span class="item-title" style="display:block">'+esc(i.label)+"</span>"+
+      (i.weekly_day!=null?'<span class="item-sub" style="display:block">7 хоног бүр '+WEEKDAYS[i.weekly_day]+" гарагт</span>":"")+"</span></button>";
+  }
+  function render(){
+    const set=!!v.call_target, cp=set?Math.min(100,pctOf(v.calls_done,v.call_target)):0;
+    const groups=PLAN_GROUPS.map(function(g){
+      const its=v.items.filter(function(i){return i.group===g[0]});
+      return its.length?'<div class="section-label">'+esc(g[1])+'</div><div class="list">'+its.map(itemHtml).join("")+"</div>":"";
+    }).join("");
+    screenEl.innerHTML=topbar("Төлөвлөгөө",esc(v.date)+" · "+WEEKDAYS[v.weekday]+" гараг")+
+      '<div class="body-pad">'+
+      '<button class="back-link" data-act="back">← Нүүр</button>'+
+      '<div class="spread" style="margin-top:4px"><strong id="planDone">Биелэлт '+v.done+"/"+v.total+'</strong><span class="small muted">'+v.pct+"%</span></div>"+
+      '<div class="pbar"><i'+(v.total&&v.done===v.total?' class="done"':"")+' style="width:'+v.pct+'%"></i></div>'+
+      '<div class="section-label">Оффис дээр</div>'+
+      '<div class="primary-block">'+
+        '<div class="spread"><div><h2>Cold call</h2><p class="small muted" style="margin:2px 0 0">'+
+          (set?esc(v.call_time)+"-аас · зорилт "+v.call_target+" дуудлага":"Өнөөдөр хэдэн цагт, хэдэн дуудлага хийхээ өөрөө тавина")+"</p></div>"+
+          (set?'<button class="btn ghost sm" data-act="target">Засах</button>':"")+"</div>"+
+        (set?
+          '<div class="calls"><button class="btn secondary sm" data-act="callMinus" aria-label="Нэгийг хасах">−1</button>'+
+          '<div class="grow"><span class="calls-n" id="callsN">'+v.calls_done+'</span> <span class="muted">/ '+v.call_target+"</span>"+
+          (v.calls_done>=v.call_target?' <span class="badge ok">Биелсэн</span>':"")+"</div>"+
+          '<button class="btn" data-act="callPlus">+1 дуудлага</button></div>'+
+          '<div class="pbar"><i'+(cp>=100?' class="done"':"")+' style="width:'+cp+'%"></i></div>'
+          :'<button class="btn" style="margin-top:14px" data-act="target">Зорилт тавих</button>')+
+      "</div>"+
+      groups+
+      (v.hidden?'<p class="hint">Өөр гарагт хийх '+v.hidden+" ажил өнөөдөр харагдахгүй.</p>":"")+
+      '<button class="btn ghost" style="margin-top:18px" data-act="edit">Жагсаалт засах</button>'+
+      '<p class="hint" style="margin-top:14px">Гадуурх цаг (үзлэг, уулзалт) ба өдрийн дүгнэлт — дараагийн шатанд нэмэгдэнэ.</p>'+
+      "</div>";
+  }
+  async function reload(){v=await api.planGet(TODAY);render();}
+  /* Тоолуур, чеклист: дэлгэцийг шууд шинэчилж, серверийн алдаа гарвал буцаана */
+  async function optimistic(change,undo,req){
+    change(); planTotals(v); render();
+    try{const r=await req(); if(r&&r.ok===false) throw new Error(r.err||"ERR");}
+    catch(e){undo(); planTotals(v); render(); toast(NET,"err");}
+  }
+  function targetSheet(){
+    openSheet("Cold call-ын зорилт",
+      '<div class="field"><label for="ptime">Эхлэх цаг</label><input class="input" id="ptime" type="time" value="'+esc(v.call_time||"10:00")+'"></div>'+
+      '<div class="field"><label for="ptgt">Дуудлагын тоо</label><input class="input" id="ptgt" inputmode="numeric" maxlength="3" value="'+esc(v.call_target||20)+'"></div>'+
+      '<p class="hint">Зорилтоо өөрөө тавина. Маргааш ч энэ хэвээр үлдэнэ — хүссэн үедээ засна.</p><p class="err-text" id="perr"></p>',
+      '<button class="btn" data-act="saveTarget">Хадгалах</button>',
+      {saveTarget:async function(el){
+        el.disabled=true;
+        let r; try{r=await api.planSetTarget($("#ptime").value,$("#ptgt").value.trim());}
+        catch(e){el.disabled=false;$("#perr").textContent=NET;return;}
+        if(!r.ok){el.disabled=false;$("#perr").textContent=r.err;return;}
+        closeSheet(); await reload(); toast("Зорилт хадгалагдлаа");
+      }});
+  }
+  function editSheet(err){
+    const dayOpts=function(it){
+      return '<select class="input" data-day="'+esc(it.id)+'" aria-label="Хэзээ">'+
+        '<option value=""'+(it.weekly_day==null?" selected":"")+">Өдөр бүр</option>"+
+        WEEKDAYS.map(function(w,i){return '<option value="'+i+'"'+(it.weekly_day===i?" selected":"")+">"+w+"</option>"}).join("")+"</select>";
+    };
+    openSheet("Жагсаалт засах",
+      PLAN_GROUPS.map(function(g){
+        const its=v.all.filter(function(i){return i.group===g[0]});
+        return its.length?'<div class="section-label">'+esc(g[1])+"</div>"+its.map(function(it){
+          return '<div class="plan-edit"><span>'+esc(it.label)+"</span>"+dayOpts(it)+
+            '<button class="btn ghost sm" data-act="del" data-id="'+esc(it.id)+'" aria-label="Хасах: '+esc(it.label)+'">✕</button></div>';
+        }).join(""):"";
+      }).join("")+
+      '<div class="section-label">Шинэ ажил нэмэх</div>'+
+      '<div class="field"><input class="input" id="pnew" maxlength="80" placeholder="Жишээ: Хуучин харилцагчдаа мэндчилгээ илгээх"></div>'+
+      '<div class="chips" id="pgrp">'+PLAN_GROUPS.map(function(g,i){
+        return '<button class="chip sm" data-act="grp" data-g="'+g[0]+'" aria-pressed="'+(i===2?"true":"false")+'">'+esc(g[1])+"</button>";
+      }).join("")+"</div>"+
+      (err?'<p class="err-text">'+esc(err)+"</p>":""),
+      '<button class="btn" data-act="add">Нэмэх</button>',
+      {
+        grp:function(el){$$("#pgrp .chip").forEach(function(c){c.setAttribute("aria-pressed",c===el?"true":"false")})},
+        add:async function(el){
+          const sel=$('#pgrp [aria-pressed="true"]'), g=sel?sel.getAttribute("data-g"):"MY";
+          el.disabled=true;
+          let r; try{r=await api.planItemAdd($("#pnew").value,g);}catch(e){editSheet(NET);return;}
+          await reload(); editSheet(r.ok?"":r.err); if(r.ok) toast("Нэмэгдлээ");
+        },
+        del:async function(el){
+          el.disabled=true;
+          try{await api.planItemDel(el.getAttribute("data-id"));}catch(e){editSheet(NET);return;}
+          await reload(); editSheet();
+        }
+      });
+    $$("#overlay select[data-day]").forEach(function(s){
+      s.addEventListener("change",async function(){
+        try{await api.planItemDay(s.getAttribute("data-day"),s.value);}catch(e){await reload();editSheet(NET);return;}
+        await reload(); editSheet();
+      });
+    });
+  }
+  render();
+  ACTIONS={
+    back:function(){go("#/home")},
+    target:targetSheet,
+    edit:function(){editSheet()},
+    callPlus:function(){optimistic(function(){v.calls_done++},function(){v.calls_done--},function(){return api.planCall(1)})},
+    callMinus:function(){
+      if(!v.calls_done) return;
+      optimistic(function(){v.calls_done--},function(){v.calls_done++},function(){return api.planCall(-1)});
+    },
+    tog:function(el){
+      const it=v.items.find(function(i){return i.id===el.getAttribute("data-id")}); if(!it) return;
+      const flip=function(){it.done=!it.done};
+      optimistic(flip,flip,function(){return api.planToggle(it.id)});
     }
   };
 }
@@ -3806,6 +4039,7 @@ function route(){
   if(path==="/onb/rewards") return trn?viewOnbRewards():go("#/home");
   if(path.indexOf("/onb/loc/")===0) return trn?viewOnbLoc(Number(path.slice(9))):go("#/home");
   if(path==="/mentor") return isMentor()?viewMentor():go("#/home");
+  if(path==="/plan") return trn?go("#/onb"):viewPlan();
   if(path==="/attendance") return viewAttendance();
   if(path==="/tx") return viewTx();
   if(path.indexOf("/tx/")===0){ viewTx().then(function(){openTxSheet(path.slice(4))}); return; }

@@ -6,6 +6,7 @@ const { chromium, results } = require("./harness");
   try {
     await require("./regression.test.js")(browser);
     await require("./onboarding.test.js")(browser);
+    await require("./plan.test.js")(browser);
   } finally {
     await browser.close();
   }
